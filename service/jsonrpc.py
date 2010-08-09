@@ -17,8 +17,8 @@ def main():
     for req in requests():
         body = json.loads(req['body'])
         method = body['method']
-        result = method_dict[method]('cell_a')
-        #respond(data={'result': str(body['params'])}, headers={'Content-Type': 'text/json'})
+        params = body['params']
+        result = method_dict[method](params)
         respond(data={'result': result}, headers={'Content-Type': 'text/json'})
 
 if __name__ == "__main__":
