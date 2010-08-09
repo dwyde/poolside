@@ -28,33 +28,39 @@ $(document).ready(function(){
     
     function append_cell() {
        var worksheet = $("div#worksheet");
-       var cell = '<div class="cell"> \
+       var cell = '<form class="cell" method="POST"> \
        <input type="textarea" /> \
-       <button>Submit</button> \
-       </div>';
+       <input type="submit" /> \
+       <p class="output"></p> \
+       </form>';
        //cell_count += 1;
        worksheet.append(cell);
     }
     
-    $("div.cell button").live('click', function(){
+    $("form.cell").live('submit', function(){
         var json_data = {
             'version': '1.1', 
             'method': 'save_cell', 
             'params': 'param string',
-        }
+        };
+        var form = $(this);
         
         $.ajax({
-          url: "/nb/_jsonrpc",
-          global: false,
-          contentType: 'application/json',
-          type: "POST",
-          processData: false,
-          data: JSON.stringify(json_data),
-          dataType: "json",
-          async:false,
-          success: function(msg){
-             alert(msg.result);
-          }
-       });
+            url: "/nb/_jsonrpc",
+            global: false,
+            contentType: 'application/json',
+            type: "POST",
+            processData: false,
+            data: JSON.stringify(json_data),
+            dataType: "json",
+            async:false,
+            success: function(msg){
+                form.children(".output").text(msg.result);
+                //alert(msg.result);
+            },
+        });
+        
+        return false;
     });
+    
 });
