@@ -21,7 +21,7 @@ body {
     width: 300px;
 }
 
-.cell_input {
+.cell .input {
     color: #000;
     padding: 3px;
     border: 1px solid gray;
@@ -48,4 +48,8 @@ body {
     font-size: 1.6em;
     font-weight: bold;
     margin-top: 10px;
+}
+
+button#new {
+    margin-bottom:10px;
 }

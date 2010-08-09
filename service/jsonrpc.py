@@ -18,7 +18,8 @@ def main():
         body = json.loads(req['body'])
         method = body['method']
         params = body['params']
-        result = method_dict[method](params)
+        #result = method_dict[method](params)
+        result = '%s %s' % (params, params)
         respond(data={'result': result}, headers={'Content-Type': 'text/json'})
 
 if __name__ == "__main__":

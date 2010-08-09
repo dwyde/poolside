@@ -29,7 +29,7 @@ $(document).ready(function(){
     function append_cell() {
        var worksheet = $("div#worksheet");
        var cell = '<form class="cell" method="POST"> \
-       <input type="textarea" /> \
+       <input type="textarea" class="input" rows="5" /> \
        <input type="submit" /> \
        <p class="output"></p> \
        </form>';
@@ -38,12 +38,14 @@ $(document).ready(function(){
     }
     
     $("form.cell").live('submit', function(){
+        var form = $(this);
+        var data = form.children(".input").val();
+        
         var json_data = {
             'version': '1.1', 
-            'method': 'save_cell', 
-            'params': 'param string',
+            'method': '', 
+            'params': data,
         };
-        var form = $(this);
         
         $.ajax({
             url: "/nb/_jsonrpc",
