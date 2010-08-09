@@ -34,7 +34,7 @@ body {
     margin-left: 40px;
 }
 
-.cell_buttons button {
+.cell button {
     color: green;
     background: none;
     border: none;

@@ -3,7 +3,7 @@ $(document).ready(function(){
        var worksheet = $("div#worksheet");
        var cell = '<form class="cell" method="POST"> \
        <input type="textarea" class="input" rows="5" /> \
-       <input type="submit" /> \
+       <button type="submit">Evaluate</button> \
        <p class="output"></p> \
        </form>';
        //cell_count += 1;
@@ -42,4 +42,7 @@ $(document).ready(function(){
         return false;
     });
     
+    
+    /** Start of code that is automatically executed */
+    append_cell();
 });
