@@ -117,8 +117,8 @@ class CellWidget(VerticalPanel):
         #params = [data]
         #service = JSONProxy(url='http://localhost:8686/')
         #service.callMethod('add', params, handler=handler)
-        service = JSONProxy(url='/everything/_test')
-        service.sendRequest('', data, handler=handler)
+        service = JSONProxy(url='/nb/_jsonrpc')
+        service.sendRequest('save_cell', data, handler=handler)
     
     def show_buttons(self):
         self.button_panel.setVisible(True)

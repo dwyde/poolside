@@ -16661,7 +16661,7 @@ $pyjs.loaded_modules['my_nb'] = function (__mod_name__) {
 		var $cls_instance = $pyjs__class_instance('CellWidget');
 		var $cls_definition = new Object();
 		var $method;
-		$cls_definition.__md5__ = 'a30251c9e84d0e120bdc30905453615a';
+		$cls_definition.__md5__ = 'da3da33701b05690b9364dec4dd7551c';
 		$method = $pyjs__bind_method($cls_instance, '__init__', function() {
 			if (this.__is_instance__ === true) {
 				var self = this;
@@ -16819,8 +16819,8 @@ $pyjs.loaded_modules['my_nb'] = function (__mod_name__) {
 			var handler,data,service;
 			data = self['get_text']();
 			handler = $module['EvalHandler'](self);
-			service = $pyjs_kwargs_call(null, $module['JSONProxy'], null, null, [{url:String('/everything/_test')}]);
-			$pyjs_kwargs_call(service, 'sendRequest', null, null, [{handler:handler}, String(''), data]);
+			service = $pyjs_kwargs_call(null, $module['JSONProxy'], null, null, [{url:String('/nb/_jsonrpc')}]);
+			$pyjs_kwargs_call(service, 'sendRequest', null, null, [{handler:handler}, String('save_cell'), data]);
 			return null;
 		}
 	, 1, [null,null,['self'],['sender', null]]);
