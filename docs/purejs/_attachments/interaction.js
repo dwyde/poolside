@@ -28,7 +28,7 @@ $(document).ready(function(){
         });
     }
     
-    function save_cell() {
+    function save_cell(id, input, output) {
         
     }
     
@@ -42,12 +42,12 @@ $(document).ready(function(){
     
     $("form.cell").live('submit', function(){
         var form = $(this);
-        var data = form.children(".input").val();
+        var input = form.children(".input").val();
         
         var json_data = {
             'version': '1.1', 
             'method': '', 
-            'params': data,
+            'params': input,
         };
         
         ajax_json({
@@ -55,7 +55,7 @@ $(document).ready(function(){
             data: JSON.stringify(json_data), 
             success: function(msg){
                 form.children(".output").html(msg.result);
-                save_cell();
+                save_cell(form.attr("id"), input, msg.result);
                 save_worksheet();
             },
         });
