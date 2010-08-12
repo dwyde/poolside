@@ -27,13 +27,9 @@ $(document).ready(function(){
         });
     }
     
-    /*function save_cell() {
-        ajax_json({
-            url: ,
-            data: ,
-            success: ,
-        });
-    }*/
+    function save_cell() {
+        
+    }
     
     function save_worksheet() {
         
