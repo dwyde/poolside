@@ -10,16 +10,16 @@ $(document).ready(function(){
        worksheet.append(cell);
     }
     
-    function ajax_request(url, data, success) {
+    function ajax_request(params) {
         $.ajax({
+            url: params['url'],
+            data: params['data'],
+            success: params['success'],
             global: false,
             contentType: 'application/json',
             type: "POST",
             processData: false,
             dataType: "json",
-            url: url,
-            data: data,
-            success: success,
         });
     }
     
@@ -37,8 +37,12 @@ $(document).ready(function(){
             'params': data,
         };
         
-        ajax_request("/nb/_jsonrpc", JSON.stringify(json_data), function(msg){
-            form.children(".output").html(msg.result);
+        ajax_request({
+            url: "/nb/_jsonrpc", 
+            data: JSON.stringify(json_data), 
+            success: function(msg){
+                form.children(".output").html(msg.result);
+            },
         });
         
         return false;
