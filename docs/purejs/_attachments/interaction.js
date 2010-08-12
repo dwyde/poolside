@@ -35,7 +35,13 @@ $(document).ready(function(){
     }
     
     function save_worksheet() {
+        cell_ids = $("div#worksheet")
+            .children(".cell")
+            .map(function() {
+                return this.id;
+            }).get();
         
+        //alert(cell_ids);
     }
     
     $("button#new").click(function(){
