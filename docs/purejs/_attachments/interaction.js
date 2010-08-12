@@ -1,7 +1,8 @@
 $(document).ready(function(){
-    var PATH_SEP = '/'
-    var DB_NAME = PATH_SEP + 'nb'
-    var EVAL_SERVER = [DB_NAME, '_jsonrpc'].join(PATH_SEP)
+    var PATH_SEP = '/';
+    var SERVER_ROOT = '';
+    var DB_NAME = [SERVER_ROOT, 'nb'].join(PATH_SEP);
+    var EVAL_SERVER = [DB_NAME, '_jsonrpc'].join(PATH_SEP);
     
     function append_cell() {
        var worksheet = $("div#worksheet");
