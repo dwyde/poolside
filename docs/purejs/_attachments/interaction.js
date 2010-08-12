@@ -10,6 +10,19 @@ $(document).ready(function(){
        worksheet.append(cell);
     }
     
+    function ajax_request(url, data, success) {
+        $.ajax({
+            global: false,
+            contentType: 'application/json',
+            type: "POST",
+            processData: false,
+            dataType: "json",
+            url: url,
+            data: data,
+            success: success,
+        });
+    }
+    
     $("button#new").click(function(){
         append_cell();
     });
@@ -24,19 +37,8 @@ $(document).ready(function(){
             'params': data,
         };
         
-        $.ajax({
-            url: "/nb/_jsonrpc",
-            global: false,
-            contentType: 'application/json',
-            type: "POST",
-            processData: false,
-            data: JSON.stringify(json_data),
-            dataType: "json",
-            async:false,
-            success: function(msg){
-                form.children(".output").html(msg.result);
-                //alert(msg.result);
-            },
+        ajax_request("/nb/_jsonrpc", JSON.stringify(json_data), function(msg){
+            form.children(".output").html(msg.result);
         });
         
         return false;
