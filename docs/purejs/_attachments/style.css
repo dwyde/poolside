@@ -28,6 +28,8 @@ body {
     /*white-space: pre-line;*/
     overflow: hidden;
     font: 1.2em monospace;
+    display: block;
+    width: 30em;
 }
 
 .cell_buttons {
@@ -39,8 +41,8 @@ body {
     background: none;
     border: none;
     padding: 0px;
-    margin-left: 6px;
-    text-decoration: underline;
+    margin-left: 0px;
+    /*text-decoration: underline;*/
     outline: none;
 }
 

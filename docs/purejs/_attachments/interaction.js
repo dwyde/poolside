@@ -2,7 +2,7 @@ $(document).ready(function(){
     function append_cell() {
        var worksheet = $("div#worksheet");
        var cell = '<form class="cell" method="POST"> \
-       <input type="textarea" class="input" rows="5" /> \
+       <input type="textarea" class="input" /> \
        <button type="submit">Evaluate</button> \
        <p class="output"></p> \
        </form>';
@@ -34,7 +34,7 @@ $(document).ready(function(){
             dataType: "json",
             async:false,
             success: function(msg){
-                form.children(".output").text(msg.result);
+                form.children(".output").html(msg.result);
                 //alert(msg.result);
             },
         });
