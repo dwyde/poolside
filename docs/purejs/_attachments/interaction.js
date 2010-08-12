@@ -4,14 +4,16 @@ $(document).ready(function(){
     var DB_NAME = [SERVER_ROOT, 'nb'].join(PATH_SEP);
     var EVAL_SERVER = [DB_NAME, '_jsonrpc'].join(PATH_SEP);
     
+    var cell_count = 0;
+    
     function append_cell() {
        var worksheet = $("div#worksheet");
-       var cell = '<form class="cell" method="POST"> \
+       var cell = '<form class="cell" id="' + cell_count + '" method="POST"> \
        <input type="textarea" class="input" /> \
        <button type="submit">Evaluate</button> \
        <p class="output"></p> \
        </form>';
-       //cell_count += 1;
+       cell_count += 1;
        worksheet.append(cell);
     }
     
