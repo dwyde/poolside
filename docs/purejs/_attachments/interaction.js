@@ -1,8 +1,8 @@
 $(document).ready(function(){
     var PATH_SEP = '/';
     var SERVER_ROOT = '';
-    var DB_NAME = [SERVER_ROOT, 'nb'].join(PATH_SEP);
-    var EVAL_SERVER = [DB_NAME, '_jsonrpc'].join(PATH_SEP);
+    var DB_NAME = [SERVER_ROOT, 'notebook'].join(PATH_SEP);
+    var EVAL_SERVER = [DB_NAME, '_service'].join(PATH_SEP);
     
     var cell_count = 0;
     
