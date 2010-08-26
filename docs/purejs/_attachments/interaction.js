@@ -59,8 +59,9 @@ $(document).ready(function(){
             url: EVAL_SERVER, 
             data: JSON.stringify(json_data), 
             success: function(msg){
-                form.children(".output").html(msg.result);
-                save_cell(form.attr("id"), input, msg.result);
+                var output = msg.result;
+                form.children(".output").html(output);
+                save_cell(form.attr("id"), input, output);
                 save_worksheet();
             },
         });
