@@ -51,7 +51,7 @@ $(document).ready(function(){
         
         var json_data = {
             'version': '1.1', 
-            'method': '', 
+            'method': 'eval_python', 
             'params': input,
         };
         
