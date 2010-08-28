@@ -16,14 +16,14 @@ $(document).ready(function(){
     
     function ajax_json(params) {
         $.ajax({
-            url: params['url'],
-            data: params['data'],
-            success: params['success'],
-            global: false,
-            contentType: 'application/json',
-            type: "POST",
-            processData: false,
-            dataType: "json",
+            'url': params['url'],
+            'data': params['data'],
+            'success': params['success'],
+            'global': false,
+            'contentType': 'application/json',
+            'type': 'POST',
+            'processData': false,
+            'dataType': 'json',
         });
     }
     
@@ -32,8 +32,8 @@ $(document).ready(function(){
     }
     
     function save_worksheet() {
-        cell_ids = $("div#worksheet")
-            .children(".cell")
+        cell_ids = $('div#worksheet')
+            .children('.cell')
             .map(function() {
                 return this.id;
             }).get();
@@ -41,13 +41,13 @@ $(document).ready(function(){
         //alert(cell_ids);
     }
     
-    $("button#new").click(function(){
+    $('button#new').click(function(){
         append_cell();
     });
     
-    $("form.cell").live('submit', function(){
+    $('form.cell').live('submit', function(){
         var form = $(this);
-        var input = form.children(".input").val();
+        var input = form.children('.input').val();
         
         var json_data = {
             'version': '1.1', 
@@ -60,8 +60,8 @@ $(document).ready(function(){
             data: JSON.stringify(json_data), 
             success: function(msg){
                 var output = msg.result;
-                form.children(".output").html(output);
-                save_cell(form.attr("id"), input, output);
+                form.children('.output').html(output);
+                save_cell(form.attr('id'), input, output);
                 save_worksheet();
             },
         });
