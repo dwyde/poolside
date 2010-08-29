@@ -6,7 +6,7 @@ $(document).ready(function(){
     
     function append_cell() {
        var worksheet = $("div#worksheet");
-       var cell = '<form class="cell" id="" method="POST"> \
+       var cell = '<form class="cell" method="POST"> \
        <input type="textarea" class="input" /> \
        <button type="submit">Evaluate</button> \
        <p class="output"></p> \
@@ -28,7 +28,21 @@ $(document).ready(function(){
     }
     
     function save_cell(id, input, output) {
-        
+        var json_data = {
+            'version': '1.1', 
+            'method': 'save_cell', 
+            'params': {'input': input, 'output': output},
+        };
+
+        ajax_json({
+            url: EVAL_SERVER, 
+            data: JSON.stringify(json_data), 
+            success: function(msg){
+                if ($('#' + id).length) {
+                    
+                }
+            },
+        });
     }
     
     function save_worksheet() {
@@ -52,16 +66,18 @@ $(document).ready(function(){
         var json_data = {
             'version': '1.1', 
             'method': 'eval_python', 
-            'params': input,
+            'params': {'cell_id': form.attr('id'), 'input': input},
         };
         
         ajax_json({
             url: EVAL_SERVER, 
             data: JSON.stringify(json_data), 
             success: function(msg){
-                var output = msg.result;
+                var cell_id = msg.result.cell_id;
+                form.attr('id', cell_id);
+                var output = msg.result.output;
                 form.children('.output').html(output);
-                save_cell(form.attr('id'), input, output);
+                save_cell(cell_id, input, output);
                 save_worksheet();
             },
         });

@@ -1,3 +1,4 @@
+from uuid import uuid4
 from logic import Eval
 
 class Methods:
@@ -5,8 +6,10 @@ class Methods:
         self.eval = Eval()
 
     def eval_python(self, params):
-        evaluated = self.eval.eval(params)
-        return evaluated.replace('\n', '<br />')
+        cell_id = (params['cell_id'] or uuid4().hex)
+        evaluated = self.eval.eval(params['input'])
+        result = evaluated.replace('\n', '<br />')
+        return {'output': result, 'cell_id': cell_id}
 
     def save_cell(self, cell_id):
         return 'cell saved'
