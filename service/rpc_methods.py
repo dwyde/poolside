@@ -18,7 +18,7 @@ class Methods:
     def save_cell(self, params):
         cell_id = params['cell_id']
         self.db[cell_id] = {'_id': cell_id, 'input': params['input'],
-                'output': params['output']}
+                'output': params['output'], 'type': 'cell'}
         return 'cell saved'
 
     def save_worksheet(self, worksheet_id):
