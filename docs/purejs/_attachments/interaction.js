@@ -55,7 +55,7 @@ $(document).ready(function(){
         var json_data = {
             'version': '1.1', 
             'method': 'save_worksheet',
-            'params': {'cell_list': cell_list, 'worksheet_id': 'hello'},
+            'params': {'cell_list': cell_list, 'worksheet_id': 'test1'},
         };
         
         ajax_json({

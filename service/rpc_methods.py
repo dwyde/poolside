@@ -16,21 +16,29 @@ class Methods:
         return {'output': result, 'cell_id': cell_id}
 
     def save_cell(self, params):
+        doc = {'input': params['input'], 'output': params['output'], 
+                'type': 'cell'}
         cell_id = params['cell_id']
-        doc = {'input': params['input'], 'output': params['output'], 'type': 'cell'}
-        try:
-            self.db[cell_id].update(doc)
-        except couchdb.client.ResourceNotFound:
-            self.db[cell_id] = doc
+        rev = self.rev_or_false(cell_id)
+        if rev:
+            doc['_rev'] = rev
+        self.db[cell_id] = doc
         
         return 'cell saved'
 
     def save_worksheet(self, params):
-        worksheet_id = params['worksheet_id']
         doc = {'cells': params['cell_list'], 'type': 'worksheet'}
-        try:
-            self.db[worksheet_id].update(doc)
-        except couchdb.client.ResourceNotFound:
-            self.db[worksheet_id] = doc
-
+        worksheet_id = params['worksheet_id']
+        rev = self.rev_or_false(worksheet_id)
+        if rev:
+            doc['_rev'] = rev
+        self.db[worksheet_id] = doc
+        
         return params['cell_list']
+    
+    def rev_or_false(self, _id):
+        try:
+            return self.db[_id].rev
+        except couchdb.client.ResourceNotFound:
+            return False
+            
