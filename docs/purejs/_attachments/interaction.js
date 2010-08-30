@@ -31,7 +31,7 @@ $(document).ready(function(){
         var json_data = {
             'version': '1.1', 
             'method': 'save_cell', 
-            'params': {'input': input, 'output': output},
+            'params': {'cell_id': id, 'input': input, 'output': output},
         };
 
         ajax_json({
@@ -40,6 +40,8 @@ $(document).ready(function(){
             success: function(msg){
                 if ($('#' + id).length) {
                     
+                } else {
+                    alert('No cell with id ' + id);
                 }
             },
         });
