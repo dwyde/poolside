@@ -17,12 +17,20 @@ class Methods:
 
     def save_cell(self, params):
         cell_id = params['cell_id']
-        doc = {'_id': cell_id, 'input': params['input'],
-                'output': params['output'], 'type': 'cell'}
-        return self.db.save(doc)
+        doc = {'input': params['input'], 'output': params['output'], 'type': 'cell'}
+        try:
+            self.db[cell_id].update(doc)
+        except couchdb.client.ResourceNotFound:
+            self.db[cell_id] = doc
+        
+        return 'cell saved'
 
     def save_worksheet(self, params):
         worksheet_id = params['worksheet_id']
-        doc = {'_id': worksheet_id, 'cells': params['cell_list'],
-                'type': 'worksheet'}
-        return self.db.save(doc)
+        doc = {'cells': params['cell_list'], 'type': 'worksheet'}
+        try:
+            self.db[worksheet_id].update(doc)
+        except couchdb.client.ResourceNotFound:
+            self.db[worksheet_id] = doc
+
+        return params['cell_list']

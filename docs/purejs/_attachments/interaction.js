@@ -62,7 +62,6 @@ $(document).ready(function(){
             url: EVAL_SERVER, 
             data: JSON.stringify(json_data), 
             success: function(msg){
-                alert(msg.result);
             },
         });
     }
