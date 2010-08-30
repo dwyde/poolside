@@ -38,9 +38,7 @@ $(document).ready(function(){
             url: EVAL_SERVER, 
             data: JSON.stringify(json_data), 
             success: function(msg){
-                if ($('#' + id).length) {
-                    
-                } else {
+                if ($('#' + id).length == 0) {
                     alert('No cell with id ' + id);
                 }
             },
