@@ -46,13 +46,25 @@ $(document).ready(function(){
     }
     
     function save_worksheet() {
-        cell_ids = $('div#worksheet')
+        cell_list = $('div#worksheet')
             .children('.cell')
             .map(function() {
                 return this.id;
             }).get();
         
-        //alert(cell_ids);
+        var json_data = {
+            'version': '1.1', 
+            'method': 'save_worksheet',
+            'params': {'cell_list': cell_list, 'worksheet_id': 'hello'},
+        };
+        
+        ajax_json({
+            url: EVAL_SERVER, 
+            data: JSON.stringify(json_data), 
+            success: function(msg){
+                alert(msg.result);
+            },
+        });
     }
     
     $('button#new').click(function(){
