@@ -1,6 +1,6 @@
 function(head, req) {
-    // !json templates.display.cell
-    // !json templates.display.worksheet
+    // !json templates.display.nb_start
+    // !json templates.display.nb_end
     // !code vendor/couchapp/lib/mustache.js
     // !code vendor/couchapp/mine/new_cell.js
     
@@ -10,16 +10,14 @@ function(head, req) {
         }
     });
     
-    send(
-        Mustache.to_html(templates.display.worksheet)
-    );
+    send(templates.display.nb_start);
     
     var row;
     while (row = getRow()) {
         send(
-            new_cell(row.doc['input'], row.doc['output'])
+            new_cell(row.value._id, row.doc['input'], row.doc['output'])
         );
     }
     
-    send('\n</body>\n</html>');
+    send(templates.display.nb_end);
 }
