@@ -3,6 +3,8 @@ $(document).ready(function(){
     var SERVER_ROOT = '';
     var DB_NAME = [SERVER_ROOT, 'notebook'].join(PATH_SEP);
     var EVAL_SERVER = [DB_NAME, '_service'].join(PATH_SEP);
+
+    var HARDCODED_NAME = 'example';
     
     function append_cell() {
        var worksheet = $("div#worksheet");
@@ -55,7 +57,7 @@ $(document).ready(function(){
         var json_data = {
             'version': '1.1', 
             'method': 'save_worksheet',
-            'params': {'cell_list': cell_list, 'worksheet_id': 'test1'},
+            'params': {'cell_list': cell_list, 'worksheet_id': HARDCODED_NAME},
         };
         
         ajax_json({
@@ -99,4 +101,5 @@ $(document).ready(function(){
     
     /** Start of code that is automatically executed */
     // if (<no cells>) {append_cell();}
+    append_cell();
 });
