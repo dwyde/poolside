@@ -2,6 +2,7 @@ function(head, req) {
     // !json templates.display.cell
     // !json templates.display.worksheet
     // !code vendor/couchapp/lib/mustache.js
+    // !code vendor/couchapp/mine/new_cell.js
     
     start({
         'headers': {
@@ -16,10 +17,7 @@ function(head, req) {
     var row;
     while (row = getRow()) {
         send(
-            Mustache.to_html(templates.display.cell, {
-                'input': row.doc['input'],
-                'output': row.doc['output'],
-            })
+            new_cell(row.doc['input'], row.doc['output'])
         );
     }
     
