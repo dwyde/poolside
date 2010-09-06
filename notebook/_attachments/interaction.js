@@ -59,6 +59,7 @@ $(document).ready(function(){
     }
     
     $('button#add_cell').click(function(){
+	// In an external file, to be shared with a list function.
         var cell = new_cell('', '', '');
         $('#worksheet').append(cell);
     });
