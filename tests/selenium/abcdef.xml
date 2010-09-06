@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head profile="http://selenium-ide.openqa.org/profiles/test-case">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<link rel="selenium.base" href="http://localhost:5984/notebook/_design/notebook/_list/cell/get_cells?include_docs=true&startkey=%5B%2522example%2522,%2520%25220%2522%5D&endkey=%5B%2522example%2522,%2520%2522%5Cufff0%2522%5D" />
+<title>abcdef</title>
+</head>
+<body>
+<table cellpadding="1" cellspacing="1" border="1">
+<thead>
+<tr><td rowspan="1" colspan="3">abcdef</td></tr>
+</thead><tbody>
+<tr>
+	<td>open</td>
+	<td>/notebook/_design/notebook/_list/cell/get_cells?include_docs=true&amp;startkey=[%22example%22,%20%220%22]&amp;endkey=[%22example%22,%20%22\ufff0%22]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>verifyValue</td>
+	<td>//input[@value=&quot;'abc' + 'def' * 3&quot;]</td>
+	<td>exact:'abc' + 'def' * 3</td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>//button[@type='submit']</td>
+	<td></td>
+</tr>
+<tr>
+	<td>verifyTextPresent</td>
+	<td>'abcdefdefdef'</td>
+	<td></td>
+</tr>
+
+</tbody></table>
+</body>
+</html>

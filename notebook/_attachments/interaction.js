@@ -6,16 +6,6 @@ $(document).ready(function(){
 
     var HARDCODED_NAME = 'example';
     
-    function append_cell() {
-       var worksheet = $("div#worksheet");
-       var cell = '<form class="cell" method="POST"> \
-       <input type="textarea" class="input" /> \
-       <button type="submit">Evaluate</button> \
-       <p class="output"></p> \
-       </form>';
-       worksheet.append(cell);
-    }
-    
     function ajax_json(params) {
         $.ajax({
             'url': params['url'],
@@ -68,8 +58,9 @@ $(document).ready(function(){
         });
     }
     
-    $('button#new').click(function(){
-        append_cell();
+    $('button#add_cell').click(function(){
+        var cell = new_cell('', '', '');
+        $('#worksheet').append(cell);
     });
     
     $('form.cell').live('submit', function(){
@@ -100,6 +91,5 @@ $(document).ready(function(){
     
     
     /** Start of code that is automatically executed */
-    // if (<no cells>) {append_cell();}
-    append_cell();
+//    new_cell(id, input, output);
 });
