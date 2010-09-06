@@ -65,7 +65,21 @@ $(document).ready(function(){
     });
 
     $('.cell .delete').live('click', function(){
-        $(this).parent().remove();
+        var cell = $(this).parent();
+        var json_data = {
+            'version': '1.1',
+            'method': 'delete_cell',
+            'params': {'cell_id': cell.attr('id')},
+        }
+        
+        ajax_json({
+            'url': EVAL_SERVER,
+            'data': JSON.stringify(json_data),
+            'success': function(msg){
+                cell.remove();
+                save_worksheet();
+            },
+        });
         return false;
     });
  
@@ -80,9 +94,9 @@ $(document).ready(function(){
         };
         
         ajax_json({
-            url: EVAL_SERVER, 
-            data: JSON.stringify(json_data), 
-            success: function(msg){
+            'url': EVAL_SERVER, 
+            'data': JSON.stringify(json_data), 
+            'success': function(msg){
                 var cell_id = msg.result.cell_id;
                 form.attr('id', cell_id);
                 var output = msg.result.output;

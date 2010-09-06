@@ -35,7 +35,13 @@ class Methods:
         self.db[worksheet_id] = doc
         
         return params['cell_list']
-    
+   
+    def delete_cell(self, params):
+        cell_id = params['cell_id']
+        cell = self.db[cell_id]
+        deleted = self.db.delete(cell)
+        return deleted
+ 
     def rev_or_false(self, _id):
         try:
             return self.db[_id].rev
