@@ -63,7 +63,12 @@ $(document).ready(function(){
         var cell = new_cell('', '', '');
         $('#worksheet').append(cell);
     });
-    
+
+    $('.cell .delete').live('click', function(){
+        $(this).parent().remove();
+        return false;
+    });
+ 
     $('form.cell').live('submit', function(){
         var form = $(this);
         var input = form.children('.input').val();

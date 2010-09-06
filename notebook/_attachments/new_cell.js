@@ -2,6 +2,7 @@
          var cell = '<form class="cell" id="' + id + '" method="POST"> \
          <input type="textarea" class="input" value="' + input + '" /> \
          <button type="submit">Evaluate</button> \
+         <button class="delete">Delete</button> \
          <p class="output">' + output + '</p> \
          </form>';
        
