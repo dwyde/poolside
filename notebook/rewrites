@@ -1,16 +1,16 @@
 [
-   {
-       "from": ":name",
-       "to": "_list/cell/get_cells",
-       "query": {
-           "include_docs": true,
-           "startkey": [
-               ":name"
-           ],
-           "endkey": [
-               ":name",
-               "￰"
-           ]
-       }
-   }
+    {
+        "from": ":name",
+        "to": "_list/cell/get_cells",
+        "query": {
+            "include_docs": true,
+            "startkey": [
+                ":name"
+            ],
+            "endkey": [
+                ":name",
+                "￰"
+            ]
+        }
+    }
 ]

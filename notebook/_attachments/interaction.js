@@ -4,7 +4,7 @@ $(document).ready(function(){
     var DB_NAME = [SERVER_ROOT, 'notebook'].join(PATH_SEP);
     var EVAL_SERVER = [DB_NAME, '_service'].join(PATH_SEP);
 
-    var HARDCODED_NAME = 'example';
+    var WORKSHEET_NAME = window.location.pathname.split('/').pop();
     
     function ajax_json(params) {
         $.ajax({
@@ -47,7 +47,7 @@ $(document).ready(function(){
         var json_data = {
             'version': '1.1', 
             'method': 'save_worksheet',
-            'params': {'cell_list': cell_list, 'worksheet_id': HARDCODED_NAME},
+            'params': {'cell_list': cell_list, 'worksheet_id': WORKSHEET_NAME},
         };
         
         ajax_json({
