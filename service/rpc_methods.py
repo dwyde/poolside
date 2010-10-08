@@ -9,11 +9,43 @@ class Methods:
         couch = couchdb.Server(COUCH_SERVER)
         self.db = couch[DATABASE]
 
+#    def eval_python(self, params):
+#        cell_id = (params['cell_id'] or uuid4().hex)
+#        evaluated = self.eval.eval(params['input'])
+#        result = evaluated.replace('\n', '<br />')
+#        return {'output': result, 'cell_id': cell_id}
+
     def eval_python(self, params):
-        cell_id = (params['cell_id'] or uuid4().hex)
-        evaluated = self.eval.eval(params['input'])
-        result = evaluated.replace('\n', '<br />')
-        return {'output': result, 'cell_id': cell_id}
+        import zmq
+
+        MESSAGE = {
+#        'content': {'code': "print 'hello'"},
+        'content': {'code': params['input']},
+        'header': {'msg_id': 123},
+        'msg_type': 'execute_request',
+        }
+
+        # Defaults
+        ip = '127.0.0.1'
+        port_base = 5575
+        connection = ('tcp://%s' % ip) + ':%i'
+        req_conn = connection % port_base
+        sub_conn = connection % (port_base+1)
+
+        # Create initial sockets
+        c = zmq.Context()
+        request_socket = c.socket(zmq.XREQ)
+        request_socket.connect(req_conn)
+
+        sub_socket = c.socket(zmq.SUB)
+        sub_socket.connect(sub_conn)
+        sub_socket.setsockopt(zmq.SUBSCRIBE, '')
+
+        request_socket.send_json(MESSAGE)
+        sub_socket.recv_json() # ignore the printing of our input message
+        output = sub_socket.recv_json()
+
+        return {'output': output['content']['data'], 'cell_id': params['cell_id']}
 
     def save_cell(self, params):
         doc = {'input': params['input'], 'output': params['output'], 
