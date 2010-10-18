@@ -57,7 +57,8 @@ class Methods:
                 break
             data = content.get('data')
             if data != None:
-                return {'output': data, 'cell_id': params['cell_id']}
+                break
+        return {'output': data, 'cell_id': params['cell_id']}
 
     def save_cell(self, params):
         doc = {'input': params['input'], 'output': params['output'], 
