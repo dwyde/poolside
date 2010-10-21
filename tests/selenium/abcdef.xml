@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head profile="http://selenium-ide.openqa.org/profiles/test-case">
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<link rel="selenium.base" href="http://localhost:5984/notebook/_design/notebook/_list/cell/get_cells?include_docs=true&startkey=%5B%2522example%2522,%2520%25220%2522%5D&endkey=%5B%2522example%2522,%2520%2522%5Cufff0%2522%5D" />
+<link rel="selenium.base" href="http://localhost:5984/notebook/_design/notebook/_rewrite/abcdef" />
 <title>abcdef</title>
 </head>
 <body>
@@ -13,7 +13,7 @@
 </thead><tbody>
 <tr>
 	<td>open</td>
-	<td>/notebook/_design/notebook/_list/cell/get_cells?include_docs=true&amp;startkey=[%22example%22,%20%220%22]&amp;endkey=[%22example%22,%20%22\ufff0%22]</td>
+	<td>/notebook/_design/notebook/_rewrite/abcdef</td>
 	<td></td>
 </tr>
 <tr>

@@ -99,7 +99,7 @@ $(document).ready(function(){
             'success': function(msg){
                 var cell_id = msg.result.cell_id;
                 form.attr('id', cell_id);
-                var output = msg.result.output;
+                var output = (msg.result.output || '');
                 form.children('.output').html(output);
                 save_cell(cell_id, input, output);
                 save_worksheet();

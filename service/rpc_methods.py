@@ -16,6 +16,10 @@ class Methods:
 #        return {'output': result, 'cell_id': cell_id}
 
     def eval_python(self, params):
+        # Generate a cell_id if one doesn't exist.
+        cell_id = (params['cell_id'] or uuid4().hex)
+
+        # IPython zmq kernel
         import zmq
 
         MESSAGE = {
@@ -58,7 +62,7 @@ class Methods:
             data = content.get('data')
             if data != None:
                 break
-        return {'output': data, 'cell_id': params['cell_id']}
+        return {'output': data, 'cell_id': cell_id}
 
     def save_cell(self, params):
         doc = {'input': params['input'], 'output': params['output'], 
