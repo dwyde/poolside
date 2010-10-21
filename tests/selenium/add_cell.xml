@@ -3,13 +3,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head profile="http://selenium-ide.openqa.org/profiles/test-case">
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<link rel="selenium.base" href="" />
-<title>var_a</title>
+<link rel="selenium.base" href="http://localhost:5984/notebook/_design/notebook/_rewrite/selenium" />
+<title>add_cell</title>
 </head>
 <body>
 <table cellpadding="1" cellspacing="1" border="1">
 <thead>
-<tr><td rowspan="1" colspan="3">var_a</td></tr>
+<tr><td rowspan="1" colspan="3">add_cell</td></tr>
 </thead><tbody>
 <tr>
 	<td>open</td>
@@ -22,48 +22,18 @@
 	<td></td>
 </tr>
 <tr>
-	<td>type</td>
-	<td>//div[@id='worksheet']/form[1]/input</td>
-	<td>a = 26</td>
-</tr>
-<tr>
-	<td>click</td>
-	<td>//button[@type='submit']</td>
-	<td></td>
-</tr>
-<tr>
-	<td>click</td>
-	<td>add_cell</td>
-	<td></td>
-</tr>
-<tr>
-	<td>type</td>
-	<td>//div[@id='worksheet']/form[2]/input</td>
-	<td>a + 3</td>
-</tr>
-<tr>
-	<td>click</td>
-	<td>//div[@id='worksheet']/form[2]/button[1]</td>
-	<td></td>
-</tr>
-<tr>
 	<td>pause</td>
-	<td>1250</td>
 	<td></td>
+	<td>500</td>
 </tr>
 <tr>
-	<td>verifyTextPresent</td>
-	<td>29</td>
-	<td></td>
-</tr>
-<tr>
-	<td>click</td>
-	<td>//div[@id='worksheet']/form[1]/button[2]</td>
+	<td>verifyElementPresent</td>
+	<td>//div[@id='worksheet']/form[1]/input</td>
 	<td></td>
 </tr>
 <tr>
 	<td>click</td>
-	<td>//div[@id='worksheet']/form[1]/button[2]</td>
+	<td>//div/form[1]/button[2]</td>
 	<td></td>
 </tr>
 

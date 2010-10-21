@@ -64,6 +64,9 @@ class Methods:
                 break
         return {'output': data, 'cell_id': cell_id}
 
+    def new_id(self, params):
+        return uuid4().hex
+
     def save_cell(self, params):
         doc = {'input': params['input'], 'output': params['output'], 
                 'type': 'cell'}
@@ -96,4 +99,3 @@ class Methods:
             return self.db[_id].rev
         except couchdb.client.ResourceNotFound:
             return False
-            

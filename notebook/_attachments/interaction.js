@@ -60,8 +60,23 @@ $(document).ready(function(){
     
     $('button#add_cell').click(function(){
 	// In an external file, to be shared with a list function.
-        var cell = new_cell('', '', '');
-        $('#worksheet').append(cell);
+        var json_data = {
+            'version': '1.1',
+            'method': 'new_id',
+            'params': {},
+        };
+
+        ajax_json({
+            url: EVAL_SERVER,
+            data: JSON.stringify(json_data),
+            success: function(msg){
+                var id = msg.result;
+                var cell = new_cell(id, '', '');
+                $('#worksheet').append(cell);
+                save_cell(id, '', '');
+                save_worksheet();
+            },
+        });
     });
 
     $('.cell .delete').live('click', function(){
