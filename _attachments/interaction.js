@@ -15,53 +15,66 @@ $(document).ready(function(){
         'dataType': 'json',
     });
     
-    function Cell() {
-        this.cell_id = null;
-        this.input = '';
-        this.output = '';
+    /*
+     * Worksheet
+     */
+    function Worksheet() {
+        this.cells = new Array();
     }
     
-    Cell.prototype.save = function() {
-        $.ajax({
-            'url': EVAL_SERVER,
-            'data': JSON.stringify({
-                'method': 'save_cell', 
-                'params': {
-                    'cell_id': this.cell_id,
-                    'input': this.input,
-                    'output': this.output
-                },
-                'version': JSON_VERSION, 
-            }),
-            success: function(msg){ // UNNEEDED?
-                if ($('#' + id).length == 0) {
-                    alert('No cell with id ' + id);
-                }
-            },
-        });
-    }
+    Worksheet.prototype.append = function() {
+        var cell = new Cell();
+        cell.save();
+        this.cells.push(cell);
+        this.save();
+    };
     
-
-    
-    function save_worksheet() {
-        cell_list = $('#worksheet')
-            .children('.cell')
-            .map(function() {
-                return this.id;
-            }).get();
-        
+    Worksheet.prototype.save = function() {
+        worksheet = this;
         $.ajax({
             url: EVAL_SERVER, 
             data: JSON.stringify({
                 'method': 'save_worksheet',
                 'params': {
-                    'cell_list': cell_list,
+                    'cell_list': $.map(worksheet.cells, function() {
+                        return this.id;
+                    }),
                     'worksheet_id': WORKSHEET_NAME,
                 },
                 'version': JSON_VERSION, 
             }), 
-            ///////success: function(msg){
-            ///////},
+            //success: function(msg){
+            //},
+        });
+    };
+    
+    /*
+     * Cell
+     */
+    function Cell(id, input, output) {
+        this.id = id || '';
+        this.input = input || '';
+        this.output = output || '';
+    }
+    
+    Cell.prototype.save = function() {
+        cell = this;
+        $.ajax({
+            'url': EVAL_SERVER,
+            'data': JSON.stringify({
+                'method': 'save_cell', 
+                'params': {
+                    'cell_id': cell.id,
+                    'input': cell.input,
+                    'output': cell.output
+                },
+                'version': JSON_VERSION, 
+            }),
+            success: function(msg){ // UNNEEDED
+                if ($('#' + id).length == 0) {
+                    alert('No cell with id ' + id);
+                }
+            },
         });
     }
     
