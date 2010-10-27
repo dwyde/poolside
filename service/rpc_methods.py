@@ -7,12 +7,6 @@ class Methods:
         couch = couchdb.Server(COUCH_SERVER)
         self.db = couch[DATABASE]
 
-#    def eval_python(self, params):
-#        cell_id = (params['cell_id'] or uuid4().hex)
-#        evaluated = self.eval.eval(params['input'])
-#        result = evaluated.replace('\n', '<br />')
-#        return {'output': result, 'cell_id': cell_id}
-
     def eval_python(self, params):
         # Generate a cell_id if one doesn't exist.
         cell_id = (params['cell_id'] or uuid4().hex)
