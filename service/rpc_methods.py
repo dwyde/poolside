@@ -84,7 +84,7 @@ class Methods:
             doc['_rev'] = rev
         self.db[worksheet_id] = doc
         
-        return params['cell_list']
+        
    
     def delete_cell(self, params):
         cell_id = params['cell_id']
