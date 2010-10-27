@@ -60,14 +60,16 @@ class Methods:
         return uuid4().hex
 
     def save_cell(self, params):
-        doc = {'input': params['input'], 'output': params['output'], 
-                'type': 'cell'}
         cell_id = params['cell_id']
-        rev = self.rev_or_false(cell_id)
-        if rev:
-            doc['_rev'] = rev
-        self.db[cell_id] = doc
+        doc = self.doc_or_none(cell_id)
+        if doc:
+            doc['input'] = params['input']
+            doc['output'] = params['output']
+        else:
+            doc = {'input': params['input'], 'output': params['output'], 
+                'type': 'cell'}
         
+        self.db[cell_id] = doc
         return 'cell saved'
 
     def save_worksheet(self, params):
@@ -77,8 +79,6 @@ class Methods:
         if rev:
             doc['_rev'] = rev
         self.db[worksheet_id] = doc
-        
-        
    
     def delete_cell(self, params):
         cell_id = params['cell_id']
@@ -91,3 +91,9 @@ class Methods:
             return self.db[_id].rev
         except couchdb.client.ResourceNotFound:
             return False
+ 
+    def doc_or_none(self, _id):
+        try:
+            return self.db[_id]
+        except couchdb.client.ResourceNotFound:
+            return None
