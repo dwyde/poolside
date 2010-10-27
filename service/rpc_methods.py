@@ -1,11 +1,9 @@
 import couchdb
 from uuid import uuid4
-from logic import Eval
 from config import COUCH_SERVER, DATABASE
 
 class Methods:
     def __init__(self):
-        self.eval = Eval()
         couch = couchdb.Server(COUCH_SERVER)
         self.db = couch[DATABASE]
 
