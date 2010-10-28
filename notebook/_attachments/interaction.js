@@ -83,23 +83,48 @@ $(document).ready(function(){
         return false;
     });
  
+ 
+    function Macros() {
+    }
+    
+    Macros.prototype.IMG = function(cell_id, params) {
+        var path = ['http:/', window.location.host, DB_NAME, cell_id, params].join(PATH_SEP);
+        return '<img src="' + path + '" />';
+    }
+ 
+    var macro_obj = new Macros();
+ 
     $('form.cell').live('submit', function(){
         var form = $(this);
+        var cell_id = form.attr('id');
         var input = form.children('.input').val();
-        $.ajax({
-            'url': EVAL_SERVER, 
-            'data': JSON.stringify({
-                'method': 'eval_python', 
-                'params': {'input': input},
-                'version': JSON_VERSION, 
-            }),
-            'success': function(msg){
-                var output = (msg.result.output || '');
-                form.children('.output').html(output);
-                save_cell(form.attr('id'), input, output);
-                save_worksheet();
-            },
-        });
+        
+        var macro_match = input.match(/^(IMG)\((.+)\)/);
+        if (macro_match) {
+            var method = macro_match[1];
+            var params = macro_match[2];
+            var output = macro_obj[method](cell_id, params);
+            form.children('.output').html(output);
+            save_cell(cell_id, input, output);
+        }
+        
+        else {
+            $.ajax({
+                'url': EVAL_SERVER, 
+                'data': JSON.stringify({
+                    'method': 'eval_python', 
+                    'params': {'input': input},
+                    'version': JSON_VERSION, 
+                }),
+                'success': function(msg){
+                    var output = (msg.result.output || '');
+                    form.children('.output').html(output);
+                    save_cell(cell_id, input, output);
+                    //save_worksheet();
+                },
+            });
+        }
+        
         return false;
     });
 });
