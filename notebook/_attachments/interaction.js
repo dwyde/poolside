@@ -90,15 +90,13 @@ $(document).ready(function(){
             'url': EVAL_SERVER, 
             'data': JSON.stringify({
                 'method': 'eval_python', 
-                'params': {'cell_id': form.attr('id'), 'input': input},
+                'params': {'input': input},
                 'version': JSON_VERSION, 
             }),
             'success': function(msg){
-                var cell_id = msg.result.cell_id;
-                form.attr('id', cell_id);
                 var output = (msg.result.output || '');
                 form.children('.output').html(output);
-                save_cell(cell_id, input, output);
+                save_cell(form.attr('id'), input, output);
                 save_worksheet();
             },
         });

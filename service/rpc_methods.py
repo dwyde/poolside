@@ -47,7 +47,7 @@ class Methods:
             data = content.get('data')
             if data != None:
                 break
-        return {'output': data, 'cell_id': params['cell_id']}
+        return {'output': data}
 
     def new_id(self, params):
         return uuid4().hex
