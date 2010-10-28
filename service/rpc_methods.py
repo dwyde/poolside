@@ -1,6 +1,7 @@
 import couchdb
 from uuid import uuid4
-from config import COUCH_SERVER, DATABASE
+from config import COUCH_SERVER, DATABASE, KERNEL_IP, KERNEL_PORT
+import zmq
 
 class Methods:
     def __init__(self):
@@ -8,12 +9,6 @@ class Methods:
         self.db = couch[DATABASE]
 
     def eval_python(self, params):
-        # Generate a cell_id if one doesn't exist.
-        cell_id = (params['cell_id'] or uuid4().hex)
-
-        # IPython zmq kernel
-        import zmq
-
         MESSAGE = {
             'content': {
                 'code': params['input'],
@@ -27,11 +22,9 @@ class Methods:
 
         ## Code from "IPython/zmq/frontend.py"
         # Hard-code ports and IP address
-        ip = '127.0.0.1'
-        port_base = 5575
-        connection = ('tcp://%s' % ip) + ':%i'
-        req_conn = connection % port_base
-        sub_conn = connection % (port_base+1)
+        connection = ('tcp://%s' % KERNEL_IP) + ':%i'
+        req_conn = connection % KERNEL_PORT
+        sub_conn = connection % (KERNEL_PORT + 1)
 
         # Create sockets
         c = zmq.Context()
@@ -54,7 +47,7 @@ class Methods:
             data = content.get('data')
             if data != None:
                 break
-        return {'output': data, 'cell_id': cell_id}
+        return {'output': data, 'cell_id': params['cell_id']}
 
     def new_id(self, params):
         return uuid4().hex
