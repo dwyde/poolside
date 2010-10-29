@@ -9,6 +9,9 @@ class Methods:
         self.db = couch[DATABASE]
 
     def eval_python(self, params):
+        return self._ipython_mess(params)
+
+    def _ipython_mess(self, params):
         MESSAGE = {
             'content': {
                 'code': params['input'],
