@@ -1,5 +1,7 @@
 ALL = '*'
 
+registry = {}
+
 class allows:
     def __init__(self, *args):
         self.permitted = args
@@ -25,9 +27,28 @@ def print2(word):
 def print_all(word):
     print word
 
+class register:
+    def __init__(self, *args):
+        self.permitted = args
+    
+    def __call__(self, func):
+        def modified(obj):
+            cls = obj.__class__
+            if registry.get(cls) is not None:
+                print "Overriding "
+            registry[cls] = func
+            
+            print registry
+        return modified
+
+@register(list)
+def reg1(word):
+    print word
+        
 if __name__ == '__main__':
-    print2('hello')
-    print2(['hello'])
-    print '*' * 5
-    print_all('hello')
-    print_all(['hello'])
+    #print2('hello')
+    #print2(['hello'])
+    #print '*' * 5
+    #print_all('hello')
+    #print_all(['hello'])
+    reg1('hello')
