@@ -27,32 +27,35 @@ def print_all(word):
 
 # # # # # # # #
 
-registry = {}
+class Viz:
+    defaults = {}
+        
+    @classmethod
+    def add_method(cls, obj_type, method):
+        cls.defaults.setdefault(obj_type, method)
 
 class viz_default:
     def __init__(self, *args):
         self.types = args
     
     def __call__(self, func):
-        def modified(viz_obj, data):
+        def modified(obj):
             for t in self.types:
-                registry.setdefault(t, func)
-            print registry
-            func(viz_obj, data)
+                Viz.add_method(t, func)
+            func(obj)
         return modified
     
-class Test:
-    @viz_default(list, tuple)
-    def reg_test(self, obj):
-        print 'yes!'
-        
-    @viz_default(int, basestring)
-    def reg2(self, obj):
-        print obj
+@viz_default(list, tuple)
+def reg_test(obj):
+    print 'yes!'
+    
+@viz_default(int, basestring)
+def reg2(obj):
+    print obj
 
-    @viz_default(list, basestring)
-    def reg1(self, obj):
-        print obj
+@viz_default(list, basestring)
+def reg1(obj):
+    print obj
         
 if __name__ == '__main__':
     #print2('hello')
@@ -62,10 +65,9 @@ if __name__ == '__main__':
     #print_all(['hello'])
     ##reg1('hello')
     ##reg2('okay')
-    t = Test()
-    t.reg_test('yikes')
-    t.reg2('hello there !!!')
+    reg_test('yikes')
+    reg2('hello there !!!')
     
-    data = [5, 4, 3, 'a']
-    registry[data.__class__](t, data)
+    #data = [5, 4, 3, 'a']
+    #registry[data.__class__](t, data)
     
