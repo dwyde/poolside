@@ -1,39 +1,13 @@
-ALL = '*'
-
-class allows:
-    def __init__(self, *args):
-        self.permitted = args
-    
-    def __call__(self, func):
-        def modified(obj):
-            if self.permitted == (ALL,):
-                func(obj)
-            else:
-                maybe = map(lambda x: isinstance(obj, x), self.permitted)
-                if any(maybe): # If the above list has any "True" elements
-                    func(obj)
-                else:
-                    print "%s not allowed for this function.  You must use one of %s." % \
-                            (type(obj), self.permitted)
-        return modified
-
-@allows(int, basestring)
-def print2(word):
-    print word
-    
-@allows(ALL)
-def print_all(word):
-    print word
-
-# # # # # # # #
-
 class Viz:
     defaults = {}
+    
+    def __call__(self, obj):
+        return self.defaults[obj.__class__](obj)
         
     @classmethod
     def add_method(cls, obj_type, method):
         cls.defaults.setdefault(obj_type, method)
-
+    
 class viz_default:
     def __init__(self, *args):
         self.types = args
@@ -48,6 +22,7 @@ class viz_default:
 @viz_default(list, tuple)
 def reg_test(obj):
     print 'yes!'
+    return obj
     
 @viz_default(int, basestring)
 def reg2(obj):
@@ -55,18 +30,16 @@ def reg2(obj):
 
 @viz_default(list, basestring)
 def reg1(obj):
-    print obj
+    print 1
+    return obj
         
 if __name__ == '__main__':
-    #print2('hello')
-    #print2(['hello'])
-    #print '*' * 5
-    #print_all('hello')
-    #print_all(['hello'])
-    ##reg1('hello')
-    ##reg2('okay')
+    v = Viz()
+    
     reg_test('yikes')
-    reg2('hello there !!!')
+    #reg2('hello there !!!')
+    
+    print v( (5, 4, 3) )
     
     #data = [5, 4, 3, 'a']
     #registry[data.__class__](t, data)
