@@ -34,16 +34,25 @@ class viz_default:
         self.types = args
     
     def __call__(self, func):
-        def modified(obj):
+        def modified(viz_obj, data):
             for t in self.types:
                 registry.setdefault(t, func)
             print registry
-            func(obj)
+            func(viz_obj, data)
         return modified
+    
+class Test:
+    @viz_default(list, tuple)
+    def reg_test(self, obj):
+        print 'yes!'
+        
+    @viz_default(int, basestring)
+    def reg2(self, obj):
+        print obj
 
-@viz_default(list, basestring)
-def reg1(word):
-    print word
+    @viz_default(list, basestring)
+    def reg1(self, obj):
+        print obj
         
 if __name__ == '__main__':
     #print2('hello')
@@ -51,6 +60,12 @@ if __name__ == '__main__':
     #print '*' * 5
     #print_all('hello')
     #print_all(['hello'])
-    reg1('hello')
+    ##reg1('hello')
+    ##reg2('okay')
+    t = Test()
+    t.reg_test('yikes')
+    t.reg2('hello there !!!')
+    
     data = [5, 4, 3, 'a']
-    registry[data.__class__](data)
+    registry[data.__class__](t, data)
+    
