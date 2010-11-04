@@ -26,14 +26,14 @@ class Visualize:
             func = repr
         return func(obj)
     
-    def image_data(self, image):
+    def image_data(self, obj):
         imgdata = StringIO.StringIO()
-        image.savefig(imgdata, format='png')
+        obj.savefig(imgdata, format='png')
         data = imgdata.getvalue()
         imgdata.close()
         return data
     
-    def html_table(self, lst):
+    def html_table(self, obj):
         html = ['<td>%s</td>' % (item,) for item in lst]
         return '<table>\n%s\n</table>' % ('\n'.join(html))
 

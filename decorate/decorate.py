@@ -1,13 +1,5 @@
-class Viz:
-    defaults = {}
-    
-    def __call__(self, obj):
-        return self.defaults[obj.__class__](obj)
-        
-    @classmethod
-    def add_method(cls, obj_type, method):
-        cls.defaults.setdefault(obj_type, method)
-    
+defaults = {}
+
 class viz_default:
     def __init__(self, *args):
         self.types = args
@@ -15,7 +7,7 @@ class viz_default:
     def __call__(self, func):
         def modified(obj):
             for t in self.types:
-                Viz.add_method(t, func)
+                defaults.setdefault(t, func)
             func(obj)
         return modified
     
@@ -34,13 +26,10 @@ def reg1(obj):
     return obj
         
 if __name__ == '__main__':
-    v = Viz()
     
-    reg_test('yikes')
+    #reg_test('yikes')
     #reg2('hello there !!!')
     
-    print v( (5, 4, 3) )
-    
-    #data = [5, 4, 3, 'a']
-    #registry[data.__class__](t, data)
+    data = [5, 4, 3, 'a']
+    defaults[data.__class__](data)
     
