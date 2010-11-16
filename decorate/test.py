@@ -2,20 +2,7 @@ import matplotlib
 matplotlib.use('Agg')
 import pylab
 import StringIO
-
-lookup = {}
-
-class default:
-    def __init__(self, *args):
-        self.types = args
-    
-    def __call__(self, func):
-        def modified(obj):
-            for obj_type in self.types:
-                lookup[obj_type] = func
-            print lookup
-            func(obj)
-        return modified
+import couchdb
 
 class Visualize:
     def __call__(self, obj, **kwargs):
@@ -27,11 +14,19 @@ class Visualize:
         return func(obj)
     
     def image_data(self, obj):
+        format = 'png'
         imgdata = StringIO.StringIO()
-        obj.savefig(imgdata, format='png')
+        obj.savefig(imgdata, format=format)
         data = imgdata.getvalue()
         imgdata.close()
-        return data
+        self._db_save(data, format)
+        
+    def _db_save(self, data, mimetype):
+        #ouch = couchdb.Server('http://localhost:8080')
+        #db = couch.create('vizualize')
+        pass
+        
+        put_attachment(data, name, info['content_type'])
     
     def html_table(self, obj):
         html = ['<td>%s</td>' % (item,) for item in lst]
