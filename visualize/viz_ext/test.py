@@ -1,9 +1,7 @@
+import os
 import sys
-sys.path.append('..')
-from dec import VizDecor
 
-def __protected(obj):
-    return '***'
+from dec import VizDecor
 
 @VizDecor({list: lambda x:True})
 def table(obj):

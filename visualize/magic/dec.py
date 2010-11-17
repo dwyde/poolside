@@ -10,12 +10,12 @@ class Viz:
         self.typemap = collections.defaultdict(list)
         extFiles = []
         globalsDict = {}
-        localsDict ={}
+        localsDict = {}
         for d in extdirs:
           extFiles.extend(glob.glob(os.path.join(d, '*.py')))
         for f in extFiles:
           execfile(f, globalsDict, localsDict)
-        for name,func in localsDict.items():
+        for name, func in localsDict.items():
             if type(func) == types.FunctionType:
                 for t,acceptor in func(None).items():
                     self.typemap[t].append((acceptor, func))
@@ -41,7 +41,7 @@ class VizDecor:
         self.acceptDict = acceptDict
     def __call__(self, f):
         def newFunc(obj):
-            if obj==None:
+            if obj == None:
                 return self.acceptDict
             else:
                 if type(obj) in self.acceptDict:
@@ -53,15 +53,3 @@ class VizDecor:
                     raise TypeError('object type not supported')
 
         return(newFunc)
- 
-
-##########################
-
-def main():
-    viz = Viz(['ext'])
-    #obj = range(7)
-    obj = (5, 3, 2)
-    print viz(obj)
-
-if __name__ == '__main__':
-    main()
