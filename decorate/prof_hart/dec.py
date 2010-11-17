@@ -53,15 +53,15 @@ class VizDecor:
                     raise TypeError('object type not supported')
 
         return(newFunc)
-
-
-@VizDecor({types.StringType: lambda x: len(x)<10,
-           types.ListType: lambda x: len(x)<10 })
-def test(foo):
-    print foo
  
 
+##########################
 
+def main():
+    viz = Viz(['ext'])
+    #obj = range(7)
+    obj = (5, 3, 2)
+    print viz(obj)
 
-
-        
+if __name__ == '__main__':
+    main()
