@@ -1,17 +1,22 @@
 import couchdb
 from uuid import uuid4
+from config import COUCH_SERVER, DATABASE, KERNEL_IP, KERNEL_PORT
 import zmq
-
-from service import COUCH_SERVER, DATABASE, KERNEL_IP, KERNEL_PORT
+import re
 
 class Methods:
     def __init__(self):
         couch = couchdb.Server(COUCH_SERVER)
         self.db = couch[DATABASE]
-        
+        self.macro_pattern = re.compile(r'^MACRO_')
+
     def eval_python(self, params):
         code = params['input']
-        return self._ipython_mess(code)
+        if re.match(self.macro_pattern, code):
+            pass
+            #return xyz
+        else:
+            return self._ipython_mess(code)
 
     def _ipython_mess(self, code):
         MESSAGE = {
