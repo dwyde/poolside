@@ -10,8 +10,8 @@ class Methods:
         self.db = couch[DATABASE]
 
     def eval_python(self, params):
-        code = params['input']
-        return self._ipython_mess(code)
+        data = self._ipython_mess(params['input'])
+        return {'output': data}
 
     def _ipython_mess(self, code):
         MESSAGE = {
@@ -21,7 +21,7 @@ class Methods:
                 'user_variables' : [],
                 'user_expressions' : {},
             },
-            'header': {'msg_id': 123},
+            'header': {'msg_id': None},
             'msg_type': 'execute_request',
         }
 
@@ -52,7 +52,7 @@ class Methods:
             data = content.get('data')
             if data != None:
                 break
-        return {'output': data}
+        return data
 
     def new_id(self, params):
         return uuid4().hex
