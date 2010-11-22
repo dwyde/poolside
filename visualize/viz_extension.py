@@ -1,3 +1,4 @@
+import os
 import dec
 
 def magic_visualize(self, arg):
@@ -11,6 +12,8 @@ def magic_visualize(self, arg):
 
 def load_ipython_extension(ipython):
     '''A setup function, called each time this extension is loaded.'''
-    viz = dec.Viz(['viz_ext'])
+    basedir = os.path.split(os.path.abspath(__file__))[0]
+    path = os.path.join(basedir, 'viz_ext')
+    viz = dec.Viz([path])
     ipython._visualize = viz
     ipython.define_magic('Viz', magic_visualize)
