@@ -11,10 +11,9 @@ def magic_visualize(self, arg):
     else:
         raise KeyError('Variable "%s" not found in user namespace.' % (arg,))
 
-def load_ipython_extension(ipython):
+def load_ipython_extension(user_ns):
     '''A setup function, called each time this extension is loaded.'''
     basedir = os.path.split(os.path.abspath(__file__))[0]
     path = os.path.join(basedir, 'viz_ext')
     viz = dec.Viz([path])
-    ipython._visualize = viz
-    ipython.define_magic('Viz', magic_visualize)
+    user_ns['Viz'] = viz
