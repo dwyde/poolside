@@ -46,13 +46,12 @@ class Methods:
         # Receive a response
         while True:
             result = sub_socket.recv_json()
-            content = result['content']
-            if content.get('execution_state') == 'idle':
-                break
-            data = content.get('data')
-            if data != None:
-                break
-        return data
+            msg_type = result['msg_type']
+            if msg_type == 'pyout':
+                return result['content']['data']
+            elif msg_type == 'pyerr':
+                content = result['content']
+                return '%s: %s' % (content['ename'], content['evalue'])
 
     def new_id(self, params):
         return uuid4().hex
