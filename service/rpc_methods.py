@@ -18,8 +18,6 @@ class Methods:
             'content': {
                 'code': code,
                 'silent' : False,
-                'user_variables' : [],
-                'user_expressions' : {},
             },
             'header': {'msg_id': None},
             'msg_type': 'execute_request',
@@ -47,11 +45,18 @@ class Methods:
         while True:
             result = sub_socket.recv_json()
             msg_type = result['msg_type']
-            if msg_type == 'pyout':
+            
+            if msg_type in ['pyout', 'stream']:
                 return result['content']['data']
             elif msg_type == 'pyerr':
                 content = result['content']
                 return '%s: %s' % (content['ename'], content['evalue'])
+            elif msg_type == 'execute_reply':
+                return 'REPLY'
+            elif msg_type == 'pyin': # PROBLEM: Assignments only send pyin
+                continue
+            else:
+                return msg_type
 
     def new_id(self, params):
         return uuid4().hex
