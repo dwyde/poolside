@@ -1,0 +1,17 @@
+K 25
+svn:wc:ra_dav:version-url
+V 50
+/svn/!svn/ver/259/trunk/src/test/testdata/handlers
+END
+blank_wsh.py
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/svn/!svn/ver/259/trunk/src/test/testdata/handlers/blank_wsh.py
+END
+origin_check_wsh.py
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/svn/!svn/ver/259/trunk/src/test/testdata/handlers/origin_check_wsh.py
+END
