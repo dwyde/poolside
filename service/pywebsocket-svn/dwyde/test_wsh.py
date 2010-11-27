@@ -27,18 +27,52 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+import json
+import zmq
+
 
 _GOODBYE_MESSAGE = 'Goodbye'
-
+KERNEL_IP = '127.0.0.1'
+KERNEL_PORT = 5575
 
 def web_socket_do_extra_handshake(request):
     pass  # Always accept.
 
 
-def web_socket_transfer_data(request):
+def web_socket_transfer_data(request):    
+    connection = ('tcp://%s' % KERNEL_IP) + ':%i'
+    req_conn = connection % KERNEL_PORT
+    sub_conn = connection % (KERNEL_PORT + 1)
+
+    # Create sockets
+    c = zmq.Context()
+    request_socket = c.socket(zmq.XREQ)
+    request_socket.connect(req_conn)
+    sub_socket = c.socket(zmq.SUB)
+    sub_socket.connect(sub_conn)
+    sub_socket.setsockopt(zmq.SUBSCRIBE, '')
+    
+    p = zmq.Poller()
+    p.register(sub_socket)
+    
     while True:
         line = request.ws_stream.receive_message()
-        request.ws_stream.send_message(line + '!!!')
+        msg = json.loads(line)['json']
+        # Send data
+        request_socket.send_json(msg)
+
+        # Receive a response
+
+        while True:
+            res = p.poll(500)
+            if res == []:
+                break
+            else:
+                result = sub_socket.recv(zmq.NOBLOCK)
+                print result
+                request.ws_stream.send_message(result)
+            #result = sub_socket.recv_json()
+        
         if line == _GOODBYE_MESSAGE:
             return
 

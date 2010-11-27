@@ -4,14 +4,23 @@ function Request() {
 };
 
 Request.prototype.execute_request = function(code_str) {
-  this.data = {
+  var data = {
     json: {
-        'method': 'eval_python',
+        /*'method': 'eval_python',
         'params': {'input': code_str, 'notebook': 'david'},
-        'version': '1.1',
+        'version': '1.1',*/
+        'content': {
+            'code': code_str,
+            'silent' : false,
+//            'user_variables' : [],
+//            'user_expressions' : {},
+        },
+        'header': {'msg_id': null},
+        'msg_type': 'execute_request',
     },
     url: URL_ENDPOINT,
   };
+  return data;
 };
 
 Request.prototype.complete_request = function() {
@@ -35,8 +44,8 @@ Request.prototype.submit = function() {
 $(document).ready(function(){
   var ws = new WebSocket("ws://localhost:9996/test");      
   ws.onopen = function() {
-    this.send("hello from the browser");
-    this.send("more from browser");
+    //this.send("hello from the browser");
+    //this.send("more from browser");
   };
   ws.onmessage = function(event) {
 //    var data = JSON.parse(event.data);
@@ -50,12 +59,13 @@ $(document).ready(function(){
   $("#choices").submit(function(){
     var choice = $("#requests").val();
     var input = $("#in_text").val();
-//    var req = new Request();
-//    req.ws.send('nope');
-//    req.execute_request(input);
+    var req = new Request();
+    var msg = req.execute_request(input);
+    var data = JSON.stringify(msg);
+//    alert(data);
 //    req.complete_request(input);
 //    req.submit();
-    ws.send(input);
+    ws.send(data);
     // Prevent actual submission of the form.
     return false;
   });
