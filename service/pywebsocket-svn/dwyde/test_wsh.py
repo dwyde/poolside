@@ -40,41 +40,70 @@ def web_socket_do_extra_handshake(request):
 
 
 def web_socket_transfer_data(request):    
-    connection = ('tcp://%s' % KERNEL_IP) + ':%i'
-    req_conn = connection % KERNEL_PORT
-    sub_conn = connection % (KERNEL_PORT + 1)
+#    connection = ('tcp://%s' % KERNEL_IP) + ':%i'
+#    req_conn = connection % KERNEL_PORT
+#    sub_conn = connection % (KERNEL_PORT + 1)
+#
+#    # Create sockets
+#    c = zmq.Context()
+#    request_socket = c.socket(zmq.XREQ)
+#    request_socket.connect(req_conn)
+#    sub_socket = c.socket(zmq.SUB)
+#    sub_socket.connect(sub_conn)
+#    sub_socket.setsockopt(zmq.SUBSCRIBE, '')
+    
+#    p = zmq.Poller()
+#    p.register(sub_socket)
+    
+    #
+    import zmq
+    from zmq.eventloop import zmqstream, ioloop, stack_context
 
-    # Create sockets
-    c = zmq.Context()
-    request_socket = c.socket(zmq.XREQ)
-    request_socket.connect(req_conn)
-    sub_socket = c.socket(zmq.SUB)
-    sub_socket.connect(sub_conn)
-    sub_socket.setsockopt(zmq.SUBSCRIBE, '')
+    ctx = zmq.Context()
+    loop = ioloop.IOLoop.instance()
     
-    p = zmq.Poller()
-    p.register(sub_socket)
+    request_socket = ctx.socket(zmq.XREQ)
+    request_socket.connect('tcp://127.0.0.1:5575')
     
-    while True:
+    def echo_client(*a, **kw):
+        print 'yes'
+        request.ws_stream.send_message(str(a) + str(kw))
+
+    
+    def server():
+        s = ctx.socket(zmq.SUB)
+        s.connect('tcp://127.0.0.1:5576')
+        s.setsockopt(zmq.SUBSCRIBE, '')
+        stream = zmqstream.ZMQStream(s, loop)
+        stream.on_recv(echo_client)
+        print 'listening!'
+    
+    def process_line():
         line = request.ws_stream.receive_message()
         msg = json.loads(line)['json']
-        # Send data
         request_socket.send_json(msg)
-
-        # Receive a response
-
-        while True:
-            res = p.poll(500)
-            if res == []:
-                break
-            else:
-                result = sub_socket.recv(zmq.NOBLOCK)
-                print result
-                request.ws_stream.send_message(result)
-            #result = sub_socket.recv_json()
         
-        if line == _GOODBYE_MESSAGE:
-            return
+    server()
+    
+    process_line()
+    loop.start()
+        ## Send data
+        #request_socket.send_json(msg)
+
+        ## Receive a response
+
+        #while True:
+        #    res = p.poll(500)
+        #    if res == []:
+        #        break
+        #    else:
+        #        result = sub_socket.recv(zmq.NOBLOCK)
+        #        print result
+        #        request.ws_stream.send_message(result)
+        #    #result = sub_socket.recv_json()
+        
+        #if line == _GOODBYE_MESSAGE:
+        #    return
 
 
 # vi:sts=4 sw=4 et
