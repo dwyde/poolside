@@ -59,8 +59,8 @@ def web_socket_transfer_data(request):
             recv_data()
             loop.start()
         
-    def echo_client(*a, **kw):
-        request.ws_stream.send_message(str(a) + str(kw))
+    def echo_client(arg_list):
+        request.ws_stream.send_message(str(arg_list[0]))
 
     def send_data(line):
         resp = Responder(line)

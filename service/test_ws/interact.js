@@ -1,10 +1,39 @@
+function output(text) {
+  $("#result").append("<p>" + text + "</p>");
+}
+
+function ws_receive(msg) {
+  /* 
+   * 
+   * Skip 'execute_reply' messages.
+   */
+
+  var obj = JSON.parse(msg);
+  switch (obj.msg_type) {
+    case 'pyin':
+      output(obj.content.code); break;
+    case 'stream':
+      output(obj.content.data); break;
+    case 'pyout':
+      output(obj.content.data); break;
+    case 'pyerr':
+      output(obj.content.ename + '<br />' + obj.content.evalue); break;
+    case 'complete_reply':
+      output(obj.content.matches); break;
+    case 'object_info_reply':
+      output(msg); break;
+    default:
+      break;
+  };
+}
+
 function Requester() {
   this.ws = new WebSocket("ws://localhost:9996/test");
   this.ws.onopen = function() {
   };
   this.ws.onmessage = function(event) {
     var data = event.data;
-    $("#result").append("<p>" + data + "</p>");
+    ws_receive(data);
   };
   this.ws.onclose = function() {
     alert("socket closed");
