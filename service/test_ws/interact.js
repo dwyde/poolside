@@ -1,70 +1,55 @@
-var URL_ENDPOINT = 'http://localhost:5984/notebook/_service';
-
-function Request() {
-};
-
-Request.prototype.execute_request = function(code_str) {
-  this.data = {
-    content: {
-        code: code_str,
-        silent : false,
-    },
-    msg_type: 'execute_request',
+function Requester() {
+  this.ws = new WebSocket("ws://localhost:9996/test");
+  this.ws.onopen = function() {
   };
-  return this.data;
-};
-
-Request.prototype.complete_request = function(text) {
-  this.data = {
-    content: {
-        text: text,
-        line: text,
-        cursor_post: text.length - 1,
-    },
-    msg_type: 'complete_request',
-  };
-  return this.data;
-};
-
-Request.prototype.object_info_request = function(text) {
-  this.data = {
-    content: {
-        oname: text,
-        detail_level: 1,
-    },
-    msg_type: 'object_info_request',
-  };
-  return this.data;
-};
-
-Request.prototype.submit = function() {
-//  var msg = JSON.stringify(this.data);
-    this.data.header = {'msg_id': null};
-};
-
-$(document).ready(function(){
-  var ws = new WebSocket("ws://localhost:9996/test");
-  ws.onopen = function() {
-    //this.send("hello from the browser");
-  };
-  ws.onmessage = function(event) {
-//    var data = JSON.parse(event.data);
+  this.ws.onmessage = function(event) {
     var data = event.data;
-    $("#result").append("<p>" + data + "</p>"); // \n
+    $("#result").append("<p>" + data + "</p>");
   };
-  ws.onclose = function() {
+  this.ws.onclose = function() {
     alert("socket closed");
   };
   
+  this.data = {};
+}
+
+Requester.prototype.execute_request = function(code_str) {
+  this.data.content = {code: code_str, silent : false};
+};
+
+Requester.prototype.complete_request = function(text) {
+  this.data.content = {text: text, line: text, cursor_post: text.length - 1};
+};
+
+Requester.prototype.object_info_request = function(text) {
+  this.data.content = {oname: text};
+};
+
+Requester.prototype.submit = function(request_type, input) {
+  /* Fill in request-specific data. */
+  this[request_type](input);
+  
+  /* Set data that's the same for every request. */
+  this.data.msg_type = request_type;
+  this.data.header = {'msg_id': null};
+  
+  /* Send data through the web socket. */
+  var data = JSON.stringify(this.data);
+  this.ws.send(data);
+};
+
+$(document).ready(function(){
+  /* Create a Requester instance. */
+  var req = new Requester();
+  
+  /* Handler for submission of the input form. */
   $("#choices").submit(function(){
     var choice = $("#requests").val();
     var input = $("#in_text").val();
-    var req = new Request();
-    req[choice](input);
-    req.submit();
-    var data = JSON.stringify(req.data);
-    ws.send(data);
-    // Prevent actual submission of the form.
+
+    req.submit(choice, input);
+
+    /* Prevent actual submission of the form. */
     return false;
   });
 });
