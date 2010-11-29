@@ -26,7 +26,16 @@ Request.prototype.complete_request = function(text) {
   return this.data;
 };
 
-Request.prototype.object_info_request = function() {};
+Request.prototype.object_info_request = function(text) {
+  this.data = {
+    content: {
+        oname: text,
+        detail_level: 1,
+    },
+    msg_type: 'object_info_request',
+  };
+  return this.data;
+};
 
 Request.prototype.submit = function() {
 //  var msg = JSON.stringify(this.data);
@@ -34,7 +43,7 @@ Request.prototype.submit = function() {
 };
 
 $(document).ready(function(){
-  var ws = new WebSocket("ws://localhost:9996/test");      
+  var ws = new WebSocket("ws://localhost:9996/test");
   ws.onopen = function() {
     //this.send("hello from the browser");
   };
