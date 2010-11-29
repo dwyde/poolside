@@ -29,7 +29,8 @@
 
 import json
 import zmq
-
+from zmq.eventloop import zmqstream, ioloop, stack_context
+from threading import Thread
 
 _GOODBYE_MESSAGE = 'Goodbye'
 KERNEL_IP = '127.0.0.1'
@@ -40,10 +41,6 @@ def web_socket_do_extra_handshake(request):
 
 
 def web_socket_transfer_data(request):    
-    from zmq.eventloop import zmqstream, ioloop, stack_context
-    
-    from threading import Thread
-
     ctx = zmq.Context()
     loop = ioloop.IOLoop.instance()
     
@@ -57,7 +54,7 @@ def web_socket_transfer_data(request):
         
         def run(self):
             loop.stop()
-            msg = json.loads(self._line)['json']
+            msg = json.loads(self._line)
             request_socket.send_json(msg)
             recv_data()
             loop.start()
@@ -79,8 +76,11 @@ def web_socket_transfer_data(request):
         s.setsockopt(zmq.SUBSCRIBE, '')
         stream = zmqstream.ZMQStream(s, loop)
         stream.on_recv(echo_client)
+        req_stream = zmqstream.ZMQStream(request_socket, loop)
+        req_stream.on_recv(echo_client)
         print 'listening!'
     
+    # Main loop
     listener()
     recv_data()
     while True:
