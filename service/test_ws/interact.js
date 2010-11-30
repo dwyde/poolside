@@ -1,5 +1,7 @@
 function output(text) {
-  $("#result").append("<p>" + text + "</p>");
+  //$("#result").append("<p>" + text + "</p>");
+//  var cell = new_cell(text, '', text);
+  $('#worksheet').append(text);
 }
 
 function ws_receive(msg) {
@@ -27,18 +29,8 @@ function ws_receive(msg) {
   };
 }
 
-function Requester() {
-  this.ws = new WebSocket("ws://localhost:9996/test");
-  this.ws.onopen = function() {
-  };
-  this.ws.onmessage = function(event) {
-    var data = event.data;
-    ws_receive(data);
-  };
-  this.ws.onclose = function() {
-    alert("socket closed");
-  };
-  
+function Requester(web_socket) {
+  this.web_socket = web_socket;
   this.data = {};
 }
 
@@ -64,18 +56,28 @@ Requester.prototype.submit = function(request_type, input) {
   
   /* Send data through the web socket. */
   var data = JSON.stringify(this.data);
-  this.ws.send(data);
+  this.web_socket.send(data);
 };
 
 $(document).ready(function(){
-  /* Create a Requester instance. */
-  var req = new Requester();
+  var req;
+  var web_socket = new WebSocket("ws://localhost:9996/test");
+  web_socket.onopen = function() {
+  };
+  web_socket.onmessage = function(event) {
+    var data = event.data;
+    ws_receive(data);
+  };
+  web_socket.onclose = function() {
+    alert("socket closed");
+  };
   
   /* Handler for submission of the input form. */
-  $("#choices").submit(function(){
-    var choice = $("#requests").val();
-    var input = $("#in_text").val();
-
+  $('form.cell').live('submit', function(){
+    //var choice = $("#requests").val();
+    var choice = 'execute_request';
+    var input = $(this).children('.input').val();
+    req = new Requester(web_socket);
     req.submit(choice, input);
 
     /* Prevent actual submission of the form. */
