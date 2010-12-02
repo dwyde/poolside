@@ -7,7 +7,7 @@ from dec import VizDecor
 def table(obj):
     s = '--'
     for i in obj:
-        s+=str(i)+'\n-\n'
+        s+=str(i)+'<br /><br />'
     return(s)
 
 @VizDecor({str: lambda x: len(x)<10,

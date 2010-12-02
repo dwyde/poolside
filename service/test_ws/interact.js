@@ -10,8 +10,14 @@ function ws_receive(msg) {
    * Skip 'execute_reply' messages.
    */
 
+//////
+/// Convert this to some sort of object/hash/dictionary structure
+/// Also deal with cell_ids
+//////
+
   var obj = JSON.parse(msg);
   switch (obj.msg_type) {
+    /* IPython ZMQ messages */
     case 'pyin':
       output(obj.content.code); break;
     case 'stream':
@@ -24,6 +30,17 @@ function ws_receive(msg) {
       output(obj.content.matches); break;
     case 'object_info_reply':
       output(msg); break;
+    /* CouchDB results */
+    case 'worksheet_saved':
+      output(msg); break;
+    case 'cell_saved':
+      //output(msg); 
+      var id = msg.cell_id;
+      var cell = new_cell(id, '', '');
+      $('#worksheet').append(cell);
+      break;
+    case 'cell_deleted':
+      output(msg); break;
     default:
       break;
   };
@@ -34,6 +51,7 @@ function Requester(web_socket) {
   this.data = {};
 }
 
+/* IPython requests */
 Requester.prototype.execute_request = function(code_str) {
   this.data.content = {code: code_str, silent : false};
 };
@@ -45,6 +63,13 @@ Requester.prototype.complete_request = function(text) {
 Requester.prototype.object_info_request = function(text) {
   this.data.content = {oname: text};
 };
+
+/* Notebook/Database requests */
+Requester.prototype.save_cell = function(data) {
+  this.data.cell_id = (data.id || null);
+  this.data.input = data.input;
+  this.data.output = data.output;
+}
 
 Requester.prototype.submit = function(request_type, input) {
   /* Fill in request-specific data. */
@@ -74,7 +99,6 @@ $(document).ready(function(){
   
   /* Handler for submission of the input form. */
   $('form.cell').live('submit', function(){
-    //var choice = $("#requests").val();
     var choice = 'execute_request';
     var input = $(this).children('.input').val();
     req = new Requester(web_socket);
@@ -82,6 +106,17 @@ $(document).ready(function(){
 
     /* Prevent actual submission of the form. */
     return false;
+  });
+  
+  $('#add_cell').click(function(){
+    var choice = 'save_cell';
+    var input = {
+      id: null,
+      input: '',
+      output: '',
+    };
+    req = new Requester(web_socket);
+    req.submit(choice, input);
   });
 });
 

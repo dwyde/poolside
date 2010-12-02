@@ -3,6 +3,8 @@ import zmq
 from zmq.eventloop import zmqstream, ioloop, stack_context
 from threading import Thread
 
+from rpc_methods import Methods
+
 # ZMQ socket address constants
 KERNEL_IP = '127.0.0.1'
 XREQ_PORT = 5575
@@ -21,6 +23,9 @@ class Responder(Thread):
     Mostly just calls methods of RequestProcess.
     '''
     
+    api_funcs = set(['save_worksheet', 'save_cell', 'delete_cell'])
+    api_methods = Methods()
+    
     def __init__(self, controller, line):
         '''
         Class constructor.
@@ -36,10 +41,19 @@ class Responder(Thread):
         '''Pause the ZMQ event loop, then resume it when we're done.'''
         
         self._controller.loop.stop()
-        msg = json.loads(self._line)
-        self._controller.request_socket.send_json(msg)
+        result = self.handle()
         self._controller.recv_data()
         self._controller.loop.start()
+    
+    def handle(self):
+        msg = json.loads(self._line)
+        msg_type = msg['msg_type']
+        if msg_type in self.api_funcs:
+            result = getattr(self.api_methods, msg_type)(msg)
+            self._controller.echo_client([json.dumps(result)])
+        else:
+            result = msg
+            self._controller.request_socket.send_json(result)
 
 class RequestProcess:
     '''
@@ -88,6 +102,7 @@ class RequestProcess:
         
     def echo_client(self, arg_list):
         '''Callback: send data back to the websocket.'''
+        print str(arg_list[0])
         self.request.ws_stream.send_message(str(arg_list[0]))
 
 
