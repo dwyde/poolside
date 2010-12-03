@@ -1,20 +1,7 @@
-var WORKSHEET_NAME = window.location.pathname.split('/').pop();
+var path = window.location.pathname.split('/');
+var WORKSHEET_NAME = path.pop();
+var DATABASE = path[1];
 var WEBSOCKET = 'localhost:9996/test';
-
-function save_worksheet(web_socket) {
-  var cells = $('#worksheet')
-            .children('.cell')
-            .map(function() {
-                return this.id;
-            }).get();
-  
-  var data = {
-    msg_type: 'save_worksheet', 
-    cell_list: cells, 
-    worksheet_id: WORKSHEET_NAME,
-  };
-  web_socket.send(JSON.stringify(data));
-}
 
 function output_cell(text, cell_id) {
   //$("#result").append("<p>" + text + "</p>");
@@ -116,6 +103,7 @@ Requester.prototype.submit = function(request_type, input, cell_id) {
 };
 
 $(document).ready(function(){
+  var db = $.couch.db(DATABASE);
   var req;
   var web_socket = new WebSocket('ws://' + WEBSOCKET);
   web_socket.onopen = function() {
@@ -127,6 +115,20 @@ $(document).ready(function(){
   web_socket.onclose = function() {
     alert("socket closed");
   };
+  
+  function save_worksheet() {
+    var cells = $('#worksheet')
+              .children('.cell')
+              .map(function() {
+                  return this.id;
+              }).get();
+    
+    var data = {cells: cells, type: 'worksheet'};
+    db.openDoc(WORKSHEET_NAME, { success: function(doc) {
+      $.extend(data, {_id: doc._id, _rev: doc._rev});
+      db.saveDoc(data);
+    }});
+  }
   
   /* Handler for submission of the input form. */
   $('form.cell').live('submit', function(){
@@ -149,7 +151,6 @@ $(document).ready(function(){
     };
     req = new Requester(web_socket);
     req.submit(choice, input);
-    save_worksheet(web_socket);
   });
   
   $('.cell').live('change', function(){ // ('.cell .output') doesn't work?
@@ -163,17 +164,10 @@ $(document).ready(function(){
     req = new Requester(web_socket);
     req.submit('save_cell', input);*/
     
-    id = $(this).attr('id') || '';
+    var id = $(this).attr('id') || '';
+    save_worksheet();
     
-    $.ajax({
-      //'url': 'http://' + WEBSOCKET, 
-      url: 'http://localhost:5984/notebook/_design/notebook/' + id,
-      data: JSON.stringify({
-        'method': 'eval_python', 
-        'params': {'input': input},
-        'version': JSON_VERSION, 
-      }),  
-    });
+    
   });
 });
 
