@@ -46,7 +46,8 @@ $(document).ready(function(){
   
   $('#add_cell').click(function(){
     db.saveDoc({type: 'cell', input: '', output: ''});
-    var cell = new_cell(
+    var cell = new_cell('', '', '');
+    $('#worksheet').append(cell);
   });
   
   $('form.cell > p').live('change', function(){ // ('.cell .output') doesn't work?
