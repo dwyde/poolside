@@ -2,13 +2,13 @@ var WS_CLIENT = (function () {
     var my = {}, 
         connection;
     
-    my.connect = function(address) {
+    my.connect = function(address, out_callback) {
         connection = new WebSocket('ws://' + address);
         connection.onopen = function() {};
         connection.onmessage = function(event) {
             var result = my.ipython.receive(JSON.parse(event.data));
             if (result) {
-                alert(result);
+                out_callback(result);
             }
         };
         connection.onclose = function() {
@@ -52,7 +52,8 @@ WS_CLIENT.ipython = (function () {
     
     my.receive = function(msg) {
         if (receivers[msg.msg_type]) {
-            return receivers[msg.msg_type](msg);
+            var result = receivers[msg.msg_type](msg);
+            return {result: result, caller: msg.parent_header.msg_id};
         }
     };
     
