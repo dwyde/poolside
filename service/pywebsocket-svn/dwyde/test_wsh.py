@@ -93,16 +93,11 @@ class RequestProcess:
     def recv_data(self):
         '''Receive a message from the websocket and send it forward.'''
         line = self.request.ws_stream.receive_message()
-        self.send_data(line)
-        
-    def send_data(self, line):
-        '''Use a new thread to respond to websocket input.'''
         resp = Responder(self, line)
         resp.start()
         
     def echo_client(self, arg_list):
         '''Callback: send data back to the websocket.'''
-        print str(arg_list[0])
         self.request.ws_stream.send_message(str(arg_list[0]))
 
 

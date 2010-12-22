@@ -1,4 +1,4 @@
-var WEBSOCKET = 'localhost:9996/test';
+var WS_ADDRESS = 'localhost:9996/test';
 var path = window.location.pathname.split('/');
 var WORKSHEET_NAME = path.pop();
 var DATABASE = path[1];
@@ -16,7 +16,7 @@ function output_cell(response) {
 }
 
 $(document).ready(function(){
-  WS_CLIENT.connect(WEBSOCKET, output_cell);
+  WS_CLIENT.connect(WS_ADDRESS, output_cell);
   var db = $.couch.db(DATABASE);
   
   function save_worksheet() {
