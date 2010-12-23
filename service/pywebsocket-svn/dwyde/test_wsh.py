@@ -47,8 +47,9 @@ class RequestProcess:
         req_stream.on_recv(self.echo_client)
 
     def _raw_ws_socket(self, raw_socket):
-        self.loop.add_handler(raw_socket.fileno(), self.echo_client, self.loop.READ)
-        self.loop.add_handler(raw_socket.fileno(), self.echo_client, self.loop.WRITE)
+        pass
+        #self.loop.add_handler(raw_socket.fileno(), self.echo_client, self.loop.READ)
+        #self.loop.add_handler(raw_socket.fileno(), self.echo_client, self.loop.WRITE)
 
     def main_loop(self):
         '''Wait to receive data from the websocket.'''
@@ -68,7 +69,9 @@ class RequestProcess:
     def echo_client(self, arg_list):
         '''Callback: send data back to the websocket.'''
         self.loop.stop()
-        
+        msg = json.loads(arg_list[0])
+        print msg['msg_type']
+        #print arg_list
         self.request.ws_stream.send_message(str(arg_list[0]))
         self.loop.start()
         
