@@ -17,44 +17,6 @@ def web_socket_do_extra_handshake(request):
     '''
     pass
 
-class Responder(Thread):
-    '''
-    Create a new thread for responding via a websocket.
-    Mostly just calls methods of RequestProcess.
-    '''
-    
-    api_funcs = set(['save_worksheet', 'save_cell', 'delete_cell'])
-    api_methods = Methods()
-    
-    def __init__(self, controller, line):
-        '''
-        Class constructor.
-        :param controller: an instance of the RequestProcess class
-        :param line: a string to be sent through the websocket
-        '''
-        
-        Thread.__init__(self)
-        self._controller = controller
-        self._line = line
-    
-    def run(self):
-        '''Pause the ZMQ event loop, then resume it when we're done.'''
-        
-        self._controller.loop.stop()
-        result = self.handle()
-        self._controller.recv_data()
-        self._controller.loop.start()
-    
-    def handle(self):
-        msg = json.loads(self._line)
-        msg_type = msg['msg_type']
-        if msg_type in self.api_funcs:
-            result = getattr(self.api_methods, msg_type)(msg)
-            self._controller.echo_client([json.dumps(result)])
-        else:
-            result = msg
-            self._controller.request_socket.send_json(result)
-
 class RequestProcess:
     '''
     Class for handling a websocket stream.
@@ -66,13 +28,7 @@ class RequestProcess:
         self.loop = ioloop.IOLoop.instance()
         self._zmq_sockets()
         self._make_listeners()
-
-    def main_loop(self):
-        '''Wait to receive data from the websocket.'''
-        self.recv_data()
-        while True:
-            self.loop.start()
-            
+        
     def _zmq_sockets(self):
         '''Open XREQ and SUB sockets for interacting with an IPython kernel.'''
         ctx = zmq.Context()
@@ -89,20 +45,42 @@ class RequestProcess:
         sub_stream.on_recv(self.echo_client)
         req_stream = zmqstream.ZMQStream(self.request_socket, self.loop)
         req_stream.on_recv(self.echo_client)
+
+    def _raw_ws_socket(self, raw_socket):
+        self.loop.add_handler(raw_socket.fileno(), self.echo_client, self.loop.READ)
+        self.loop.add_handler(raw_socket.fileno(), self.echo_client, self.loop.WRITE)
+
+    def main_loop(self):
+        '''Wait to receive data from the websocket.'''
+        #self.loop.start()
+        while True:
+            self.recv_data()
+            self.loop.start()
         
     def recv_data(self):
         '''Receive a message from the websocket and send it forward.'''
+        #self.loop.stop()
         line = self.request.ws_stream.receive_message()
-        resp = Responder(self, line)
-        resp.start()
+        #self.loop.stop()
+        self.handle(line)
+        self.loop.start()
         
     def echo_client(self, arg_list):
         '''Callback: send data back to the websocket.'''
+        self.loop.stop()
+        
         self.request.ws_stream.send_message(str(arg_list[0]))
+        self.loop.start()
+        
+    def handle(self, line):
+        msg = json.loads(line)
+        self.request_socket.send_json(msg)
 
 
 def web_socket_transfer_data(request):
     '''Receive, and respond to, websocket input (in a loop).'''
+    raw_socket = request.connection._request_handler.server.socket
     process = RequestProcess(request)
+    process._raw_ws_socket(raw_socket)
     process.main_loop()
     
