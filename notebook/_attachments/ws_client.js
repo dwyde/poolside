@@ -6,6 +6,7 @@ var WS_CLIENT = (function () {
         connection = new WebSocket('ws://' + address);
         connection.onopen = function() {};
         connection.onmessage = function(event) {
+            alert(event.data);
             var result = my.ipython.receive(JSON.parse(event.data));
             if (result) {
                 out_callback(result);
