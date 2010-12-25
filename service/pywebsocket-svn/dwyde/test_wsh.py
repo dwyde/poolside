@@ -56,13 +56,14 @@ class RequestProcess:
         #self.loop.start()
         while True:
             self.recv_data()
-            self.loop.start()
+            #self.loop.start()
         
     def recv_data(self):
         '''Receive a message from the websocket and send it forward.'''
         #self.loop.stop()
         line = self.request.ws_stream.receive_message()
-        #self.loop.stop()
+        if self.loop.running():
+            self.loop.stop()
         self.handle(line)
         self.loop.start()
         
