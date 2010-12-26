@@ -11,6 +11,29 @@ KERNEL_IP = '127.0.0.1'
 XREQ_PORT = 5575
 SUB_PORT = 5576
 
+class ZMQReceiver:
+    msg_dict = {
+        'stream': lambda x: x['data'],
+        'pyout': lambda x: x['data'],
+        'pyerr': lambda x: x['ename'] + ': ' + x['evalue'],
+    }
+  
+    def __init__(self, write_func):
+        self.write_message = write_func
+  
+    def __call__(self, message_parts):
+        for part in message_parts:
+            msg = json.loads(part)
+            msg_type = msg.get('msg_type')
+            if msg_type in self.msg_dict:
+                output = self.msg_dict[msg_type](msg['content'])
+                result = {
+                    'output': output,
+                    'target': msg['parent_header']['msg_id']
+                }
+                print result
+                self.write_message(result)
+
 class IPythonRequest(dict):
     def __init__(self, code, caller):
         self['msg_type'] = 'execute_request'
@@ -20,12 +43,12 @@ class IPythonRequest(dict):
 class EchoWebSocket(tornado.websocket.WebSocketHandler):
     def __init__(self, application, request, ports=(0, 0)):
         tornado.websocket.WebSocketHandler.__init__(self, application, request)
-        self._make_msg_dict()
+        self.receiver = ZMQReceiver(self.write_message)
         self.dispatcher = ZMQDispatcher(ports)
     
     def open(self):
-        self.dispatcher.sub_stream.on_recv(self.write_wrapper)
-        self.dispatcher.req_stream.on_recv(self.write_wrapper)
+        self.dispatcher.sub_stream.on_recv(self.receiver)
+        self.dispatcher.req_stream.on_recv(self.receiver)
 
     def on_message(self, message):
         msg = json.loads(message)
@@ -35,26 +58,6 @@ class EchoWebSocket(tornado.websocket.WebSocketHandler):
 
     def on_close(self):
         print "WebSocket closed"
-        
-    def _make_msg_dict(self):
-        self.msg_dict = {}
-        # IPython
-        self.msg_dict.update({
-            'stream': lambda x: x['data'],
-            'pyout': lambda x: x['data'],
-            'pyerr': lambda x: x['ename'] + '<br />' + x['evalue'],
-        })
-        
-    def write_wrapper(self, message_parts):
-        for part in message_parts:
-            msg = json.loads(part)
-            msg_type = msg.get('msg_type')
-            if msg_type in self.msg_dict:
-                output = self.msg_dict[msg_type](msg['content'])
-                result = {'output': output}
-                result.update({'target': msg['parent_header']['msg_id']})
-                print result
-                self.write_message(result)
         
 
 class ZMQApplication(tornado.web.Application):
