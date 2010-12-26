@@ -9,55 +9,6 @@ class Methods:
         couch = couchdb.Server(COUCH_SERVER)
         self.db = couch[DATABASE]
 
-    def eval_python(self, params):
-        data = self._ipython_mess(params['input'])
-        return {'output': data}
-
-    def _ipython_mess(self, code):
-        MESSAGE = {
-            'content': {
-                'code': code,
-                'silent' : False,
-            },
-            'header': {'msg_id': None},
-            'msg_type': 'execute_request',
-        }
-
-        ## Code from "IPython/zmq/frontend.py"
-        # Hard-code ports and IP address
-        connection = ('tcp://%s' % KERNEL_IP) + ':%i'
-        req_conn = connection % KERNEL_PORT
-        sub_conn = connection % (KERNEL_PORT + 1)
-
-        # Create sockets
-        c = zmq.Context()
-        request_socket = c.socket(zmq.XREQ)
-        request_socket.connect(req_conn)
-
-        sub_socket = c.socket(zmq.SUB)
-        sub_socket.connect(sub_conn)
-        sub_socket.setsockopt(zmq.SUBSCRIBE, '')
-
-        # Send data
-        request_socket.send_json(MESSAGE)
-
-        # Receive a response
-        while True:
-            result = sub_socket.recv_json()
-            msg_type = result['msg_type']
-            
-            if msg_type in ['pyout', 'stream']:
-                return result['content']['data']
-            elif msg_type == 'pyerr':
-                content = result['content']
-                return '%s: %s' % (content['ename'], content['evalue'])
-            elif msg_type == 'execute_reply':
-                return 'REPLY'
-            elif msg_type == 'pyin': # PROBLEM: Assignments only send pyin
-                continue
-            else:
-                return msg_type
-
     def new_id(self, params):
         return uuid4().hex
 

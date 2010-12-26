@@ -85,16 +85,14 @@ class ZMQDispatcher:
         ctx = zmq.Context()
         self.request_socket = ctx.socket(zmq.XREQ)
         self.request_socket.connect('tcp://%s:%d' % (KERNEL_IP, ports[0]))
+        
         self.sub_socket = ctx.socket(zmq.SUB)
         self.sub_socket.connect('tcp://%s:%d' % (KERNEL_IP, ports[1]))
         self.sub_socket.setsockopt(zmq.SUBSCRIBE, '')
-        
-        self._make_streams()
-    
-    def _make_streams(self):
+
         loop = ZMQLoop.instance()
-        self.sub_stream = zmqstream.ZMQStream(self.sub_socket, loop)
         self.req_stream = zmqstream.ZMQStream(self.request_socket, loop)
+        self.sub_stream = zmqstream.ZMQStream(self.sub_socket, loop)
 
 def main():
     application = ZMQApplication()
