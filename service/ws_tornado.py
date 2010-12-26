@@ -10,10 +10,8 @@ from zmq.eventloop import zmqstream
 KERNEL_IP = '127.0.0.1'
 XREQ_PORT = 5575
 SUB_PORT = 5576
-ALT_XREQ = 5578
-ALT_SUB = 5579
 
-class IPythonMessage(dict):
+class IPythonRequest(dict):
     def __init__(self, code, caller):
         self['msg_type'] = 'execute_request'
         self['header'] = {'msg_id': caller}
@@ -32,7 +30,7 @@ class EchoWebSocket(tornado.websocket.WebSocketHandler):
     def on_message(self, message):
         msg = json.loads(message)
         #dispatch based on msg['lang']
-        to_send = IPythonMessage(msg['code'], msg['caller'])
+        to_send = IPythonRequest(msg['code'], msg['caller'])
         self.dispatcher.request_socket.send_json(to_send)
 
     def on_close(self):
@@ -42,9 +40,9 @@ class EchoWebSocket(tornado.websocket.WebSocketHandler):
         self.msg_dict = {}
         # IPython
         self.msg_dict.update({
-            'stream': lambda x: {'output': x['data']},
-            'pyout': lambda x: {'output': x['data']},
-            'pyerr': lambda x: {'output': x['ename'] + '<br />' + x['evalue']},
+            'stream': lambda x: x['data'],
+            'pyout': lambda x: x['data'],
+            'pyerr': lambda x: x['ename'] + '<br />' + x['evalue'],
         })
         
     def write_wrapper(self, message_parts):
@@ -52,7 +50,8 @@ class EchoWebSocket(tornado.websocket.WebSocketHandler):
             msg = json.loads(part)
             msg_type = msg.get('msg_type')
             if msg_type in self.msg_dict:
-                result = self.msg_dict[msg_type](msg['content'])
+                output = self.msg_dict[msg_type](msg['content'])
+                result = {'output': output}
                 result.update({'target': msg['parent_header']['msg_id']})
                 print result
                 self.write_message(result)
