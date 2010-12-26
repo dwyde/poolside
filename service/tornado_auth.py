@@ -1,3 +1,5 @@
+'''Chunks of code taken from tornado/demos/chat/chatdemo.py'''
+
 import tornado.httpserver
 import tornado.ioloop
 import tornado.auth
