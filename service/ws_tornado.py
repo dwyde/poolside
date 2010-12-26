@@ -60,7 +60,7 @@ class EchoWebSocket(tornado.websocket.WebSocketHandler):
 class ZMQApplication(tornado.web.Application):
     def __init__(self):
         handlers = [
-            (r'/test', EchoWebSocket, dict(ports=(5575, 5576))),
+            (r'/notebook', EchoWebSocket, dict(ports=(5575, 5576))),
         ]
         settings = dict(
             cookie_secret="secret_ha$h",

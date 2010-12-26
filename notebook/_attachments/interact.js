@@ -1,4 +1,4 @@
-var WS_ADDRESS = 'localhost:9996/test';
+var WS_ADDRESS = 'localhost:9996/notebook';
 var path = window.location.pathname.split('/');
 var WORKSHEET_NAME = path.pop();
 var DATABASE = path[1];
