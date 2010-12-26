@@ -51,10 +51,11 @@ class EchoWebSocket(tornado.websocket.WebSocketHandler):
         self.dispatcher.req_stream.on_recv(self.receiver)
 
     def on_message(self, message):
-        msg = json.loads(message)
+        msg_dict = json.loads(message)
         #dispatch based on msg['type']
-        to_send = IPythonRequest(msg['input'], msg['caller'])
+        to_send = IPythonRequest(msg_dict['input'], msg_dict['caller'])
         self.dispatcher.request_socket.send_json(to_send)
+        #self.db.save_cell(msg_dict)
 
     def on_close(self):
         print "WebSocket closed"
