@@ -5,7 +5,7 @@ import tornado.websocket
 
 import json
 import zmq
-from zmq.eventloop import zmqstream, ioloop, stack_context
+from zmq.eventloop import zmqstream
 
 # ZMQ socket address constants
 KERNEL_IP = '127.0.0.1'
@@ -17,6 +17,7 @@ ALT_SUB = 5579
 class EchoWebSocket(tornado.websocket.WebSocketHandler):
     def __init__(self, application, request, ports=(0, 0)):
         tornado.websocket.WebSocketHandler.__init__(self, application, request)
+        self._make_msg_dict()
         self.dispatcher = ZMQDispatcher(ports)
     
     def open(self):
@@ -33,9 +34,24 @@ class EchoWebSocket(tornado.websocket.WebSocketHandler):
     def on_close(self):
         print "WebSocket closed"
         
-    def write_wrapper(self, msg):
-        print msg
-        self.write_message(msg[0])
+    def _make_msg_dict(self):
+        self.msg_dict = {}
+        # IPython
+        self.msg_dict.update({
+            'pyin': lambda x: {'input': x['code']},
+            'pyout': lambda x: {'output': x['data']},
+            'pyerr': lambda x: {'output': x['ename'] + '<br />' + x['evalue']},
+        })
+        
+    def write_wrapper(self, message_parts):
+        for part in message_parts:
+            msg = json.loads(part)
+            msg_type = msg.get('msg_type')
+            if msg_type in self.msg_dict:
+                result = self.msg_dict[msg_type](msg['content'])
+                result.update({'target': msg['parent_header']['msg_id']})
+                print result
+                self.write_message(result)
         
     def close(self):
         print 'closing'

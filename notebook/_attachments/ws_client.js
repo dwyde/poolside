@@ -65,6 +65,7 @@ WS_CLIENT.ipython = (function () {
           /* Set data that's the same for every request. */
           data.msg_type = request_type;
           data.header = {'msg_id': cell_id};
+          data.lang = 'python';
           WS_CLIENT.send(JSON.stringify(data));
     };
     
