@@ -13,7 +13,7 @@ var WS_CLIENT = (function () {
             }
         };
         connection.onclose = function() {
-            alert('socket closed');
+            out_callback({target: '__messages', output: 'WebSocket closed'});
         };
         /*connection.onerror = function(event) {
             alert(event);

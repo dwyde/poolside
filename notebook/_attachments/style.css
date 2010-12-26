@@ -60,3 +60,7 @@ button#new {
 #controls {
     margin-bottom: 10px;
 }
+
+#__messages {
+    color: #9A0000;
+}
