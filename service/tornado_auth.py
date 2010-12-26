@@ -3,6 +3,8 @@ import tornado.ioloop
 import tornado.auth
 import tornado.web
 
+BASE_URL = 'http://localhost:5984/notebook/_design/notebook/_rewrite/all'
+
 class AuthApplication(tornado.web.Application):
     def __init__(self):
         handlers = [
@@ -34,7 +36,7 @@ class AuthLoginHandler(BaseHandler, tornado.auth.GoogleMixin):
         if not user:
             raise tornado.web.HTTPError(500, "Google auth failed")
         self.set_secure_cookie("user", tornado.escape.json_encode(user), expires_days=0.1)
-        self.redirect("/test") # broken link, for now
+        self.redirect(BASE_URL) # broken link, for now
 
 class AuthLogoutHandler(BaseHandler):
     def get(self):

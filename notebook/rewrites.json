@@ -1,6 +1,6 @@
 [
     {
-        "from": ":name",
+        "from": "nb/:name",
         "to": "_list/cell/get_cells",
         "query": {
             "include_docs": true,
@@ -11,6 +11,15 @@
                 ":name",
                 "￰"
             ]
+        }
+    },
+    
+    {
+        "from": "all",
+        "to": "_list/links/worksheets",
+        "query": {
+            "include_docs": false
+            
         }
     }
 ]
