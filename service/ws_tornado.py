@@ -1,6 +1,7 @@
 import tornado.httpserver
 import tornado.ioloop
-from tornado import websocket
+import tornado.auth
+import tornado.websocket
 
 import json
 import zmq
@@ -13,17 +14,15 @@ SUB_PORT = 5576
 ALT_XREQ = 5578
 ALT_SUB = 5579
 
-class EchoWebSocket(websocket.WebSocketHandler):
+class EchoWebSocket(tornado.websocket.WebSocketHandler):
     def __init__(self, application, request, ports=(0, 0)):
-        websocket.WebSocketHandler.__init__(self, application, request)
+        tornado.websocket.WebSocketHandler.__init__(self, application, request)
         self.dispatcher = ZMQDispatcher(ports)
     
-    def write_wrapper(self, msg):
-        print msg
-        self.write_message(msg[0])
-        
     def open(self):
-        #print "WebSocket opened"
+        if not self.get_current_user():
+            self.close()
+        
         self.dispatcher.sub_stream.on_recv(self.write_wrapper)
         self.dispatcher.req_stream.on_recv(self.write_wrapper)
 
@@ -33,10 +32,31 @@ class EchoWebSocket(websocket.WebSocketHandler):
 
     def on_close(self):
         print "WebSocket closed"
+        
+    def write_wrapper(self, msg):
+        print msg
+        self.write_message(msg[0])
+        
+    def close(self):
+        print 'closing'
+        self.stream.close()
+        
+    def get_current_user(self):
+        user_json = self.get_secure_cookie("user")
+        if not user_json: return None
+        return tornado.escape.json_decode(user_json)
+        
 
 class ZMQApplication(tornado.web.Application):
-    def __init__(self, handlers, *args, **kwargs):
-        tornado.web.Application.__init__(self, handlers, *args, **kwargs)
+    def __init__(self):
+        handlers = [
+            (r'/test', EchoWebSocket, dict(ports=(5575, 5576))),
+        ]
+        settings = dict(
+            cookie_secret="secret_ha$h",
+            xsrf_cookies=True,
+        )
+        tornado.web.Application.__init__(self, handlers, **settings)
 
 class ZMQLoop(tornado.ioloop.IOLoop):
     NONE = 0
@@ -64,8 +84,7 @@ class ZMQDispatcher:
         self.req_stream = zmqstream.ZMQStream(self.request_socket, loop)
 
 def main():
-    handlers = [(r'/test', EchoWebSocket, dict(ports=(5575, 5576))),]
-    application = ZMQApplication(handlers)
+    application = ZMQApplication()
     loop = ZMQLoop.instance()
     http_server = tornado.httpserver.HTTPServer(application, io_loop=loop)
     http_server.listen(9996)
