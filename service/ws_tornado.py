@@ -53,7 +53,7 @@ class EchoWebSocket(tornado.websocket.WebSocketHandler):
     def on_message(self, message):
         msg = json.loads(message)
         #dispatch based on msg['type']
-        to_send = IPythonRequest(msg['code'], msg['caller'])
+        to_send = IPythonRequest(msg['input'], msg['caller'])
         self.dispatcher.request_socket.send_json(to_send)
 
     def on_close(self):

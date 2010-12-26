@@ -2,7 +2,7 @@ import couchdb
 from uuid import uuid4
 import zmq
 
-from config import COUCH_SERVER, DATABASE, KERNEL_IP, KERNEL_PORT
+from config import COUCH_SERVER, DATABASE
 
 class Methods:
     def __init__(self):
@@ -28,9 +28,9 @@ class Methods:
     def save_worksheet(self, params):
         doc = {'cells': params['cell_list'], 'type': 'worksheet'}
         worksheet_id = params['worksheet_id']
-        rev = self.rev_or_false(worksheet_id)
-        if rev:
-            doc['_rev'] = rev
+        existing = self.doc_or_none(worksheet_id)
+        if existing:
+            doc['_rev'] = existing.rev
         self.db[worksheet_id] = doc
    
     def delete_cell(self, params):
@@ -38,12 +38,6 @@ class Methods:
         cell = self.db[cell_id]
         deleted = self.db.delete(cell)
         return deleted
- 
-    def rev_or_false(self, _id):
-        try:
-            return self.db[_id].rev
-        except couchdb.client.ResourceNotFound:
-            return False
  
     def doc_or_none(self, _id):
         try:

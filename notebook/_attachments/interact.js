@@ -35,7 +35,7 @@ function WebSocketClient(address) {
 WebSocketClient.prototype.python_request = function(input, cell_id) {
   var data = {
     type: 'python',
-    code: input,
+    input: input,
     caller: cell_id,
   };
   this.connection.send(JSON.stringify(data));
