@@ -14,6 +14,12 @@ SUB_PORT = 5576
 ALT_XREQ = 5578
 ALT_SUB = 5579
 
+class IPythonMessage(dict):
+    def __init__(self, code, caller):
+        self['msg_type'] = 'execute_request'
+        self['header'] = {'msg_id': caller}
+        self['content'] = {'code': code, 'silent': False}
+
 class EchoWebSocket(tornado.websocket.WebSocketHandler):
     def __init__(self, application, request, ports=(0, 0)):
         tornado.websocket.WebSocketHandler.__init__(self, application, request)
@@ -29,7 +35,9 @@ class EchoWebSocket(tornado.websocket.WebSocketHandler):
 
     def on_message(self, message):
         msg = json.loads(message)
-        self.dispatcher.request_socket.send_json(msg)
+        #dispatch based on msg['lang']
+        to_send = IPythonMessage(msg['code'], msg['caller'])
+        self.dispatcher.request_socket.send_json(to_send)
 
     def on_close(self):
         print "WebSocket closed"
@@ -38,7 +46,7 @@ class EchoWebSocket(tornado.websocket.WebSocketHandler):
         self.msg_dict = {}
         # IPython
         self.msg_dict.update({
-            'pyin': lambda x: {'input': x['code']},
+            'stream': lambda x: {'output': x['data']},
             'pyout': lambda x: {'output': x['data']},
             'pyerr': lambda x: {'output': x['ename'] + '<br />' + x['evalue']},
         })

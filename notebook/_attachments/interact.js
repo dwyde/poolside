@@ -4,8 +4,8 @@ var WORKSHEET_NAME = path.pop();
 var DATABASE = path[1];
 
 function output_cell(response) {
-  var cell_id = response.caller;
-  var text = response.result;
+  var cell_id = response.target;
+  var text = response.output;
   if (cell_id) {
     cell = $('#' + cell_id);
     cell.children('.output').html(text);
@@ -39,6 +39,7 @@ $(document).ready(function(){
     var input = $(this).children('.input').val();
     var id = $(this).attr('id');
     WS_CLIENT.ipython.send(choice, input, id);
+    $(this).children('p.output').html('');
 
     /* Prevent actual submission of the form. */
     return false;
