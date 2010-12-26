@@ -1,6 +1,5 @@
 import tornado.httpserver
 import tornado.ioloop
-import tornado.auth
 import tornado.websocket
 
 import json
@@ -27,9 +26,6 @@ class EchoWebSocket(tornado.websocket.WebSocketHandler):
         self.dispatcher = ZMQDispatcher(ports)
     
     def open(self):
-        if not self.get_current_user():
-            self.close()
-        
         self.dispatcher.sub_stream.on_recv(self.write_wrapper)
         self.dispatcher.req_stream.on_recv(self.write_wrapper)
 
@@ -60,15 +56,6 @@ class EchoWebSocket(tornado.websocket.WebSocketHandler):
                 result.update({'target': msg['parent_header']['msg_id']})
                 print result
                 self.write_message(result)
-        
-    def close(self):
-        print 'closing'
-        self.stream.close()
-        
-    def get_current_user(self):
-        user_json = self.get_secure_cookie("user")
-        if not user_json: return None
-        return tornado.escape.json_decode(user_json)
         
 
 class ZMQApplication(tornado.web.Application):
