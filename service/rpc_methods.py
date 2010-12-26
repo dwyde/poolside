@@ -14,6 +14,7 @@ class Methods:
 
     def save_cell(self, cell_id, fields):
         if not isinstance(cell_id, basestring) or cell_id == '':
+            # return False
             cell_id = new_id()
             print cell_id
         try:

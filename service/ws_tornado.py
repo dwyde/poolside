@@ -20,8 +20,9 @@ class ZMQReceiver:
         'pyerr': lambda x: x['ename'] + ': ' + x['evalue'],
     }
   
-    def __init__(self, write_func):
+    def __init__(self, write_func, db):
         self.write_message = write_func
+        self.db = db
   
     def __call__(self, message_parts):
         for part in message_parts:
@@ -34,6 +35,8 @@ class ZMQReceiver:
                     'target': msg['parent_header']['msg_id']
                 }
                 self.write_message(result)
+                self.db.save_cell(result['target'], 
+                                {'output': result['output']})
 
 class IPythonRequest(dict):
     def __init__(self, code, caller):
@@ -45,10 +48,10 @@ class IPythonRequest(dict):
 class EchoWebSocket(tornado.websocket.WebSocketHandler):
     def __init__(self, application, request, ports=(0, 0)):
         tornado.websocket.WebSocketHandler.__init__(self, application, request)
-        self.receiver = ZMQReceiver(self.write_message)
-        self.dispatcher = ZMQDispatcher(ports)
         self.db = rpc_methods.Methods()
-    
+        self.receiver = ZMQReceiver(self.write_message, self.db)
+        self.dispatcher = ZMQDispatcher(ports)
+        
     def open(self):
         self.dispatcher.sub_stream.on_recv(self.receiver)
         self.dispatcher.req_stream.on_recv(self.receiver)
@@ -58,7 +61,6 @@ class EchoWebSocket(tornado.websocket.WebSocketHandler):
         #dispatch based on msg['type']
         to_send = IPythonRequest(msg_dict['input'], msg_dict['caller'])
         self.dispatcher.request_socket.send_json(to_send)
-        print msg_dict['caller']
         self.db.save_cell(msg_dict['caller'], {'input': msg_dict['input']})
 
     def on_close(self):
