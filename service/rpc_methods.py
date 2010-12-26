@@ -1,36 +1,43 @@
 import couchdb
 from uuid import uuid4
-import zmq
 
 from config import COUCH_SERVER, DATABASE
+
+
+def new_id():
+    return uuid4().hex
 
 class Methods:
     def __init__(self):
         couch = couchdb.Server(COUCH_SERVER)
         self.db = couch[DATABASE]
 
-    def new_id(self, params):
-        return uuid4().hex
-
-    def save_cell(self, params):
-        cell_id = params['cell_id']
-        doc = self.doc_or_none(cell_id)
-        if doc:
-            doc['input'] = params['input']
-            doc['output'] = params['output']
-        else:
-            doc = {'input': params['input'], 'output': params['output'], 
-                'type': 'cell'}
+    def save_cell(self, cell_id, fields):
+        if not isinstance(cell_id, basestring) or cell_id == '':
+            cell_id = new_id()
+            print cell_id
+        try:
+            doc = self.db[cell_id]
+            for field, data in fields.iteritems():
+                doc[field] = data
+            if hasattr(doc, '_rev'):
+                doc.update({'_rev': doc.rev})
+        except couchdb.client.ResourceNotFound:
+            doc = {'input': fields.get('input', ''), 'output': '',
+                   'type': 'cell'}
         
         self.db[cell_id] = doc
-        return 'cell saved'
 
-    def save_worksheet(self, params):
-        doc = {'cells': params['cell_list'], 'type': 'worksheet'}
-        worksheet_id = params['worksheet_id']
-        existing = self.doc_or_none(worksheet_id)
-        if existing:
+    def save_worksheet(self, worksheet_id, cell_list):
+        doc = {'cells': cell_list, 'type': 'worksheet'}
+        try:
+            existing = self.db[worksheet_id]
             doc['_rev'] = existing.rev
+        except couchdb.client.PreconditionFailed:
+            pass
+        except couchdb.client.ResourceNotFound:
+            pass
+            
         self.db[worksheet_id] = doc
    
     def delete_cell(self, params):
@@ -38,9 +45,3 @@ class Methods:
         cell = self.db[cell_id]
         deleted = self.db.delete(cell)
         return deleted
- 
-    def doc_or_none(self, _id):
-        try:
-            return self.db[_id]
-        except couchdb.client.ResourceNotFound:
-            return None

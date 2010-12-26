@@ -6,6 +6,8 @@ import json
 import zmq
 from zmq.eventloop import zmqstream
 
+import rpc_methods
+
 # ZMQ socket address constants
 KERNEL_IP = '127.0.0.1'
 XREQ_PORT = 5575
@@ -45,6 +47,7 @@ class EchoWebSocket(tornado.websocket.WebSocketHandler):
         tornado.websocket.WebSocketHandler.__init__(self, application, request)
         self.receiver = ZMQReceiver(self.write_message)
         self.dispatcher = ZMQDispatcher(ports)
+        self.db = rpc_methods.Methods()
     
     def open(self):
         self.dispatcher.sub_stream.on_recv(self.receiver)
@@ -55,7 +58,8 @@ class EchoWebSocket(tornado.websocket.WebSocketHandler):
         #dispatch based on msg['type']
         to_send = IPythonRequest(msg_dict['input'], msg_dict['caller'])
         self.dispatcher.request_socket.send_json(to_send)
-        #self.db.save_cell(msg_dict)
+        print msg_dict['caller']
+        self.db.save_cell(msg_dict['caller'], {'input': msg_dict['input']})
 
     def on_close(self):
         print "WebSocket closed"
