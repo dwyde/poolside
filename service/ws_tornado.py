@@ -31,11 +31,11 @@ class ZMQReceiver:
                     'output': output,
                     'target': msg['parent_header']['msg_id']
                 }
-                print result
                 self.write_message(result)
 
 class IPythonRequest(dict):
     def __init__(self, code, caller):
+        dict.__init__(self)
         self['msg_type'] = 'execute_request'
         self['header'] = {'msg_id': caller}
         self['content'] = {'code': code, 'silent': False}
@@ -52,7 +52,7 @@ class EchoWebSocket(tornado.websocket.WebSocketHandler):
 
     def on_message(self, message):
         msg = json.loads(message)
-        #dispatch based on msg['lang']
+        #dispatch based on msg['type']
         to_send = IPythonRequest(msg['code'], msg['caller'])
         self.dispatcher.request_socket.send_json(to_send)
 
@@ -63,7 +63,7 @@ class EchoWebSocket(tornado.websocket.WebSocketHandler):
 class ZMQApplication(tornado.web.Application):
     def __init__(self):
         handlers = [
-            (r'/notebook', EchoWebSocket, dict(ports=(5575, 5576))),
+            (r'/notebook', EchoWebSocket, dict(ports=(XREQ_PORT, SUB_PORT))),
         ]
         settings = dict(
             cookie_secret="secret_ha$h",

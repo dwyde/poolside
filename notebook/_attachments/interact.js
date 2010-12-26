@@ -34,7 +34,7 @@ function WebSocketClient(address) {
 
 WebSocketClient.prototype.python_request = function(input, cell_id) {
   var data = {
-    lang: 'python',
+    type: 'python',
     code: input,
     caller: cell_id,
   };
