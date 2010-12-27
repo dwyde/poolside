@@ -46,48 +46,38 @@ class IPythonRequest(dict):
         self['header'] = {'msg_id': caller}
         self['content'] = {'code': code, 'silent': False}
 
-MAP = {}
-
 class EchoWebSocket(tornado.websocket.WebSocketHandler):
     def __init__(self, application, request):
         tornado.websocket.WebSocketHandler.__init__(self, application, request)
         self.db = db_layer.Methods()
-        
-    def open(self):
-        receiver = ZMQReceiver(self.write_message, self.db)
-        parent_conn, child_conn = Pipe()
-        p = Process(target=partial_and_ports, args=(child_conn,))
-        p.start()
-        ports = parent_conn.recv()
-        
-        zmq_container = ZMQContainer(ports)
-        zmq_container.sub_stream.on_recv(receiver)
-        zmq_container.req_stream.on_recv(receiver)
-        
-        dispatch = {
+        self.dispatch = {
             'python': self.ipython_request,
             'save_worksheet': self.save_worksheet,
             'new_id': self.new_id,
             'delete_cell': self.delete_cell,
         }
         
-        MAP[self] = dict(
-            zmq_container=zmq_container,
-            receiver=receiver,
-            #kernel_starter=kernel_starter,
-            dispatch=dispatch,
-        )
-
+    def open(self):
+        self.receiver = ZMQReceiver(self.write_message, self.db)
+        parent_conn, child_conn = Pipe()
+        self.kernel_p = Process(target=partial_and_ports, args=(child_conn,))
+        self.kernel_p.start()
+        ports = parent_conn.recv()
+        
+        self.zmq_container = ZMQContainer(ports)
+        self.zmq_container.sub_stream.on_recv(self.receiver)
+        self.zmq_container.req_stream.on_recv(self.receiver)
+        
     def on_message(self, message):
         msg_dict = json.loads(message)
-        MAP[self]['dispatch'][msg_dict['type']](msg_dict)
+        self.dispatch[msg_dict['type']](msg_dict)
 
     def on_close(self):
-        pass
+        self.kernel_p.terminate()
     
     def ipython_request(self, msg_dict):
         to_send = IPythonRequest(msg_dict['input'], msg_dict['caller'])
-        MAP[self]['zmq_container'].request_socket.send_json(to_send)
+        self.zmq_container.request_socket.send_json(to_send)
         cell_id = self.db.save_cell(msg_dict['caller'], 
                                    {'input': msg_dict['input'], 'output': ''})
         

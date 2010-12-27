@@ -25,10 +25,8 @@ def partial_and_ports(conn):
     kernel = make_kernel(namespace, Kernel, OutStream, DisplayHook)
     load_ipython_extension(kernel.user_ns)
     conn.send([
-        #partial(start_kernel, namespace, kernel), [
-            kernel._recorded_ports['xrep_port'], 
-            kernel._recorded_ports['pub_port'],
-        #]
+        kernel._recorded_ports['xrep_port'], 
+        kernel._recorded_ports['pub_port'],
     ])
     conn.close()
     start_kernel(namespace, kernel)
