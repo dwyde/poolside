@@ -7,11 +7,7 @@ import zmq
 from zmq.eventloop import zmqstream
 
 import db_layer
-
-# ZMQ socket address constants
-KERNEL_IP = '127.0.0.1'
-XREQ_PORT = 5575
-SUB_PORT = 5576
+from config import KERNEL_IP, XREQ_PORT, SUB_PORT, WEBSOCKET_PORT
 
 class ZMQReceiver:
     msg_dict = {
@@ -125,7 +121,7 @@ def main():
     application = ZMQApplication()
     loop = ZMQLoop.instance()
     http_server = tornado.httpserver.HTTPServer(application, io_loop=loop)
-    http_server.listen(9996)
+    http_server.listen(WEBSOCKET_PORT)
     loop.start()
 
 if __name__ == '__main__':
