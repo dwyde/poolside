@@ -6,7 +6,7 @@ import json
 import zmq
 from zmq.eventloop import zmqstream
 
-import rpc_methods
+import db_layer
 
 # ZMQ socket address constants
 KERNEL_IP = '127.0.0.1'
@@ -49,7 +49,7 @@ class IPythonRequest(dict):
 class EchoWebSocket(tornado.websocket.WebSocketHandler):
     def __init__(self, application, request, ports=(0, 0)):
         tornado.websocket.WebSocketHandler.__init__(self, application, request)
-        self.db = rpc_methods.Methods()
+        self.db = db_layer.Methods()
         self.receiver = ZMQReceiver(self.write_message, self.db)
         self.zmq_container = ZMQContainer(ports)
         self.dispatch = {
@@ -80,7 +80,7 @@ class EchoWebSocket(tornado.websocket.WebSocketHandler):
         self.db.save_worksheet(msg_dict['id'], msg_dict['cells'])
     
     def new_id(self, msg_dict):
-        cell_id = rpc_methods.new_id()
+        cell_id = db_layer.new_id()
         self.db.save_cell(cell_id, {})
         self.write_message({'type': 'new_id', 'id': cell_id})
         
