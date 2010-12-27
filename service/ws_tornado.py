@@ -31,12 +31,14 @@ class ZMQReceiver:
             if msg_type in self.msg_dict:
                 output = self.msg_dict[msg_type](msg['content'])
                 result = {
-                    'output': output,
+                    'type': 'output',
+                    'content': output,
                     'target': msg['parent_header']['msg_id']
                 }
                 self.write_message(result)
+                print result, '!!!'
                 self.db.save_cell(result['target'], 
-                                {'output': result['output']})
+                                {'output': result['content']})
 
 class IPythonRequest(dict):
     def __init__(self, code, caller):
@@ -50,21 +52,37 @@ class EchoWebSocket(tornado.websocket.WebSocketHandler):
         tornado.websocket.WebSocketHandler.__init__(self, application, request)
         self.db = rpc_methods.Methods()
         self.receiver = ZMQReceiver(self.write_message, self.db)
-        self.dispatcher = ZMQDispatcher(ports)
+        self.zmq_container = ZMQContainer(ports)
+        self.dispatch = {
+            'python': self.ipython_request,
+            'save_worksheet': self.save_worksheet,
+            'new_id': self.new_id,
+        }
         
     def open(self):
-        self.dispatcher.sub_stream.on_recv(self.receiver)
-        self.dispatcher.req_stream.on_recv(self.receiver)
+        self.zmq_container.sub_stream.on_recv(self.receiver)
+        self.zmq_container.req_stream.on_recv(self.receiver)
 
     def on_message(self, message):
         msg_dict = json.loads(message)
-        #dispatch based on msg['type']
-        to_send = IPythonRequest(msg_dict['input'], msg_dict['caller'])
-        self.dispatcher.request_socket.send_json(to_send)
-        self.db.save_cell(msg_dict['caller'], {'input': msg_dict['input']})
+        print msg_dict
+        self.dispatch[msg_dict['type']](msg_dict)
 
     def on_close(self):
         print "WebSocket closed"
+    
+    def ipython_request(self, msg_dict):
+        to_send = IPythonRequest(msg_dict['input'], msg_dict['caller'])
+        self.zmq_container.request_socket.send_json(to_send)
+        cell_id = self.db.save_cell(msg_dict['caller'], 
+                                   {'input': msg_dict['input'], 'output': ''})
+        
+    def save_worksheet(self, msg_dict):
+        self.db.save_worksheet(msg_dict['id'], msg_dict['cells'])
+    
+    def new_id(self, msg_dict):
+        cell_id = rpc_methods.new_id()
+        self.write_message({'type': 'new_id', 'id': cell_id})
         
 
 class ZMQApplication(tornado.web.Application):
@@ -87,7 +105,7 @@ class ZMQLoop(tornado.ioloop.IOLoop):
     def __init__(self, impl=None):
         tornado.ioloop.IOLoop.__init__(self, impl=zmq.Poller())
 
-class ZMQDispatcher:
+class ZMQContainer:
     def __init__(self, ports):
         ctx = zmq.Context()
         self.request_socket = ctx.socket(zmq.XREQ)

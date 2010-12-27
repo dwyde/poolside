@@ -13,10 +13,11 @@ class Methods:
         self.db = couch[DATABASE]
 
     def save_cell(self, cell_id, fields):
-        if not isinstance(cell_id, basestring) or cell_id == '':
-            # return False
+        if not isinstance(cell_id, basestring):
+            return None
+        elif cell_id == '':
             cell_id = new_id()
-            print cell_id
+            print cell_id, '???'
         try:
             doc = self.db[cell_id]
             for field, data in fields.iteritems():
@@ -28,6 +29,7 @@ class Methods:
                    'type': 'cell'}
         
         self.db[cell_id] = doc
+        return cell_id
 
     def save_worksheet(self, worksheet_id, cell_list):
         doc = {'cells': cell_list, 'type': 'worksheet'}
