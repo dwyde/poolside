@@ -16,7 +16,7 @@ from IPython.zmq.displayhook import DisplayHook
 
 from viz_extension import load_ipython_extension
 
-def partial_and_ports():
+def partial_and_ports(conn):
     # Parse command line arguments to check for user-specified ports.
     parser = make_argument_parser()
     namespace = parser.parse_args()
@@ -24,12 +24,16 @@ def partial_and_ports():
     # Create a kernel, and add a magic "Viz" visualization function to it.
     kernel = make_kernel(namespace, Kernel, OutStream, DisplayHook)
     load_ipython_extension(kernel.user_ns)
-    ports = [
-        kernel._recorded_ports['xrep_port'], 
-        kernel._recorded_ports['pub_port'],
-    ]
-    return partial(start_kernel, namespace, kernel), ports
+    conn.send([
+        #partial(start_kernel, namespace, kernel), [
+            kernel._recorded_ports['xrep_port'], 
+            kernel._recorded_ports['pub_port'],
+        #]
+    ])
+    conn.close()
+    start_kernel(namespace, kernel)
 
 if __name__ == '__main__':
     partial, ports = partial_and_ports()
     partial()
+
