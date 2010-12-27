@@ -82,6 +82,7 @@ class EchoWebSocket(tornado.websocket.WebSocketHandler):
     
     def new_id(self, msg_dict):
         cell_id = rpc_methods.new_id()
+        self.db.save_cell(cell_id, {})
         self.write_message({'type': 'new_id', 'id': cell_id})
         
 
