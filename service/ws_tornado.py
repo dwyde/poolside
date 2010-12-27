@@ -36,7 +36,6 @@ class ZMQReceiver:
                     'target': msg['parent_header']['msg_id']
                 }
                 self.write_message(result)
-                print result, '!!!'
                 self.db.save_cell(result['target'], 
                                 {'output': result['content']})
 
@@ -66,11 +65,10 @@ class EchoWebSocket(tornado.websocket.WebSocketHandler):
 
     def on_message(self, message):
         msg_dict = json.loads(message)
-        print msg_dict
         self.dispatch[msg_dict['type']](msg_dict)
 
     def on_close(self):
-        print "WebSocket closed"
+        pass
     
     def ipython_request(self, msg_dict):
         to_send = IPythonRequest(msg_dict['input'], msg_dict['caller'])

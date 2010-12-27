@@ -100,7 +100,7 @@ $(document).ready(function(){
   });
   
   $('button.delete').live('click', function(){
-    var ans = confirm('Do you really want to delete this cell?');
+    var ans = confirm('Do you want to permanently delete this cell?');
     if (ans) {
       cell_id = $(this).parent().attr('id');
       ws_client.delete_cell(cell_id);

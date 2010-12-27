@@ -45,5 +45,4 @@ class Methods:
     def delete_cell(self, cell_id):
         cell = self.db[cell_id]
         if cell.get('type') == 'cell':
-            deleted = self.db.delete(cell)
-            print '!!!', deleted
+            self.db.delete(cell)
