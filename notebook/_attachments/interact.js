@@ -100,10 +100,13 @@ $(document).ready(function(){
   });
   
   $('button.delete').live('click', function(){
-    cell_id = $(this).parent().attr('id');
-    ws_client.delete_cell(cell_id);
-    $('#worksheet #' + cell_id).remove();
-    ws_client.save_worksheet();
+    var ans = confirm('Do you really want to delete this cell?');
+    if (ans) {
+      cell_id = $(this).parent().attr('id');
+      ws_client.delete_cell(cell_id);
+      $('#worksheet #' + cell_id).remove();
+      ws_client.save_worksheet();
+    }
     return false;
   });
 });
