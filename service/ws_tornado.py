@@ -5,9 +5,13 @@ import tornado.websocket
 import json
 import zmq
 from zmq.eventloop import zmqstream
+import os
 
 import db_layer
 from config import KERNEL_IP, XREQ_PORT, SUB_PORT, WEBSOCKET_PORT
+
+from prep_kernel import partial_and_ports
+from threading import Thread
 
 class ZMQReceiver:
     msg_dict = {
@@ -42,12 +46,20 @@ class IPythonRequest(dict):
         self['header'] = {'msg_id': caller}
         self['content'] = {'code': code, 'silent': False}
 
+class KernelStarter(Thread):
+   def __init__ (self, func):
+      Thread.__init__(self)
+      self.start_kernel = func
+   
+   def run(self):
+      self.start_kernel()
+
+mapping = {}
+
 class EchoWebSocket(tornado.websocket.WebSocketHandler):
-    def __init__(self, application, request, ports=(0, 0)):
+    def __init__(self, application, request):
         tornado.websocket.WebSocketHandler.__init__(self, application, request)
         self.db = db_layer.Methods()
-        self.receiver = ZMQReceiver(self.write_message, self.db)
-        self.zmq_container = ZMQContainer(ports)
         self.dispatch = {
             'python': self.ipython_request,
             'save_worksheet': self.save_worksheet,
@@ -56,8 +68,18 @@ class EchoWebSocket(tornado.websocket.WebSocketHandler):
         }
         
     def open(self):
+        self.receiver = ZMQReceiver(self.write_message, self.db)
+        start_kernel, ports = partial_and_ports()
+        #import sys
+        #sys.stdout = sys.__stdout__
+        self.zmq_container = ZMQContainer(ports)
         self.zmq_container.sub_stream.on_recv(self.receiver)
         self.zmq_container.req_stream.on_recv(self.receiver)
+        
+        sk = KernelStarter(start_kernel)
+        sk.start()
+        
+        mapping[self] = self
 
     def on_message(self, message):
         msg_dict = json.loads(message)
@@ -86,7 +108,7 @@ class EchoWebSocket(tornado.websocket.WebSocketHandler):
 class ZMQApplication(tornado.web.Application):
     def __init__(self):
         handlers = [
-            (r'/notebook', EchoWebSocket, dict(ports=(XREQ_PORT, SUB_PORT))),
+            (r'/notebook', EchoWebSocket),
         ]
         settings = dict(
             cookie_secret="secret_ha$h",
