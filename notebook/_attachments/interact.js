@@ -66,11 +66,16 @@ WebSocketClient.prototype.save_worksheet = function() {
 };
 
 WebSocketClient.prototype.new_id = function() {
-  var data = {
-    type: 'new_id',
-  };
-  this.connection.send(JSON.stringify(data));
+  this.connection.send(JSON.stringify({type: 'new_id'}));
 };
+
+WebSocketClient.prototype.delete_cell = function(id) {
+  var data = {
+    type: 'delete_cell',
+    id: id,
+  }
+  this.connection.send(JSON.stringify(data));
+}
 
 /* Main JQuery code */
 $(document).ready(function(){
@@ -92,6 +97,14 @@ $(document).ready(function(){
     ws_client.new_id();
     $('#worksheet').append(cell);
     //ws_client.save_cell(
+  });
+  
+  $('button.delete').live('click', function(){
+    cell_id = $(this).parent().attr('id');
+    ws_client.delete_cell(cell_id);
+    $('#worksheet #' + cell_id).remove();
+    ws_client.save_worksheet();
+    return false;
   });
 });
 

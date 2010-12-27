@@ -17,7 +17,6 @@ class Methods:
             return None
         elif cell_id == '':
             cell_id = new_id()
-            print cell_id, '???'
         try:
             doc = self.db[cell_id]
             for field, data in fields.iteritems():
@@ -40,11 +39,11 @@ class Methods:
             pass
         except couchdb.client.ResourceNotFound:
             pass
-            
+
         self.db[worksheet_id] = doc
    
-    def delete_cell(self, params):
-        cell_id = params['cell_id']
+    def delete_cell(self, cell_id):
         cell = self.db[cell_id]
-        deleted = self.db.delete(cell)
-        return deleted
+        if cell.get('type') == 'cell':
+            deleted = self.db.delete(cell)
+            print '!!!', deleted

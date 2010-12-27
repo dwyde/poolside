@@ -57,6 +57,7 @@ class EchoWebSocket(tornado.websocket.WebSocketHandler):
             'python': self.ipython_request,
             'save_worksheet': self.save_worksheet,
             'new_id': self.new_id,
+            'delete_cell': self.delete_cell,
         }
         
     def open(self):
@@ -85,6 +86,8 @@ class EchoWebSocket(tornado.websocket.WebSocketHandler):
         self.db.save_cell(cell_id, {})
         self.write_message({'type': 'new_id', 'id': cell_id})
         
+    def delete_cell(self, msg_dict):
+        self.db.delete_cell(msg_dict['id']);
 
 class ZMQApplication(tornado.web.Application):
     def __init__(self):
