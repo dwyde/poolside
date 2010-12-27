@@ -35,9 +35,9 @@ class ZMQReceiver:
                     'content': output,
                     'target': msg['parent_header']['msg_id']
                 }
-                self.write_message(result)
                 self.db.save_cell(result['target'], 
                                 {'output': result['content']})
+                self.write_message(result)
 
 class IPythonRequest(dict):
     def __init__(self, code, caller):
