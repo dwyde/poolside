@@ -1,2 +1,0 @@
-git push ssh://dwyde@hartlab.ncf.edu/home/dwyde/thesis/bare_notebook --all
-ssh dwyde@hartlab.ncf.edu 'cd ~/thesis/notebook; git pull'
