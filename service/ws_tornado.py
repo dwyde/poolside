@@ -8,7 +8,7 @@ from zmq.eventloop import zmqstream
 import os
 
 import db_layer
-from config import KERNEL_IP, XREQ_PORT, SUB_PORT, WEBSOCKET_PORT
+from config import KERNEL_IP, WEBSOCKET_PORT
 
 from prep_kernel import partial_and_ports
 from multiprocessing import Process, Pipe

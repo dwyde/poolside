@@ -1,6 +1,4 @@
 COUCH_SERVER = 'http://localhost:5984'
 DATABASE = 'notebook'
 KERNEL_IP = '127.0.0.1'
-XREQ_PORT = 5575
-SUB_PORT = 5576
 WEBSOCKET_PORT = 9996
