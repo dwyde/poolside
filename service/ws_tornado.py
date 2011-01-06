@@ -137,6 +137,10 @@ def parse_arguments():
             help='name of the CouchDB database', default='notebook')
 
     (options, args) = parser.parse_args()
+    
+    import sys
+    del sys.argv[1:]
+    
     return options
 
 def main():
