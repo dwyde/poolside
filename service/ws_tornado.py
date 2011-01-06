@@ -141,7 +141,6 @@ def parse_arguments():
 
 def main():
     options = parse_arguments()
-    print options.__dict__
     application = ZMQApplication(options.couch_port, options.database)
     loop = ZMQLoop.instance()
     http_server = tornado.httpserver.HTTPServer(application, io_loop=loop)
