@@ -97,11 +97,7 @@ class ZMQApplication(tornado.web.Application):
         handlers = [
             (r'/notebook', EchoWebSocket),
         ]
-        settings = dict(
-            cookie_secret="secret_ha$h",
-            xsrf_cookies=True,
-        )
-        tornado.web.Application.__init__(self, handlers, **settings)
+        tornado.web.Application.__init__(self, handlers)
 
 class ZMQLoop(tornado.ioloop.IOLoop):
     NONE = 0
