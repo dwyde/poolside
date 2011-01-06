@@ -1,16 +1,13 @@
 import couchdb
 from uuid import uuid4
 
-from config import COUCH_SERVER, DATABASE
-
-
 def new_id():
     return uuid4().hex
 
 class Methods:
-    def __init__(self):
-        couch = couchdb.Server(COUCH_SERVER)
-        self.db = couch[DATABASE]
+    def __init__(self, couch_port, database):
+        couch = couchdb.Server('http://localhost:%d' % (couch_port,))
+        self.db = couch[database]
 
     def save_cell(self, cell_id, fields):
         if not isinstance(cell_id, basestring):

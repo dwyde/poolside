@@ -5,13 +5,14 @@ import tornado.websocket
 import json
 import zmq
 from zmq.eventloop import zmqstream
-import os
+from optparse import OptionParser
 
 import db_layer
-from config import KERNEL_IP, WEBSOCKET_PORT
 
 from prep_kernel import partial_and_ports
 from multiprocessing import Process, Pipe
+
+KERNEL_IP = '127.0.0.1'
 
 class ZMQReceiver:
     msg_dict = {
@@ -47,16 +48,18 @@ class IPythonRequest(dict):
         self['content'] = {'code': code, 'silent': False}
 
 class EchoWebSocket(tornado.websocket.WebSocketHandler):
-    def __init__(self, application, request):
+    def __init__(self, application, request, server, db_port):
         tornado.websocket.WebSocketHandler.__init__(self, application, request)
-        self.db = db_layer.Methods()
+        
+        self.db = db_layer.Methods(server, db_port)
+        
         self.dispatch = {
             'python': self.ipython_request,
             'save_worksheet': self.save_worksheet,
             'new_id': self.new_id,
             'delete_cell': self.delete_cell,
         }
-        
+    
     def open(self):
         self.receiver = ZMQReceiver(self.write_message, self.db)
         parent_conn, child_conn = Pipe()
@@ -93,9 +96,9 @@ class EchoWebSocket(tornado.websocket.WebSocketHandler):
         self.db.delete_cell(msg_dict['id']);
 
 class ZMQApplication(tornado.web.Application):
-    def __init__(self):
+    def __init__(self, server, db_port):
         handlers = [
-            (r'/notebook', EchoWebSocket),
+            (r'/notebook', EchoWebSocket, dict(server=server, db_port=db_port)),
         ]
         tornado.web.Application.__init__(self, handlers)
 
@@ -122,11 +125,27 @@ class ZMQContainer:
         self.req_stream = zmqstream.ZMQStream(self.request_socket, loop)
         self.sub_stream = zmqstream.ZMQStream(self.sub_socket, loop)
 
+def parse_arguments():
+    parser = OptionParser()
+    parser.add_option('-w', '--ws_port', dest='ws_port', metavar='WEBSOCKET',
+            help='port on which the WEBSOCKET server will run', default='9996',
+            type='int')
+    parser.add_option('-c', '--couch_port', dest='couch_port', default='5984', 
+            metavar='COUCH_PORT', help='CouchDB server port (on localhost)', 
+            type='int')
+    parser.add_option('-d', '--database', dest='database', metavar='DATABASE',
+            help='name of the CouchDB database', default='notebook')
+
+    (options, args) = parser.parse_args()
+    return options
+
 def main():
-    application = ZMQApplication()
+    options = parse_arguments()
+    print options.__dict__
+    application = ZMQApplication(options.couch_port, options.database)
     loop = ZMQLoop.instance()
     http_server = tornado.httpserver.HTTPServer(application, io_loop=loop)
-    http_server.listen(WEBSOCKET_PORT)
+    http_server.listen(options.ws_port)
     loop.start()
 
 if __name__ == '__main__':
