@@ -2,6 +2,7 @@ import tornado.httpserver
 import tornado.ioloop
 import tornado.websocket
 
+import sys
 import json
 import zmq
 from zmq.eventloop import zmqstream
@@ -138,7 +139,6 @@ def parse_arguments():
 
     (options, args) = parser.parse_args()
     
-    import sys
     del sys.argv[1:]
     
     return options
