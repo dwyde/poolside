@@ -46,7 +46,8 @@ class IPythonRequest(dict):
         dict.__init__(self)
         self['msg_type'] = 'execute_request'
         self['header'] = {'msg_id': caller}
-        self['content'] = {'code': code, 'silent': False}
+        self['content'] = {'code': code, 'silent': False,
+                'user_variables': [], 'user_expressions': {},}
 
 class EchoWebSocket(tornado.websocket.WebSocketHandler):
     def __init__(self, application, request, server, db_port):
@@ -82,7 +83,7 @@ class EchoWebSocket(tornado.websocket.WebSocketHandler):
     def ipython_request(self, msg_dict):
         to_send = IPythonRequest(msg_dict['input'], msg_dict['caller'])
         self.zmq_container.request_socket.send_json(to_send)
-        cell_id = self.db.save_cell(msg_dict['caller'], 
+        self.db.save_cell(msg_dict['caller'], 
                                    {'input': msg_dict['input'], 'output': ''})
         
     def save_worksheet(self, msg_dict):

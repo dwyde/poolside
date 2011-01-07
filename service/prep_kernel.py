@@ -7,9 +7,8 @@ Derived from IPython.zmq.ipkernel.main()
 
 import sys
 sys.path.append('../visualize')
-from functools import partial
 
-from IPython.zmq.pykernel import Kernel
+from IPython.zmq.ipkernel import Kernel
 from IPython.zmq.entry_point import make_argument_parser, make_kernel, start_kernel
 from IPython.zmq.iostream import OutStream
 from IPython.zmq.displayhook import DisplayHook
@@ -23,7 +22,7 @@ def partial_and_ports(conn):
     
     # Create a kernel, and add a magic "Viz" visualization function to it.
     kernel = make_kernel(namespace, Kernel, OutStream, DisplayHook)
-    load_ipython_extension(kernel.user_ns)
+    load_ipython_extension(kernel.shell.user_ns)
     conn.send([
         kernel._recorded_ports['xrep_port'], 
         kernel._recorded_ports['pub_port'],
@@ -31,7 +30,4 @@ def partial_and_ports(conn):
     conn.close()
     start_kernel(namespace, kernel)
 
-if __name__ == '__main__':
-    partial, ports = partial_and_ports()
-    partial()
 
