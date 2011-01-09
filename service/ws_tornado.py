@@ -36,9 +36,8 @@ class EchoWebSocket(tornado.websocket.WebSocketHandler):
     def open(self):
         manager = Manager()
         q = manager.Queue()
-        l = manager.list([self.write_message])
         
-        kernel_p = Process(target=interpreter, args=(q, l))
+        kernel_p = Process(target=interpreter, args=(q, self))
         kernel_p.start()
         
         q.put('print 5 + 3')

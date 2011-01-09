@@ -5,12 +5,17 @@ from dec import VizDecor
 
 @VizDecor({list: lambda x:True})
 def table(obj):
-    s = '--'
+    s = '<table><tr>\n'
     for i in obj:
-        s+=str(i)+'<br /><br />'
+        if isinstance(i, list):
+            return obj
+        else:
+            s+=' <td>%s</td>\n'%(i)
+    s+='</tr></table>'
     return(s)
 
-@VizDecor({str: lambda x: len(x)<10,
-           list: lambda x: len(x)<10 })
-def test(foo):
-    return foo
+if __name__ == '__main__':
+    a = range(5)
+    b = ['a', 'b', [5]]
+    print table(a), '\n'
+    print table(b)
