@@ -27,12 +27,14 @@ function WebSocketClient(address) {
   this.connection = new WebSocket('ws://' + address);
   this.connection.onopen = function() {};
   this.connection.onmessage = function(event) {
-    var result = JSON.parse(event.data);
-    if (result && result.type == 'output') {
-      output_cell(result);
-    } else if (result && result.type == 'new_id') { /** MAKE A DICTIONARY **/
-      assign_id(result, client);
-    }
+    //var result = JSON.parse(event.data);
+    //if (result && result.type == 'output') {
+//      output_cell(result);
+    //} else if (result && result.type == 'new_id') { /** MAKE A DICTIONARY **/
+//      assign_id(result, client);
+    //}
+    alert('okay');
+    alert(event.data['stdout']);
   };
   this.connection.onclose = function() {
       output_cell({target: '__messages', content: 'WebSocket closed'});
