@@ -16,25 +16,28 @@ KERNEL_IP = '127.0.0.1'
 import threading
 
 class Responder(threading.Thread):
-    def __init__(self, write_func, pipe_end):
+    def __init__(self, write_func, pipe_end, db):
         threading.Thread.__init__(self)
         self.write_func = write_func
         self.pipe_end = pipe_end
+        self.db = db
     
     def run(self):
         while True:
             message = self.pipe_end.recv()
             print message
             self.write_func(message)
+            #self.db.save_cell(message['target'], 
+            #                    {'output': message['content']})
     
 
 class EchoWebSocket(tornado.websocket.WebSocketHandler):
     managers = {}
     
-    def __init__(self, application, request, server, db_port):
+    def __init__(self, application, request, db_port, database):
         tornado.websocket.WebSocketHandler.__init__(self, application, request)
         
-        self.db = db_layer.Methods(server, db_port)
+        self.db = db_layer.Methods(db_port, database)
         
         self.dispatch = {
             'python': self.ipython_request,
@@ -51,7 +54,7 @@ class EchoWebSocket(tornado.websocket.WebSocketHandler):
         kernel_p.start()
         
         self.managers[self] = c
-        resp = Responder(self.write_message, c)
+        resp = Responder(self.write_message, c, self.db)
         resp.start()
         
     def on_message(self, message):
@@ -82,9 +85,9 @@ class EchoWebSocket(tornado.websocket.WebSocketHandler):
         self.db.delete_cell(msg_dict['id']);
 
 class ZMQApplication(tornado.web.Application):
-    def __init__(self, server, db_port):
+    def __init__(self, db_port, database):
         handlers = [
-            (r'/notebook', EchoWebSocket, dict(server=server, db_port=db_port)),
+            (r'/notebook', EchoWebSocket, dict(db_port=db_port, database=database)),
         ]
         tornado.web.Application.__init__(self, handlers)
 

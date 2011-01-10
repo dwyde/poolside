@@ -25,7 +25,6 @@ class Methods:
                    'type': 'cell'}
         
         self.db[cell_id] = doc
-        return cell_id
 
     def save_worksheet(self, worksheet_id, cell_list):
         doc = {'cells': cell_list, 'type': 'worksheet'}
