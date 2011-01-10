@@ -9,9 +9,24 @@ from optparse import OptionParser
 import db_layer
 
 from prep_kernel import interpreter
-from multiprocessing import Process, Manager
+from multiprocessing import Process, Manager, Pipe
 
 KERNEL_IP = '127.0.0.1'
+
+import threading
+
+class Responder(threading.Thread):
+    def __init__(self, write_func, pipe_end):
+        threading.Thread.__init__(self)
+        self.write_func = write_func
+        self.pipe_end = pipe_end
+    
+    def run(self):
+        while True:
+            message = self.pipe_end.recv()
+            print message
+            self.write_func(message)
+    
 
 class EchoWebSocket(tornado.websocket.WebSocketHandler):
     managers = {}
@@ -21,34 +36,28 @@ class EchoWebSocket(tornado.websocket.WebSocketHandler):
         
         self.db = db_layer.Methods(server, db_port)
         
-        #self.dispatch = {
-        #    'python': self.ipython_request,
-        #    'save_worksheet': self.save_worksheet,
-        #    'new_id': self.new_id,
-        #    'delete_cell': self.delete_cell,
-        #}
-    
-    def test(self, t):
-        print self.write_message
-        self.write_message("okay")
-        print '!!!'
+        self.dispatch = {
+            'python': self.ipython_request,
+            'save_worksheet': self.save_worksheet,
+            'new_id': self.new_id,
+            'delete_cell': self.delete_cell,
+        }
     
     def open(self):
         manager = Manager()
-        q = manager.Queue()
+        c, d = Pipe()
         
-        kernel_p = Process(target=interpreter, args=(q, self))
+        kernel_p = Process(target=interpreter, args=(d,))
         kernel_p.start()
         
-        q.put('print 5 + 3')
-        
-        self.managers[self] = q
+        self.managers[self] = c
+        resp = Responder(self.write_message, c)
+        resp.start()
         
     def on_message(self, message):
         #print message
         msg_dict = json.loads(message)
-        #self.dispatch[msg_dict['type']](msg_dict)
-        self.managers[self].put(msg_dict['input'])
+        self.dispatch[msg_dict['type']](msg_dict)
 
     def on_close(self):
         #kernel_p, conn = self.kernels[self.write_message]
@@ -57,8 +66,7 @@ class EchoWebSocket(tornado.websocket.WebSocketHandler):
         pass
     
     def ipython_request(self, msg_dict):
-        to_send = IPythonRequest(msg_dict['input'], msg_dict['caller'])
-        self.zmq_container.request_socket.send_json(to_send)
+        self.managers[self].send([msg_dict['input'], msg_dict['caller']])
         self.db.save_cell(msg_dict['caller'], 
                                    {'input': msg_dict['input'], 'output': ''})
         

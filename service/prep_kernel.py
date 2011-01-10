@@ -12,11 +12,17 @@ from IPython.kernel.core.interpreter import Interpreter
 
 from viz_extension import load_ipython_extension
 
-def interpreter(q, callback):
+def interpreter(q):
     shell = Interpreter()
     load_ipython_extension(shell.user_ns)
     while True:
-        message = q.get()
+        message, caller = q.recv()
+        #try:
         res = shell.execute(message)
-        print res
-        callback.test(res)
+        #except:
+        #    res = {'stdout': 'Error!'}
+        q.send({
+            'content': res.get('stdout', ''), 
+            'target': caller,
+            'type': 'output',
+        })
