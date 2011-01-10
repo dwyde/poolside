@@ -3,8 +3,6 @@ import sys
 
 from dec import VizDecor
 
-TABLE_CELL = '  <td>%s</td>\n'
-
 @VizDecor({list: lambda x:True})
 def table(obj):
     s = '<table>\n'
@@ -12,9 +10,9 @@ def table(obj):
         s += ' <tr>\n'
         if isinstance(row, list):
             for col in row:
-                s += TABLE_CELL % (col,)
+                s += '  <td>%s</td>\n' % (col,)
         else:
-            s += TABLE_CELL % (row,)
+            s += '  <td>%s</td>\n' % (row,)
         s += ' </tr>\n'
     s += '</table>'
     return s
