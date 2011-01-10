@@ -88,7 +88,7 @@ $(document).ready(function(){
     var input = $(this).children('.input').val();
     var id = $(this).attr('id');
     ws_client.python_request(input, id);
-    $(this).children('p.output').html('');
+    $(this).children('.output').html('');
 
     /* Prevent actual submission of the form. */
     return false;
