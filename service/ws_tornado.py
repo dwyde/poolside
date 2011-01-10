@@ -48,13 +48,13 @@ class EchoWebSocket(tornado.websocket.WebSocketHandler):
     
     def open(self):
         manager = Manager()
-        c, d = Pipe()
+        parent_conn, child_conn = Pipe()
         
-        kernel_p = Process(target=interpreter, args=(d,))
+        kernel_p = Process(target=interpreter, args=(child_conn,))
         kernel_p.start()
         
-        self.managers[self] = c
-        resp = Responder(self.write_message, c, self.db)
+        self.managers[self] = parent_conn
+        resp = Responder(self.write_message, parent_conn, self.db)
         resp.start()
         
     def on_message(self, message):
