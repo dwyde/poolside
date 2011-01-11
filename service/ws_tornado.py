@@ -10,6 +10,7 @@ import db_layer
 
 from prep_kernel import interpreter
 from multiprocessing import Process, Manager, Pipe
+from multiprocessing.connection import Client
 
 KERNEL_IP = '127.0.0.1'
 
@@ -58,8 +59,11 @@ class EchoWebSocket(tornado.websocket.WebSocketHandler):
         kernel_p = Process(target=interpreter, args=(child_conn,))
         kernel_p.start()
         
-        self.managers[self] = parent_conn
-        resp = Responder(self.write_message, parent_conn, self.db, self.lock)
+        address = parent_conn.recv()
+        conn = Client(address)
+        
+        self.managers[self] = conn
+        resp = Responder(self.write_message, conn, self.db, self.lock)
         resp.start()
         
     def on_message(self, message):
