@@ -9,7 +9,7 @@ class Viz:
         """ Construct a dynamic viz dispatching function """
         self.typemap = collections.defaultdict(list)
         extFiles = []
-        globalsDict = {}
+        globalsDict = {'Viz': self}
         localsDict = {}
         for d in extdirs:
           extFiles.extend(glob.glob(os.path.join(d, '*.py')))
