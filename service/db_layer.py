@@ -19,7 +19,7 @@ class Methods:
             for field, data in fields.iteritems():
                 doc[field] = data
             if hasattr(doc, '_rev'):
-                doc.update({'_rev': doc.rev})
+                doc.update({'_rev': doc.rev, '_id': doc.id})
         except couchdb.client.ResourceNotFound:
             doc = {'input': fields.get('input', ''), 'output': '',
                    'type': 'cell'}

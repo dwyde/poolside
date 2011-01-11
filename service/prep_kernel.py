@@ -17,10 +17,10 @@ def interpreter(q):
     load_ipython_extension(shell.user_ns)
     while True:
         message, caller = q.recv()
-        #try:
-        res = shell.execute(message)
-        #except:
-        #    res = {'stdout': 'Error!'}
+        try:
+            res = shell.execute(message)
+        except Exception, e:
+            res = {'stdout': '%s: %s' % (e.__class__.__name__, e)}
         q.send({
             'content': res.get('stdout', ''), 
             'target': caller,

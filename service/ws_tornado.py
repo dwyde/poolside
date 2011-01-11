@@ -16,19 +16,22 @@ KERNEL_IP = '127.0.0.1'
 import threading
 
 class Responder(threading.Thread):
-    def __init__(self, write_func, pipe_end, db):
+    def __init__(self, write_func, pipe_end, db, lock):
         threading.Thread.__init__(self)
         self.write_func = write_func
         self.pipe_end = pipe_end
         self.db = db
+        self.lock = lock
     
     def run(self):
         while True:
             message = self.pipe_end.recv()
             print message
             self.write_func(message)
-            #self.db.save_cell(message['target'], 
-            #                    {'output': message['content']})
+            self.lock.acquire()
+            self.db.save_cell(message['target'], 
+                                {'output': message['content']})
+            self.lock.release()
     
 
 class EchoWebSocket(tornado.websocket.WebSocketHandler):
@@ -47,6 +50,8 @@ class EchoWebSocket(tornado.websocket.WebSocketHandler):
         }
     
     def open(self):
+        self.lock = threading.Lock()
+        
         manager = Manager()
         parent_conn, child_conn = Pipe()
         
@@ -54,7 +59,7 @@ class EchoWebSocket(tornado.websocket.WebSocketHandler):
         kernel_p.start()
         
         self.managers[self] = parent_conn
-        resp = Responder(self.write_message, parent_conn, self.db)
+        resp = Responder(self.write_message, parent_conn, self.db, self.lock)
         resp.start()
         
     def on_message(self, message):
@@ -70,8 +75,10 @@ class EchoWebSocket(tornado.websocket.WebSocketHandler):
     
     def ipython_request(self, msg_dict):
         self.managers[self].send([msg_dict['input'], msg_dict['caller']])
+        self.lock.acquire()
         self.db.save_cell(msg_dict['caller'], 
                                    {'input': msg_dict['input'], 'output': ''})
+        self.lock.release()
         
     def save_worksheet(self, msg_dict):
         self.db.save_worksheet(msg_dict['id'], msg_dict['cells'])
