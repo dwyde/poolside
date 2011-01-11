@@ -43,8 +43,12 @@ body {
     outline: none;
 }
 
-.cell p {
+.cell .output {
     margin:5px 0px 20px;
+}
+
+.cell table {
+    border: 1px solid #000;
 }
 
 .heading {
