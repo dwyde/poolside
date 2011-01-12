@@ -6,15 +6,14 @@ import sys
 import json
 from optparse import OptionParser
 
-import db_layer
-
-from prep_kernel import interpreter
 from multiprocessing import Process, Manager, Pipe
 from multiprocessing.connection import Client
+import threading
+
+from prep_kernel import interpreter
+import db_layer
 
 KERNEL_IP = '127.0.0.1'
-
-import threading
 
 class Responder(threading.Thread):
     def __init__(self, write_func, pipe_end, db, lock):
@@ -26,7 +25,10 @@ class Responder(threading.Thread):
     
     def run(self):
         while True:
-            message = self.pipe_end.recv()
+            try:
+                message = self.pipe_end.recv()
+            except EOFError:
+                break
             print message
             self.write_func(message)
             self.lock.acquire()
@@ -36,7 +38,7 @@ class Responder(threading.Thread):
     
 
 class EchoWebSocket(tornado.websocket.WebSocketHandler):
-    managers = {}
+    kernels = {}
     
     def __init__(self, application, request, db_port, database):
         tornado.websocket.WebSocketHandler.__init__(self, application, request)
@@ -62,26 +64,27 @@ class EchoWebSocket(tornado.websocket.WebSocketHandler):
         address = parent_conn.recv()
         conn = Client(address)
         
-        self.managers[self] = conn
         resp = Responder(self.write_message, conn, self.db, self.lock)
         resp.start()
         
+        self.kernels[self] = (kernel_p, conn)
+        
     def on_message(self, message):
-        #print message
         msg_dict = json.loads(message)
         self.dispatch[msg_dict['type']](msg_dict)
 
     def on_close(self):
-        #kernel_p, conn = self.kernels[self.write_message]
-        #conn.close()
-        #kernel_p.terminate()
-        pass
+        process, conn = self.kernels[self]
+        conn.close()
+        process.terminate()
     
     def ipython_request(self, msg_dict):
-        self.managers[self].send([msg_dict['input'], msg_dict['caller']])
+        process, conn = self.kernels[self]
+        conn.send([msg_dict['input'], msg_dict['caller']])
+        
         self.lock.acquire()
-        self.db.save_cell(msg_dict['caller'], 
-                                   {'input': msg_dict['input'], 'output': ''})
+        self.db.save_cell(msg_dict['caller'], {'input': msg_dict['input'],
+                'output': ''})
         self.lock.release()
         
     def save_worksheet(self, msg_dict):
