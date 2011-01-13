@@ -20,7 +20,7 @@ import sys, os
 
 # -- General configuration -----------------------------------------------------
 
-src_dirs = ['source', '../../service']
+src_dirs = ['source', '../../service', '../../visualize']
 sys.path.extend([os.path.abspath(x) for x in src_dirs])
 
 # Add any Sphinx extension module names here, as strings. They can be extensions
