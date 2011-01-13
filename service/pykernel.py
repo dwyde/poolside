@@ -14,12 +14,13 @@ from viz_extension import load_ipython_extension
 
 from multiprocessing.connection import Listener
 
+_SETUP_IP = ('127.0.0.1', 0)
+
 def interpreter(q):
     '''Set up an :class:`IPython.kernel.core.interpreter.Interpreter`.
     '''
     
-    setup_ip = ('127.0.0.1', 0)
-    listener = Listener(setup_ip)
+    listener = Listener(_SETUP_IP)
     q.send(listener.address)
     
     shell = Interpreter()
