@@ -12,7 +12,7 @@ from multiprocessing import Process, Manager, Pipe
 from multiprocessing.connection import Client
 import threading
 
-from prep_kernel import interpreter
+from pykernel import interpreter
 import db_layer
 
 KERNEL_IP = '127.0.0.1'
