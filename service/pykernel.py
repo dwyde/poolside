@@ -1,9 +1,8 @@
-#!/usr/bin/env python
+"""
+:mod:`pykernel` --- Start an IPython kernel
 
-'''
-Start an IPython ZMQ kernel, customized with an additional magic function.
-Derived from IPython.zmq.ipkernel.main()
-'''
+, customized with an additional magic function.
+"""
 
 import sys
 sys.path.append('../visualize')
@@ -17,8 +16,8 @@ from multiprocessing.connection import Listener
 _SETUP_IP = ('127.0.0.1', 0)
 
 def interpreter(q):
-    '''Set up an :class:`IPython.kernel.core.interpreter.Interpreter`.
-    '''
+    """Set up an :class:`IPython.kernel.core.interpreter.Interpreter`.
+    """
     
     listener = Listener(_SETUP_IP)
     q.send(listener.address)

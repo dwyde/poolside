@@ -1,4 +1,5 @@
-'''Testing, 1 2 3.'''
+"""Run a Tornado server that accepts HTML5 WebSocket connections.
+"""
 
 import tornado.httpserver
 import tornado.ioloop
@@ -8,7 +9,7 @@ import sys
 import json
 import optparse
 
-from multiprocessing import Process, Manager, Pipe
+from multiprocessing import Process, Pipe
 from multiprocessing.connection import Client
 import threading
 
@@ -18,23 +19,23 @@ import db_layer
 KERNEL_IP = '127.0.0.1'
 
 class Responder(threading.Thread):
-    '''Receive messages from a kernel process and output them to the client.
+    """Receive messages from a kernel process and output them to the client.
     Writing to CouchDB blocks this WebSocket connection.
-    '''
+    """
     
-    def __init__(self, write_func, pipe_end, db, lock):
+    def __init__(self, write_func, pipe_end, database, lock):
         threading.Thread.__init__(self)
         self.write_func = write_func
         self.pipe_end = pipe_end
-        self.db = db
+        self.db = database
         self.lock = lock
     
     def run(self):
-        '''
+        """
         Handle messages read from a :class:`multiprocessing.Connection`.
         
         Stop when an EOFError occurs.
-        '''
+        """
         
         while True:
             try:
@@ -49,9 +50,9 @@ class Responder(threading.Thread):
     
 
 class EchoWebSocket(tornado.websocket.WebSocketHandler):
-    '''
+    """
     A Tornado handler for connections to HTML5 WebSockets.
-    '''
+    """
     
     # Map each instance of this class to a two-tuple:
     # (A :class:`Process` running the associated Python kernel, 
@@ -59,10 +60,10 @@ class EchoWebSocket(tornado.websocket.WebSocketHandler):
     kernels = {}
     
     def __init__(self, application, request, db_port, database):
-        '''
+        """
         Initialize a CouchDB object and a method dispatcher for each connection.
         ###NOTE: ideally these would be shared between instances.
-        '''
+        """
         
         tornado.websocket.WebSocketHandler.__init__(self, application, request)
         
@@ -76,12 +77,12 @@ class EchoWebSocket(tornado.websocket.WebSocketHandler):
         }
     
     def open(self):
-        '''
+        """
         On connection from a browser:
         
         1. create a lock for this object writing to CouchDB
         2. make and start a 
-        '''
+        """
         
         self.lock = threading.Lock()
         
@@ -99,8 +100,8 @@ class EchoWebSocket(tornado.websocket.WebSocketHandler):
         self.kernels[self] = (kernel_p, conn)
         
     def on_message(self, message):
-        '''Receive and dispatch a message from the client side of a WebSocket.
-        '''
+        """Receive and dispatch a message from the client side of a WebSocket.
+        """
         
         msg_dict = json.loads(message)
         self.dispatch[msg_dict['type']](msg_dict)
@@ -110,8 +111,11 @@ class EchoWebSocket(tornado.websocket.WebSocketHandler):
         conn.close()
         process.terminate()
     
+    ### WEBSOCKET MESSAGE HANDLERS ###
+    
     def _ipython_request(self, msg_dict):
-        process, conn = self.kernels[self]
+        
+        _, conn = self.kernels[self]
         conn.send([msg_dict['input'], msg_dict['caller']])
         
         self.lock.acquire()
@@ -123,8 +127,8 @@ class EchoWebSocket(tornado.websocket.WebSocketHandler):
         self.db.save_worksheet(msg_dict['id'], msg_dict['cells'])
     
     def _new_id(self, msg_dict):
-        '''Fulfill WebSocket requests for a new cell UUID.
-        '''
+        """Fulfill WebSocket requests for a new cell UUID.
+        """
         
         cell_id = db_layer.new_id()
         self.db.save_cell(cell_id, {})
@@ -136,13 +140,14 @@ class EchoWebSocket(tornado.websocket.WebSocketHandler):
 class WebSocketApp(tornado.web.Application):
     def __init__(self, db_port, database):
         handlers = [
-            (r'/notebook', EchoWebSocket, dict(db_port=db_port, database=database)),
+            (r'/notebook', EchoWebSocket, dict(db_port=db_port, 
+                    database=database)),
         ]
         tornado.web.Application.__init__(self, handlers)
 
 def parse_arguments():
-    '''Process command line arguments using :class:`optparse.OptionParser`.
-    '''
+    """Process command line arguments using :class:`optparse.OptionParser`.
+    """
     
     parser = optparse.OptionParser()
     parser.add_option('-w', '--ws_port', dest='ws_port', metavar='WEBSOCKET',
