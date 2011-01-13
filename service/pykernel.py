@@ -1,17 +1,13 @@
-"""
-:mod:`pykernel` --- Start an IPython kernel
-
-, customized with an additional magic function.
+"""Run an IPython kernel, customized with additional visualization features.
 """
 
 import sys
 sys.path.append('../visualize')
-
-from IPython.kernel.core.interpreter import Interpreter
-
 from viz_extension import load_ipython_extension
 
 from multiprocessing.connection import Listener
+
+from IPython.kernel.core.interpreter import Interpreter
 
 _SETUP_IP = ('127.0.0.1', 0)
 
