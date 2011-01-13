@@ -17,8 +17,6 @@ import threading
 from pykernel import interpreter
 import db_layer
 
-KERNEL_IP = '127.0.0.1'
-
 class Responder(threading.Thread):
     """Receive messages from a kernel process and output them to the client.
     Writing to CouchDB blocks this WebSocket connection.
