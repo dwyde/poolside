@@ -1,4 +1,5 @@
-"""Run a Tornado server that accepts HTML5 WebSocket connections.
+"""Run a `Tornado <http://github.com/facebook/tornado>`_ server that 
+accepts HTML5 WebSocket connections.
 """
 
 import tornado.httpserver
