@@ -1,7 +1,5 @@
-.. Python WebSocket server and CouchDB code
-
-Tornado-based WebSocket Server
-==============================
+:mod:`ws_tornado` --- WebSocket Server based on Tornado 
+=======================================================
 
 .. automodule:: ws_tornado
 

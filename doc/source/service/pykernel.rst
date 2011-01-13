@@ -1,6 +1,4 @@
-.. Python WebSocket server and CouchDB code
-
-IPython Kernel Interpreter
-==========================
+:mod:`pykernel` --- Start an IPython Kernel Interpreter
+=======================================================
 
 .. automodule:: pykernel
