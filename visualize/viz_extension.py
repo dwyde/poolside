@@ -1,3 +1,8 @@
+#!/usr/bin/env python
+#
+# Copyright 2011 David Wyde and Chris Hart.
+#
+
 import os
 
 import dec

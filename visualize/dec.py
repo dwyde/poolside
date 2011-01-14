@@ -1,3 +1,8 @@
+#!/usr/bin/env python
+#
+# Copyright 2011 Chris Hart and David Wyde.
+#
+
 import types
 import os
 import glob

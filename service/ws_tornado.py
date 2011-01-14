@@ -1,3 +1,8 @@
+#!/usr/bin/env python
+#
+# Copyright 2011 David Wyde and Chris Hart.
+#
+
 """Run a `Tornado <http://github.com/facebook/tornado>`_ server that 
 accepts HTML5 WebSocket connections.
 """
