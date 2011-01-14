@@ -146,6 +146,7 @@ class EchoWebSocket(tornado.websocket.WebSocketHandler):
         
     def _delete_cell(self, msg_dict):
         """Delete a cell from a notebook."""
+        
         self.database.delete_cell(msg_dict['id'])
 
 class WebSocketApp(tornado.web.Application):
@@ -179,8 +180,8 @@ def parse_arguments():
     return options
 
 def main():
-    """The :mod:`ws_tornado` module's main entry point.
-    """
+    """The :mod:`ws_tornado` module's main entry point."""
+    
     options = parse_arguments()
     application = WebSocketApp(options.couch_port, options.database)
     loop = tornado.ioloop.IOLoop.instance()
