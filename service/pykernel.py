@@ -17,12 +17,12 @@ from IPython.kernel.core.interpreter import Interpreter
 
 _SETUP_IP = ('127.0.0.1', 0)
 
-def interpreter(q):
+def interpreter(pipe):
     """Set up an :class:`IPython.kernel.core.interpreter.Interpreter`.
     """
     
     listener = Listener(_SETUP_IP)
-    q.send(listener.address)
+    pipe.send(listener.address)
     
     shell = Interpreter()
     load_ipython_extension(shell.user_ns)
