@@ -31,7 +31,7 @@ class Responder(threading.Thread):
         threading.Thread.__init__(self)
         self.write_func = write_func
         self.pipe_end = pipe_end
-        self.db = database
+        self.database = database
         self.lock = lock
     
     def run(self):
@@ -48,7 +48,7 @@ class Responder(threading.Thread):
                 break
             self.write_func(message)
             self.lock.acquire()
-            self.db.save_cell(message['target'], 
+            self.database.save_cell(message['target'], 
                                 {'output': message['content']})
             self.lock.release()
     
@@ -71,7 +71,7 @@ class EchoWebSocket(tornado.websocket.WebSocketHandler):
         
         tornado.websocket.WebSocketHandler.__init__(self, application, request)
         
-        self.db = db_layer.Methods(db_port, database)
+        self.database = db_layer.Methods(db_port, database)
         
         self.dispatch = {
             'python': self._ipython_request,
@@ -98,7 +98,7 @@ class EchoWebSocket(tornado.websocket.WebSocketHandler):
         address = parent_conn.recv()
         conn = Client(address)
         
-        resp = Responder(self.write_message, conn, self.db, self.lock)
+        resp = Responder(self.write_message, conn, self.database, self.lock)
         resp.start()
         
         self.kernels[self] = (kernel_p, conn)
@@ -123,23 +123,23 @@ class EchoWebSocket(tornado.websocket.WebSocketHandler):
         conn.send([msg_dict['input'], msg_dict['caller']])
         
         self.lock.acquire()
-        self.db.save_cell(msg_dict['caller'], {'input': msg_dict['input'],
-                'output': ''})
+        self.database.save_cell(msg_dict['caller'], {'input': 
+                msg_dict['input'], 'output': ''})
         self.lock.release()
         
     def _save_worksheet(self, msg_dict):
-        self.db.save_worksheet(msg_dict['id'], msg_dict['cells'])
+        self.database.save_worksheet(msg_dict['id'], msg_dict['cells'])
     
     def _new_id(self, msg_dict):
         """Fulfill WebSocket requests for a new cell UUID.
         """
         
         cell_id = db_layer.new_id()
-        self.db.save_cell(cell_id, {})
+        self.database.save_cell(cell_id, {})
         self.write_message({'type': 'new_id', 'id': cell_id})
         
     def _delete_cell(self, msg_dict):
-        self.db.delete_cell(msg_dict['id']);
+        self.database.delete_cell(msg_dict['id'])
 
 class WebSocketApp(tornado.web.Application):
     def __init__(self, db_port, database):
