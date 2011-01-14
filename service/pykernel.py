@@ -7,7 +7,8 @@
 """
 
 import sys
-sys.path.append('../visualize')
+import os
+sys.path.append(os.path.join('..', 'visualize'))
 from viz_extension import load_ipython_extension
 
 from multiprocessing.connection import Listener
