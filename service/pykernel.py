@@ -33,8 +33,8 @@ def interpreter(pipe):
         message, caller = conn.recv()
         try:
             res = shell.execute(message)
-        except Exception, e:
-            res = {'stdout': '%s: %s' % (e.__class__.__name__, e)}
+        except Exception, error:
+            res = {'stdout': '%s: %s' % (error.__class__.__name__, error)}
         conn.send({
             'content': res.get('stdout', ''), 
             'target': caller,
