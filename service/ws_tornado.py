@@ -119,7 +119,7 @@ class EchoWebSocket(tornado.websocket.WebSocketHandler):
     
     def _ipython_request(self, msg_dict):
         
-        _, conn = self.kernels[self]
+        conn = self.kernels[self][1]
         conn.send([msg_dict['input'], msg_dict['caller']])
         
         self.lock.acquire()
