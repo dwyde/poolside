@@ -122,6 +122,7 @@ class EchoWebSocket(tornado.websocket.WebSocketHandler):
     ### WEBSOCKET MESSAGE HANDLERS ###
     
     def _ipython_request(self, msg_dict):
+        """Handle requests from a client to execute IPython code."""
         
         conn = self.kernels[self][1]
         conn.send([msg_dict['input'], msg_dict['caller']])
@@ -132,17 +133,19 @@ class EchoWebSocket(tornado.websocket.WebSocketHandler):
         self.lock.release()
         
     def _save_worksheet(self, msg_dict):
+        """Save a modified worksheet."""
+        
         self.database.save_worksheet(msg_dict['id'], msg_dict['cells'])
     
     def _new_id(self, msg_dict):
-        """Fulfill WebSocket requests for a new cell UUID.
-        """
+        """Fulfill WebSocket requests for a new cell UUID."""
         
         cell_id = db_layer.new_id()
         self.database.save_cell(cell_id, {})
         self.write_message({'type': 'new_id', 'id': cell_id})
         
     def _delete_cell(self, msg_dict):
+        """Delete a cell from a notebook."""
         self.database.delete_cell(msg_dict['id'])
 
 class WebSocketApp(tornado.web.Application):
