@@ -79,6 +79,10 @@ class EchoWebSocket(tornado.websocket.WebSocketHandler):
             'new_id': self._new_id,
             'delete_cell': self._delete_cell,
         }
+        
+        # A lock to prevent attempts at simultaneous writes to CouchDB.
+        # There should be one of these per connected notebook.
+        self.lock = threading.Lock()
     
     def open(self):
         """
@@ -87,8 +91,6 @@ class EchoWebSocket(tornado.websocket.WebSocketHandler):
         1. create a lock for this object writing to CouchDB
         2. make and start a 
         """
-        
-        self.lock = threading.Lock()
         
         parent_conn, child_conn = Pipe()
         
