@@ -1,3 +1,7 @@
+//
+// Copyright 2011 David Wyde and Chris Hart.
+//
+
 var WS_ADDRESS = 'localhost:9996/notebook';
 var path = window.location.pathname.split('/');
 var WORKSHEET_NAME = path.pop();
