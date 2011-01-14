@@ -18,9 +18,11 @@ def new_id():
     return uuid4().hex
 
 class Methods:
+    """Update CouchDB with changes from a frontend notebook."""
+    
     def __init__(self, couch_port, database):
         couch = couchdb.Server('http://localhost:%d' % (couch_port,))
-        self.db = couch[database]
+        self.database = couch[database]
 
     def save_cell(self, cell_id, fields):
         """Store notebook cell documents in CouchDB.
@@ -47,7 +49,7 @@ class Methods:
         elif cell_id == '':
             cell_id = new_id()
         try:
-            doc = self.db[cell_id]
+            doc = self.database[cell_id]
             for field, data in fields.iteritems():
                 doc[field] = data
             if hasattr(doc, '_rev'):
@@ -56,7 +58,7 @@ class Methods:
             doc = {'input': fields.get('input', ''), 'output': '',
                    'type': 'cell'}
         
-        self.db[cell_id] = doc
+        self.database[cell_id] = doc
 
     def save_worksheet(self, worksheet_id, cell_list):
         """Save a worksheet into CouchDB.
@@ -73,19 +75,19 @@ class Methods:
         
         doc = {'cells': cell_list, 'type': 'worksheet'}
         try:
-            existing = self.db[worksheet_id]
+            existing = self.database[worksheet_id]
             doc['_rev'] = existing.rev
         except (couchdb.client.PreconditionFailed,
                 couchdb.client.ResourceNotFound):
             pass
 
-        self.db[worksheet_id] = doc
+        self.database[worksheet_id] = doc
    
     def delete_cell(self, cell_id):
         """Delete a cell from CouchDB.
         
         .. warning:: Users can delete any cell, whether or not they own it.
         """
-        cell = self.db[cell_id]
+        cell = self.database[cell_id]
         if cell.get('type') == 'cell':
-            self.db.delete(cell)
+            self.database.delete(cell)
