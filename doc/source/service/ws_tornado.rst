@@ -3,4 +3,3 @@
 
 .. automodule:: ws_tornado
     :members:
-    :undoc-members:

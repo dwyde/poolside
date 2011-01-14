@@ -3,4 +3,3 @@
 
 .. automodule:: pykernel
     :members:
-    :undoc-members:
