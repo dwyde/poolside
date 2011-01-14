@@ -64,9 +64,9 @@ class EchoWebSocket(tornado.websocket.WebSocketHandler):
     kernels = {}
     
     def __init__(self, application, request, db_port, database):
-        """
-        Initialize a CouchDB object and a method dispatcher for each connection.
-        ###NOTE: ideally these would be shared between instances.
+        """Initialize a CouchDB object and a method dispatcher for each connection.
+        
+        **NOTE**: these variables should ideally be shared between instances.
         """
         
         tornado.websocket.WebSocketHandler.__init__(self, application, request)
@@ -111,6 +111,8 @@ class EchoWebSocket(tornado.websocket.WebSocketHandler):
         self.dispatch[msg_dict['type']](msg_dict)
 
     def on_close(self):
+        """React to the closing of a WebSocket connection."""
+        
         process, conn = self.kernels[self]
         conn.close()
         process.terminate()
@@ -142,6 +144,8 @@ class EchoWebSocket(tornado.websocket.WebSocketHandler):
         self.database.delete_cell(msg_dict['id'])
 
 class WebSocketApp(tornado.web.Application):
+    """A Tornado application that accepts connections via WebSockets."""
+    
     def __init__(self, db_port, database):
         handlers = [
             (r'/notebook', EchoWebSocket, dict(db_port=db_port, 
@@ -170,6 +174,8 @@ def parse_arguments():
     return options
 
 def main():
+    """The :mod:`ws_tornado` module's main entry point.
+    """
     options = parse_arguments()
     application = WebSocketApp(options.couch_port, options.database)
     loop = tornado.ioloop.IOLoop.instance()
