@@ -10,7 +10,15 @@ import dec
 _EXTENSION_DIR = 'viz_ext'
 
 def load_ipython_extension(namespace):
-    """A setup function, called each time this extension is loaded."""
+    """Create a global :class:`~dec.Viz` object.
+    
+    Each notebook kernel has access to its own :class:`~dec.Viz` instance.
+    
+    :param namespace: A :class:`dict` in which IPython stores variables.
+    
+    For a complete description of the :class:`~dec.Viz` class, please see
+    its documentation.
+    """
     
     basedir = os.path.split(os.path.abspath(__file__))[0]
     path = os.path.join(basedir, _EXTENSION_DIR)
