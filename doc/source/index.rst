@@ -12,6 +12,7 @@ Contents:
     :maxdepth: 2
     
     service/index.rst
+    visualize/index.rst
 
 Indices and tables
 ==================
