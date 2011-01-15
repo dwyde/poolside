@@ -1,5 +1,5 @@
-Service: Tornado, WebSockets, and a CouchDB Backend
-===================================================
+Tornado, WebSockets, and a CouchDB Backend
+==========================================
 
 Contents:
 
