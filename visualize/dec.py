@@ -97,11 +97,18 @@ class VizDecor:
             This allows for the visualization of nested data structures.
         """
         
-        # Notebook frontends should never raise a :class:`TypeError` below,
-        # because the Viz.__call__() method will just return str() on any
-        # "illegal" objects.
-        
         def newFunc(obj):
+            """Decorate a visualization extension function.
+            
+            :param obj: An object to visualize.
+            :return: A list of acceptable types, if `obj` is None. Otherwise,
+            the original function.
+            
+            Notebook frontends should never raise a :class:`TypeError` 
+            below, because the Viz.__call__() method will just return str()
+            on any "illegal" objects.
+            """
+            
             if obj == None:
                 return self.accept_dict
             else:
