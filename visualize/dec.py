@@ -37,14 +37,33 @@ class Viz:
         return str(obj)
 
 class VizDecor:
-    """ A class that creates decorator functions for visualizable objects """
-    def __init__(self, acceptDict):
-        """acceptList is a list of tuples of the form [(obj, acceptorFuction)...]  
+    """ A class that creates decorator functions for visualizable objects.
+    
+    :param acceptDict: a :class:`dict` of the form ``{type: acceptorFunction}``::
         
-        acceptorFunction(obj) --> True when the obj is appropriate for the fuction being decorarted.
-        """
+            @VizDecor({list: lambda x: len(x) < 5})
+            def table(obj):
+                return '* %s *' % str(obj)
+        
+        ``acceptorFunction(obj)`` should return ``True`` when `obj` is 
+        appropriate for the fuction being decorated.
+    """
+    
+    def __init__(self, acceptDict):
         self.acceptDict = acceptDict
+        
     def __call__(self, f):
+        """Decorate a visualization function :func:`f`.
+        
+        :func:`f` should take a single argument: `obj`, a Python object
+        to visualize.  This object must meet the constraints defined in
+        ``self.acceptDict``.
+        """
+        
+        # Notebook frontends should never raise a :class:`TypeError` below,
+        # because the Viz.__call__() method will just return str() on any
+        # "illegal" objects.
+        
         def newFunc(obj):
             if obj == None:
                 return self.acceptDict
