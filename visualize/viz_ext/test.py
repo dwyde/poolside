@@ -1,25 +1,22 @@
 import os
 import sys
-import json
 
 from dec import VizDecor
 
-@VizDecor({list: lambda x:True})
+@VizDecor({list: lambda x: True})
 def table(obj):
-    s = '<div><table class="viz_list"><tr><br>'
+    s = '<div><table class="viz_list"><tr>'
     for item in obj:
         s += '<td>'
-        if isinstance(item,list):
-            # two dimensional
+        if isinstance(item, list):
+            # Nested lists
             s += Viz(item)
         else:
-            # still one dimensional
-            s += '%s'%(str(item))
+            # One-dimensional
+            s += '%s' % (str(item),)
         s += '</td>'
-    s+='</tr></table></div></br>'
-    return(s)
-
-#@VizDecor({dict: lambda x:True})
+    s += '</tr></table></div>'
+    return s
 
 if __name__ == '__main__':
     a = range(5)
