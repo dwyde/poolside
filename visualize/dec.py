@@ -34,17 +34,17 @@ class Viz:
         This will be fixed in a future version, but it is broken right now.
     """
     
-    def __init__(self, extdirs):
+    def __init__(self, ext_dirs):
         self.typemap = collections.defaultdict(list)
-        extFiles = []
+        ext_files = []
         # Make this class available in extension functions.
-        globalsDict = {'Viz': self}
-        localsDict = {}
-        for d in extdirs:
-            extFiles.extend(glob.glob(os.path.join(d, '*.py')))
-        for f in extFiles:
-            execfile(f, globalsDict, localsDict)
-        for name, func in localsDict.items():
+        globals_dict = {'Viz': self}
+        locals_dict = {}
+        for ext_dir in ext_dirs:
+            ext_files.extend(glob.glob(os.path.join(ext_dir, '*.py')))
+        for ext_file in ext_files:
+            execfile(ext_file, globals_dict, locals_dict)
+        for name, func in locals_dict.items():
             if type(func) == types.FunctionType:
                 for t, acceptor in func(None).items():
                     self.typemap[t].append((acceptor, func))
@@ -72,7 +72,7 @@ class Viz:
 class VizDecor:
     """ A class that creates decorator functions for visualizable objects.
     
-    :param acceptDict: a :class:`dict` of the form ``{type: acceptorFunction}``::
+    :param accept_dict: a :class:`dict` of the form ``{type: acceptorFunction}``::
         
             @VizDecor({list: lambda x: len(x) < 5})
             def table(obj):
@@ -82,20 +82,19 @@ class VizDecor:
         appropriate for the fuction being decorated.
     """
     
-    def __init__(self, acceptDict):
-        self.acceptDict = acceptDict
+    def __init__(self, accept_dict):
+        self.accept_dict = accept_dict
         
-    def __call__(self, f):
-        """Decorate a visualization function :func:`f`.
+    def __call__(self, func):
+        """Decorate a visualization function :func:`func`.
         
-        :func:`f` should take a single argument: `obj`, a Python object
+        :func:`func` should take a single argument: `obj`, a Python object
         to visualize.  This object must meet the constraints defined in
-        ``self.acceptDict``.
+        ``self.accept_dict``.
         
         .. note:: :meth:`~dec.Viz` can be called recursively by extension functions.
             
             This allows for the visualization of nested data structures.
-            
         """
         
         # Notebook frontends should never raise a :class:`TypeError` below,
@@ -104,11 +103,11 @@ class VizDecor:
         
         def newFunc(obj):
             if obj == None:
-                return self.acceptDict
+                return self.accept_dict
             else:
-                if type(obj) in self.acceptDict:
-                    if self.acceptDict[type(obj)](obj):
-                       return f(obj)
+                if type(obj) in self.accept_dict:
+                    if self.accept_dict[type(obj)](obj):
+                       return func(obj)
                     else:
                         raise TypeError('type supported, instance not supported')
                 else:
