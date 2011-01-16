@@ -28,7 +28,7 @@ class Viz:
             def big_table(obj):
                 ...
         
-        In this example, calling :class:`Viz` on a :class:`list` will not
+        In this example, calling :meth:`Viz` on a :class:`list` will not
         always produce the desired result.
         
         This will be fixed in a future version, but it is broken right now.
@@ -51,6 +51,16 @@ class Viz:
                 setattr(self, name, func)
     
     def __call__(self, obj):
+        """Call an appropriate extension function for `obj`.
+        
+        Dispatch a :class:`~dec.VizDecor` function based on the
+        :class:`type` of `obj`.
+        
+        In a notebook frontend::
+            
+            print Viz([1, 2, 'a'])
+        """
+        
         if type(obj) in self.typemap:
             for acceptor, func in self.typemap[type(obj)]:
                 if acceptor(obj):
@@ -81,6 +91,11 @@ class VizDecor:
         :func:`f` should take a single argument: `obj`, a Python object
         to visualize.  This object must meet the constraints defined in
         ``self.acceptDict``.
+        
+        .. note:: :meth:`~dec.Viz` can be called recursively by extension functions.
+            
+            This allows for the visualization of nested data structures.
+            
         """
         
         # Notebook frontends should never raise a :class:`TypeError` below,
