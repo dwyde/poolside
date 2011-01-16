@@ -5,4 +5,4 @@
     :members: __call__
 
 .. autoclass:: dec.VizDecor
-    :members:
+    :members: __call__
