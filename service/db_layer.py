@@ -41,7 +41,7 @@ class Methods:
         If an empty string is provided as the `cell_id`, a new UUID is generated
         and a new cell created in the database.
         
-        Other "incorrect" inputs will cause an immeidate return.
+        Other "incorrect" inputs will cause an immediate return.
         """
         
         if not isinstance(cell_id, basestring):
