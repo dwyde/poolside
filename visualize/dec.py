@@ -109,7 +109,7 @@ class VizDecor:
             on any "illegal" objects.
             """
             
-            if obj == None:
+            if obj is None:
                 return self.accept_dict
             else:
                 if type(obj) in self.accept_dict:
