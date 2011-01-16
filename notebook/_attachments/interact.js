@@ -6,7 +6,6 @@ var WS_ADDRESS = 'localhost:9996/notebook';
 var path = window.location.pathname.split('/');
 var WORKSHEET_NAME = path.pop();
 var DATABASE = path[1];
-var TMP_ID = '_tmp';
 
 function output_cell(response) {
   var cell_id = response.target;
@@ -21,8 +20,8 @@ function output_cell(response) {
 }
 
 function assign_id(response, ws_client) {
-  cell = $('#' + TMP_ID);
-  cell.attr('id', response['id']);
+  var cell = new_cell(response['id'], '', '');
+  $('#worksheet').append(cell);
   ws_client.save_worksheet();
 }
 
@@ -97,10 +96,7 @@ $(document).ready(function(){
   });
   
   $('#add_cell').click(function(){
-    var cell = new_cell(TMP_ID, '', '');
     ws_client.new_id();
-    $('#worksheet').append(cell);
-    //ws_client.save_cell(
   });
   
   $('button.delete').live('click', function(){
