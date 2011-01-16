@@ -9,7 +9,30 @@ import glob
 import collections
 
 class Viz:
-    """ Construct a dynamic viz dispatching function """
+    """Dynamically visualize Python objects based on their :class:`type`.
+    
+    `extdirs` is a :class:`list` of directories to search for ".py" files.
+    Each function in these Python scripts should be decorated by 
+    :class:`~dec.VizDecor`.
+    
+    .. warning:: There is currently no way to choose between different \
+    :class:`Viz` extension functions that apply to the same :class:`type`.
+    
+        Please DO NOT decorate two functions with the same type::
+            
+            @VizDecor({list: lambda x: len(x) < 5})
+            def small_table(obj):
+                ...
+            
+            @VizDecor({list: lambda x: len(x) >= 5})
+            def big_table(obj):
+                ...
+        
+        In this example, calling :class:`Viz` on a :class:`list` will not
+        always produce the desired result.
+        
+        This will be fixed in a future version, but it is broken right now.
+    """
     
     def __init__(self, extdirs):
         self.typemap = collections.defaultdict(list)
