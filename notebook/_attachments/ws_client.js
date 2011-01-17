@@ -1,3 +1,7 @@
+//
+// Copyright 2011 David Wyde and Chris Hart.
+//
+
 /**
  * WS_CLIENT is a module for communicating with a Tornado WebSocket server
  * via a JSON-based API.
