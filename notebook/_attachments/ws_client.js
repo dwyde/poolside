@@ -7,8 +7,13 @@
  * via a JSON-based API.
  */
 var WS_CLIENT = (function() {
-    /** A WebSocket connection object */
-    var connection;
+        /** A WebSocket connection object */
+    var connection,
+        /** Map a message from the server to an appropriate handler. */
+        dispatch = {
+            output: output_cell,
+            new_id: assign_id
+        };
     
     /** 
      * Update the content of a notebook cell.
@@ -21,6 +26,16 @@ var WS_CLIENT = (function() {
             cell = $('#' + cell_id);
             cell.children('.output').html(text);
         }
+    }
+    
+    /** 
+     * Upon receiving a UUID, add a new cell to this notebook. 
+     * This function is called in response to a WebSocket message.
+     */
+    function assign_id(response) {
+        var cell = new_cell(response.id, '', '');
+        $('#worksheet').append(cell);
+        save_worksheet();
     }
     
     /** Save an ordered list of this notebook's cells. */
@@ -37,27 +52,15 @@ var WS_CLIENT = (function() {
         }));
     }
     
-    /** 
-     * Upon receiving a UUID, add a new cell to this notebook. 
-     * This function is called in response to a WebSocket message.
-     */
-    function assign_id(response) {
-        var cell = new_cell(response.id, '', '');
-        $('#worksheet').append(cell);
-        save_worksheet();
-    }
-    
     return {
         /** Initialize a WebSocket connection. */
         connect: function(address) {
             connection = new WebSocket('ws://' + address);
             connection.onmessage = function(event) {
-                var result = JSON.parse(event.data) || {};
-                /** MAKE THIS INTO A DICTIONARY **/
-                if (result.type == 'output') {
-                    output_cell(result);
-                } else if (result.type == 'new_id') {
-                    assign_id(result);
+                var result = JSON.parse(event.data);
+                var type = result.type || null;
+                if (type != null) {
+                    dispatch[type](result);
                 }
             };
             connection.onclose = function() {
