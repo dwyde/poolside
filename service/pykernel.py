@@ -11,13 +11,32 @@ import os
 sys.path.append(os.path.join('..', 'visualize'))
 from viz_extension import load_ipython_extension
 
-from multiprocessing.connection import Listener
+from StringIO import StringIO
 
-from IPython.kernel.core.interpreter import Interpreter
+def Kernel(connection):
+    globals_dict = {}
+    locals_dict = {}
+    load_ipython_extension(globals_dict)
+    
+    while True:
+        command, caller = connection.recv()
+        #code = compile(command, '<string>', 'exec')
+        output_trap = StringIO()
+        sys.stdout = output_trap
+        try:
+            exec command in globals_dict, locals_dict
+        except Exception, error:
+            sys.stdout.write('%s: %s' % (error.__class__.__name__, error))    
+        result = output_trap.getvalue()
+        
+        message = {
+            'content': result, 
+            'target': caller,
+            'type': 'output',
+        }
+        connection.send(message)
 
-_SETUP_IP = ('127.0.0.1', 0)
-
-def interpreter(pipe):
+def interpreter(queue):
     """Set up an :class:`IPython.kernel.core.interpreter.Interpreter`.
     
     A kernel will listen for connections on a random local port.
@@ -34,14 +53,6 @@ def interpreter(pipe):
     :param pipe: A :class:`multiprocessing.Connection` that enables \
     communication between this process and the main :class:`ws_tornado` server.
     """
-    
-    listener = Listener(_SETUP_IP)
-    pipe.send(listener.address)
-    
-    shell = Interpreter()
-    load_ipython_extension(shell.user_ns)
-    
-    conn = listener.accept()
     
     while True:
         message, caller = conn.recv()

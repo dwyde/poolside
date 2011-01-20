@@ -17,9 +17,10 @@ import optparse
 
 from multiprocessing import Process, Pipe
 from multiprocessing.connection import Client
+from multiprocessing.managers import SyncManager
 import threading
 
-from pykernel import interpreter
+from pykernel import Kernel
 import db_layer
 
 class Responder(threading.Thread):
@@ -27,12 +28,10 @@ class Responder(threading.Thread):
     Writing to CouchDB blocks this WebSocket connection.
     """
     
-    def __init__(self, write_func, pipe_end, database, lock):
+    def __init__(self, callback, connection):
         threading.Thread.__init__(self)
-        self.write_func = write_func
-        self.pipe_end = pipe_end
-        self.database = database
-        self.lock = lock
+        self.callback = callback
+        self.connection = connection
     
     def run(self):
         """
@@ -43,16 +42,11 @@ class Responder(threading.Thread):
         
         while True:
             try:
-                message = self.pipe_end.recv()
-            except EOFError:
+                message = self.connection.recv()
+            except (IOError, EOFError):
                 break
-            self.write_func(message)
-            self.lock.acquire()
-            self.database.save_cell(message['target'], 
-                                {'output': message['content']})
-            self.lock.release()
+            self.callback(message)
     
-
 class EchoWebSocket(tornado.websocket.WebSocketHandler):
     """
     A Tornado handler for connections to HTML5 WebSockets.
@@ -94,17 +88,21 @@ class EchoWebSocket(tornado.websocket.WebSocketHandler):
         
         parent_conn, child_conn = Pipe()
         
-        kernel_p = Process(target=interpreter, args=(child_conn,))
-        kernel_p.start()
+        kernel_process = Process(target=Kernel, args=(child_conn,))
+        kernel_process.start()
         
-        address = parent_conn.recv()
-        conn = Client(address)
-        
-        resp = Responder(self.write_message, conn, self.database, self.lock)
+        resp = Responder(self._received, parent_conn)
         resp.start()
         
-        self.kernels[self] = (kernel_p, conn)
-        
+        self.kernels[self] = (kernel_process, parent_conn)
+    
+    def _received(self, message):
+        self.write_message(message)
+        self.lock.acquire()
+        self.database.save_cell(message['target'], {'output':
+                message['content']})
+        self.lock.release()
+    
     def on_message(self, message):
         """Receive and dispatch a message from the client side of a WebSocket.
         """
@@ -116,7 +114,6 @@ class EchoWebSocket(tornado.websocket.WebSocketHandler):
         """React to the closing of a WebSocket connection."""
         
         process, conn = self.kernels[self]
-        conn.close()
         process.terminate()
     
     ### WEBSOCKET MESSAGE HANDLERS ###
@@ -181,7 +178,6 @@ def parse_arguments():
 
 def main():
     """The :mod:`ws_tornado` module's main entry point."""
-    
     options = parse_arguments()
     application = WebSocketApp(options.couch_port, options.database)
     loop = tornado.ioloop.IOLoop.instance()
