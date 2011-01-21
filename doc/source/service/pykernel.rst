@@ -1,4 +1,4 @@
-:mod:`pykernel` --- Start an IPython Kernel Interpreter
+:mod:`pykernel` --- Start a Python Kernel
 =======================================================
 
 .. automodule:: pykernel

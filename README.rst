@@ -12,9 +12,9 @@ Please make sure you are using a browser capable of using WebSockets, such as
     
     - `Python <http://python.org>`_ 2.6 or 2.7
     - `CouchDB <http://couchdb.apache.org>`_ 1.0.1 
+    - `couchdb-python <http://pypi.python.org/pypi/CouchDB>`_ 0.8
     - `CouchApp <http://couchapp.org>`_
     - `Tornado <http://github.com/facebook/tornado>`_ 1.1
-    - `IPython <http://ipython.scipy.org>`_ 0.11
 
 
 Instructions and Command Line Arguments
