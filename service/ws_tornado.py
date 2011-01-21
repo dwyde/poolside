@@ -80,8 +80,10 @@ class EchoWebSocket(tornado.websocket.WebSocketHandler):
         """
         On connection from a browser:
         
-        1. create a lock for this object writing to CouchDB
-        2. make and start a 
+            1. Create a pair of :class:`multiprocessing.Connection` objects, \
+            for inter-process communication
+            2. Initialize a kernel :class:`multiprocessing.Process`
+            3. Start a thread for receiving messages from the kernel process
         """
         
         parent_conn, child_conn = Pipe()
