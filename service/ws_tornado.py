@@ -23,10 +23,8 @@ import threading
 from pykernel import interpreter
 import db_layer
 
-class Responder(threading.Thread):
-    """Receive messages from a kernel process and output them to the client.
-    Writing to CouchDB blocks this WebSocket connection.
-    """
+class KernelHandler(threading.Thread):
+    """Handle messages from a kernel process."""
     
     def __init__(self, callback, connection):
         threading.Thread.__init__(self)
@@ -35,9 +33,9 @@ class Responder(threading.Thread):
     
     def run(self):
         """
-        Handle messages read from a :class:`multiprocessing.Connection`.
+        Receive messages read from a :class:`multiprocessing.Connection`.
         
-        Stop when an EOFError occurs.
+        Stop when an IOError or EOFError occurs.
         """
         
         while True:
@@ -91,7 +89,7 @@ class EchoWebSocket(tornado.websocket.WebSocketHandler):
         kernel_process = Process(target=interpreter, args=(child_conn,))
         kernel_process.start()
         
-        resp = Responder(self._received, parent_conn)
+        resp = KernelHandler(self._received, parent_conn)
         resp.start()
         
         self.kernels[self] = (kernel_process, parent_conn)
