@@ -13,7 +13,23 @@ from viz_extension import load_ipython_extension
 
 from StringIO import StringIO
 
-def Kernel(connection):
+def interpreter(connection):
+    """Set up a rudimentary Python "kernel".
+    
+    Messages should be sent to `connection` as a 2-length list of the form
+    ``[input_string, cell_uuid]``.
+    
+    Each kernel's `locals` namespace contains an instance of the 
+    class :class:`visualize.dec.Viz`.  This variable `Viz` is callable::
+    
+    >>> a = range(5)
+    >>> print Viz(a)
+    ...
+    
+    :param connection: A :class:`multiprocessing.Connection` that enables \
+    communication between this process and the main :class:`ws_tornado` server.
+    """
+    
     globals_dict = {}
     locals_dict = {}
     load_ipython_extension(globals_dict)
@@ -35,34 +51,3 @@ def Kernel(connection):
             'type': 'output',
         }
         connection.send(message)
-
-def interpreter(queue):
-    """Set up an :class:`IPython.kernel.core.interpreter.Interpreter`.
-    
-    A kernel will listen for connections on a random local port.
-    
-    Each kernel's global namespace contains an instance of the 
-    class :class:`visualize.dec.Viz`.  This variable `Viz` is callable::
-        
-        >>> a = range(5)
-        >>> print Viz(a)
-        ...
-    
-    Otherwise, this is a normal IPython interpreter.
-    
-    :param pipe: A :class:`multiprocessing.Connection` that enables \
-    communication between this process and the main :class:`ws_tornado` server.
-    """
-    
-    while True:
-        message, caller = conn.recv()
-        try:
-            res = shell.execute(message)
-        except Exception, error:
-            res = {'stdout': '%s: %s' % (error.__class__.__name__, error)}
-        conn.send({
-            'content': res.get('stdout', ''), 
-            'target': caller,
-            'type': 'output',
-        })
-

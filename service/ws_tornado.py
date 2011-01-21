@@ -20,7 +20,7 @@ from multiprocessing.connection import Client
 from multiprocessing.managers import SyncManager
 import threading
 
-from pykernel import Kernel
+from pykernel import interpreter
 import db_layer
 
 class Responder(threading.Thread):
@@ -88,7 +88,7 @@ class EchoWebSocket(tornado.websocket.WebSocketHandler):
         
         parent_conn, child_conn = Pipe()
         
-        kernel_process = Process(target=Kernel, args=(child_conn,))
+        kernel_process = Process(target=interpreter, args=(child_conn,))
         kernel_process.start()
         
         resp = Responder(self._received, parent_conn)
