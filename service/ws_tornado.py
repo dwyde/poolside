@@ -68,7 +68,7 @@ class EchoWebSocket(tornado.websocket.WebSocketHandler):
         self.database = db_layer.Methods(db_port, database)
         
         self.dispatch = {
-            'python': self._ipython_request,
+            'python': self._python_request,
             'save_worksheet': self._save_worksheet,
             'new_id': self._new_id,
             'delete_cell': self._delete_cell,
@@ -118,8 +118,8 @@ class EchoWebSocket(tornado.websocket.WebSocketHandler):
     
     ### WEBSOCKET MESSAGE HANDLERS ###
     
-    def _ipython_request(self, msg_dict):
-        """Handle requests from a client to execute IPython code."""
+    def _python_request(self, msg_dict):
+        """Handle requests from a client to execute Python code."""
         
         conn = self.kernels[self][1]
         conn.send([msg_dict['input'], msg_dict['caller']])
