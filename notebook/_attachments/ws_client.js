@@ -23,8 +23,12 @@ var WS_CLIENT = (function() {
         var cell_id = response.target;
         var text = response.content;
         if (cell_id) {
-            cell = $('#' + cell_id);
-            cell.children('.output').html(text);
+            iframe = $('#' + cell_id)
+                .find('div.output iframe')
+                .each(function(){
+                    this.contentWindow.location.reload(true);
+                });
+            //cell.children('.output').html(text);
         }
     }
     

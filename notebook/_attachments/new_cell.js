@@ -4,8 +4,8 @@
          input.replace(/"/g, '&quot;') + '" /> \
          <button type="submit">Evaluate</button> \
          <button class="delete">Delete</button> \
-         <div class="output">' + output + '</div> \
-         </form>';
+         <div class="output"><iframe src="../../../../'  + id +  '"> \
+         </iframe></div></form>';
        
        return cell;
     }

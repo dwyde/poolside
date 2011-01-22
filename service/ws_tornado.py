@@ -97,11 +97,11 @@ class EchoWebSocket(tornado.websocket.WebSocketHandler):
         self.kernels[self] = (kernel_process, parent_conn)
     
     def _received(self, message):
-        self.write_message(message)
         self.lock.acquire()
         self.database.save_cell(message['target'], {'output':
                 message['content']})
         self.lock.release()
+        self.write_message(message)
     
     def on_message(self, message):
         """Receive and dispatch a message from the client side of a WebSocket.
@@ -126,7 +126,7 @@ class EchoWebSocket(tornado.websocket.WebSocketHandler):
         
         self.lock.acquire()
         self.database.save_cell(msg_dict['caller'], {'input': 
-                msg_dict['input'], 'output': ''})
+                msg_dict['input']})
         self.lock.release()
         
     def _save_worksheet(self, msg_dict):

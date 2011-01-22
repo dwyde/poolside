@@ -17,7 +17,7 @@ $(document).ready(function(){
     var input = $(this).children('.input').val();
     var id = $(this).attr('id');
     WS_CLIENT.python_request(input, id);
-    $(this).children('.output').html('');
+    //$(this).children('.output').html('');
 
     // Prevent the actual submission of this form.
     return false;
