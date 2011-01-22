@@ -55,12 +55,6 @@ table.viz_list td {
     margin:5px 0px 20px;
 }
 
-.cell .output iframe {
-    width:15em;
-    height:5em;
-    overflow:scroll;
-}
-
 .cell table {
     border: 1px solid #000;
 }

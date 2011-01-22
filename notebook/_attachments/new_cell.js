@@ -9,12 +9,3 @@
        
        return cell;
     }
-
-/** */
-function div_to_iframe() {
-    content = '<p>' + this.innerHTML + '</p>';
-    iframe = $('<iframe seamless sandbox="allow-same-origin allow-scripts"></iframe>').load(function(){
-        $(this).contents().find('body').append(content);
-    });
-    $(this).wrapInner(iframe);
-}
