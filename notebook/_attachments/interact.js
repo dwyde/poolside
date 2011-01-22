@@ -12,12 +12,15 @@ $(document).ready(function(){
   // Connect to the WebSocket server.
   WS_CLIENT.connect(WS_ADDRESS);
   
+  /** Insert output into an <iframe> */
+  $('div.output').map(div_to_iframe);
+  
   /** Handler for submission of an input form. */
   $('form.cell').live('submit', function(){
     var input = $(this).children('.input').val();
     var id = $(this).attr('id');
     WS_CLIENT.python_request(input, id);
-    $(this).children('.output').html('');
+    $(this).find('.output iframe').contents().find('body').html('');
 
     // Prevent the actual submission of this form.
     return false;

@@ -23,8 +23,8 @@ var WS_CLIENT = (function() {
         var cell_id = response.target;
         var text = response.content;
         if (cell_id) {
-            cell = $('#' + cell_id);
-            cell.children('.output').html(text);
+            var cell = $('#' + cell_id);
+            cell.find('div.output iframe').contents().find('body').html(text);
         }
     }
     
@@ -33,7 +33,8 @@ var WS_CLIENT = (function() {
      * This function is called in response to a WebSocket message.
      */
     function assign_id(response) {
-        var cell = new_cell(response.id, '', '');
+        var cell = $(new_cell(response.id, '', ''));
+        cell.children('div.output').each(div_to_iframe);
         $('#worksheet').append(cell);
         save_worksheet();
     }
