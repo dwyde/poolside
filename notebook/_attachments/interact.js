@@ -42,4 +42,11 @@ $(document).ready(function(){
     // Don't actually submit the form.
     return false;
   });
+  
+  
+  $('form.cell .output').resizable();
+  
+  /*$('#worksheet').each(function(){
+    $(this).accordion({header: 'input.input'});
+  });*/
 });
