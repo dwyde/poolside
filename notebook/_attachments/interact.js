@@ -42,7 +42,7 @@ $(document).ready(function(){
     return false;
   });
   
-  
+  /** Make output iframes resizable, using JQuery UI. */
   $('div.output').each(function(){
       $(this).resizable({alsoResize: $(this).parent()});
   });

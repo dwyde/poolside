@@ -41,7 +41,9 @@ var WS_CLIENT = (function() {
      * This function is called in response to a WebSocket message.
      */
     function assign_id(response) {
-        var cell = new_cell(response.id, '', '');
+        var cell_text = new_cell(response.id, '', '');
+        var cell = $(cell_text);
+        cell.children('.output').resizable({alsoResize: cell});
         $('#worksheet').append(cell);
         save_worksheet();
     }
