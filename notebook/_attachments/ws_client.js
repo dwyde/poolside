@@ -32,6 +32,10 @@ var WS_CLIENT = (function() {
         }
     }
     
+    function output_message(selector, text) {
+        $(selector).text(text);
+    }
+    
     /** 
      * Upon receiving a UUID, add a new cell to this notebook. 
      * This function is called in response to a WebSocket message.
@@ -68,10 +72,7 @@ var WS_CLIENT = (function() {
                 }
             };
             connection.onclose = function() {
-                output_cell({
-                    target: '__messages', 
-                    content: 'WebSocket closed'
-                });
+                output_message('#__messages p', 'WebSocket closed');
             };
             connection.onerror = function(event) {
                 output_cell(event);
