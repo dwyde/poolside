@@ -1,0 +1,11 @@
+body {
+    overflow:hidden;
+} 
+
+table.viz_list {
+    border: 1px solid #000;
+}
+
+table.viz_list td {
+    border: 1px solid #000;
+}
