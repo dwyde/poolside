@@ -33,7 +33,7 @@ $(document).ready(function(){
     var ans = confirm('Do you want to permanently delete this cell?');
     if (ans) {
       // Be careful if the HTML structure of cell "widgets" changes.
-      var cell_id = $(this).parent().parent().attr('id'); /** Bad! */
+      var cell_id = $(this).parents('div.cell').attr('id'); /** Bad! */
       WS_CLIENT.delete_cell(cell_id);
       $('#' + cell_id).remove();
       WS_CLIENT.save_worksheet();
