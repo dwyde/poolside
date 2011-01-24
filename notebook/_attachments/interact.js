@@ -17,7 +17,6 @@ $(document).ready(function(){
     var input = $(this).children('.input').val();
     var id = $(this).parent().attr('id');
     WS_CLIENT.python_request(input, id);
-    //$(this).children('.output').html('');
 
     // Prevent the actual submission of this form.
     return false;
@@ -33,7 +32,7 @@ $(document).ready(function(){
     var ans = confirm('Do you want to permanently delete this cell?');
     if (ans) {
       // Be careful if the HTML structure of cell "widgets" changes.
-      var cell_id = $(this).parents('div.cell').attr('id'); /** Bad! */
+      var cell_id = $(this).parents('div.cell').attr('id');
       WS_CLIENT.delete_cell(cell_id);
       $('#' + cell_id).remove();
       WS_CLIENT.save_worksheet();
@@ -47,8 +46,4 @@ $(document).ready(function(){
   $('div.output').each(function(){
       $(this).resizable({alsoResize: $(this).parent()});
   });
-  
-  /*$('#worksheet').each(function(){
-    $(this).accordion({header: 'input.input'});
-  });*/
 });
