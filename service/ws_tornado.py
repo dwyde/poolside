@@ -101,6 +101,7 @@ class EchoWebSocket(tornado.websocket.WebSocketHandler):
         self.database.save_cell(message['target'], {'output':
                 message['content']})
         self.lock.release()
+        del message['content']
         self.write_message(message)
     
     def on_message(self, message):

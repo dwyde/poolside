@@ -21,7 +21,6 @@ var WS_CLIENT = (function() {
      */
     function output_cell(response) {
         var cell_id = response.target;
-        var text = response.content;
         if (cell_id) {
             iframe = $('#' + cell_id)
                 .find('div.output iframe')
