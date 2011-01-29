@@ -12,11 +12,13 @@ function(head, req) {
     
     send(templates.display.nb_start);
     
-    var row;
+    var row,
+        doc;
     while (row = getRow()) {
-        if (row.doc) {
+        doc = row.doc;
+        if (doc) {
             send(
-                new_cell(row.value._id, row.doc['input'], row.doc['output'])
+                new_cell(row.value._id, doc['input'], doc['output'])
             );
         }
     }

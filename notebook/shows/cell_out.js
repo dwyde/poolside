@@ -2,11 +2,9 @@ function(doc, req) {
     // !code _attachments/mustache.js
     // !json templates.display.iframe_cell
     
-    var cellOut = doc.output.replace(/"/g, '\\"').replace(/\n/g, '')
-                .replace(/</g, '&lt;') || '';
-
+    
     var output = {
-        'output': cellOut,
+        'output': doc.output.replace(/\n/g, '') || '',
     };
     
     return {
