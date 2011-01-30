@@ -1,13 +1,94 @@
+var COUCH = (function() {
+    // Private variables
+    var worksheet_name,
+        endpoint,
+        database;
+    
+    // Private functions
+    
+    /** Initialize data structures based on the current URL. */
+    function init() {
+        var location = window.location;
+        var path = location.pathname.split('/');
+        var db_name = path[1];
+        worksheet_name = path.pop();
+        endpoint = [location.protocol + '/', location.host, db_name,
+                    '_server'].join('/');
+        database = $.couch.db(db_name);
+    }
+    
+    /** Save an ordered list of this notebook's cells. */
+    function save_worksheet() {
+        var cells = $('#worksheet')
+                    .children('.cell')
+                    .map(function() {
+                        return this.id;
+                    }).get();
+        
+        try {
+            database.openDoc(worksheet_name, {
+            }, 
+            {
+                
+                success: function(doc) {
+                    doc.cells = cells;
+                    database.saveDoc(doc);
+                },
+                dataType: 'json',
+                dataFilter: function(data, type) {
+                    alert("RAW DATA: " + data + ", TYPE: "+ type);
+                    return data;
+                },
+                error: function(status, req, e) {alert('no!');},
+                complete: function(XMLHttpRequest, textStatus) {
+                    alert(JSON.stringify(XMLHttpRequest));
+                }
+            });
+        }
+        catch (error) {
+            alert(error);
+            database.saveDoc({
+                type: 'worksheet',
+                _id: worksheet_name,
+                cells: cells,
+            });
+        }
+    }
+    
+    // Initialization
+    init();
+    
+    // Public interface
+    return {
+        add_cell: function() {
+            database.saveDoc({
+                type: 'cell',
+                input: '',
+                output: '',
+                /*data: {
+                 * input: '',
+                 * output: '',
+                }*/
+            }, 
+            {
+                success: function(doc){
+                    var cell_text = new_cell(doc.id, '', '');
+                    var cell = $(cell_text);
+                    cell.children('.output').resizable({alsoResize: cell});
+                    $('#worksheet').append(cell);
+                    save_worksheet();
+                },
+            });
+        },
+        delete_cell: function(id) {
+            
+        },
+    }
+}());
+
+
 /** Main JQuery code */
 $(document).ready(function(){
-    var location = window.location;
-    var path = location.pathname.split('/');
-    const WORKSHEET_NAME = path.pop();
-    const DB_NAME = path[1];
-    const ENDPOINT = [location.protocol + '/', location.host, DB_NAME, '_server']
-            .join('/');
-    //var DB = $.couch.db(DB_NAME);
-            
     function compute_request(cell_id, input) {
         $.ajax({
             url: ENDPOINT,
@@ -29,20 +110,6 @@ $(document).ready(function(){
         });
     }
     
-    /** Save an ordered list of this notebook's cells. */
-    function save_worksheet() {
-        var cells = $('#worksheet')
-        .children('.cell')
-        .map(function() {
-            return this.id;
-        }).get();
-        connection.send(JSON.stringify({
-            type: 'save_worksheet',
-            id: WORKSHEET_NAME,
-            cells: cells,
-        }));
-    }
-    
     /** Handler for submission of an input form. */
     $('.cell form').live('submit', function(){
         var input = $(this).children('.input').val();
@@ -55,14 +122,7 @@ $(document).ready(function(){
   
   /** Add a cell to this notebook. */
     $('#add_cell').click(function(){
-        $.couch.db(DB_NAME).saveDoc({}, {
-            success: function(doc){
-                var cell_text = new_cell(doc.id, '', '');
-                var cell = $(cell_text);
-                cell.children('.output').resizable({alsoResize: cell});
-                $('#worksheet').append(cell);
-            },
-        });
+        COUCH.add_cell();
     });
   
   /** Delete a cell from this notebook. */
