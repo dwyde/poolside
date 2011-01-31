@@ -5,9 +5,9 @@ var COUCH = (function() {
         database;
     
     // Private functions
-    
+        
     /** Initialize data structures based on the current URL. */
-    function init() {
+    $(function() {
         var location = window.location;
         var path = location.pathname.split('/');
         var db_name = path[1];
@@ -15,7 +15,7 @@ var COUCH = (function() {
         endpoint = [location.protocol + '/', location.host, db_name,
                     '_server'].join('/');
         database = $.couch.db(db_name);
-    }
+    });
     
     /** Save an ordered list of this notebook's cells. */
     function save_worksheet() {
@@ -45,9 +45,6 @@ var COUCH = (function() {
                 complete: function(XMLHttpRequest, textStatus) {},
             });
     }
-    
-    // Initialization
-    init();
     
     // Public interface
     return {
@@ -86,9 +83,9 @@ var COUCH = (function() {
         compute_request: function(cell_id, input) {
             $.ajax({
                 url: endpoint,
-                data: {
+                data: JSON.stringify({
                     input: input,
-                },
+                }),
                 success: function(msg){
                     iframe = $('#' + cell_id)
                     .find('div.output iframe')
@@ -113,7 +110,7 @@ $(document).ready(function(){
     $('.cell form').live('submit', function(){
         var input = $(this).children('.input').val();
         var id = $(this).parent().attr('id');
-        compute_request(id, input);
+        COUCH.compute_request(id, input);
 
         // Prevent the actual submission of this form.
         return false;
