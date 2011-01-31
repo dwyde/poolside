@@ -25,7 +25,7 @@ var COUCH = (function() {
                         return this.id;
                     }).get();
         
-        try {
+        
             database.openDoc(worksheet_name, {
             }, 
             {
@@ -35,24 +35,15 @@ var COUCH = (function() {
                     database.saveDoc(doc);
                 },
                 dataType: 'json',
-                dataFilter: function(data, type) {
-                    alert("RAW DATA: " + data + ", TYPE: "+ type);
-                    return data;
+                error: function(status, req, e) {
+                    database.saveDoc({
+                        type: 'worksheet',
+                        _id: worksheet_name,
+                        cells: cells,
+                    });
                 },
-                error: function(status, req, e) {alert('no!');},
-                complete: function(XMLHttpRequest, textStatus) {
-                    alert(JSON.stringify(XMLHttpRequest));
-                }
+                complete: function(XMLHttpRequest, textStatus) {},
             });
-        }
-        catch (error) {
-            alert(error);
-            database.saveDoc({
-                type: 'worksheet',
-                _id: worksheet_name,
-                cells: cells,
-            });
-        }
     }
     
     // Initialization
