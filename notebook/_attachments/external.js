@@ -72,35 +72,43 @@ var COUCH = (function() {
             });
         },
         delete_cell: function(id) {
-            
+            database.openDoc(id, {
+                success: function(doc) {
+                    database.removeDoc(doc, {
+                        success: function() {
+                            $('#' + doc._id).remove();
+                            save_worksheet();
+                        }
+                    });
+                }
+            });
         },
+        compute_request: function(cell_id, input) {
+            $.ajax({
+                url: endpoint,
+                data: {
+                    input: input,
+                },
+                success: function(msg){
+                    iframe = $('#' + cell_id)
+                    .find('div.output iframe')
+                    .each(function(){
+                        this.contentWindow.location.reload(true);
+                    });
+                },
+                global: false,
+                contentType: 'application/json',
+                type: 'POST',
+                processData: false,
+                dataType: 'json',
+            });
+        }
     }
 }());
 
 
 /** Main JQuery code */
 $(document).ready(function(){
-    function compute_request(cell_id, input) {
-        $.ajax({
-            url: ENDPOINT,
-            data: {
-                input: input,
-            },
-            success: function(msg){
-                iframe = $('#' + cell_id)
-                    .find('div.output iframe')
-                    .each(function(){
-                        this.contentWindow.location.reload(true);
-                    });
-            },
-            global: false,
-            contentType: 'application/json',
-            type: 'POST',
-            processData: false,
-            dataType: 'json',
-        });
-    }
-    
     /** Handler for submission of an input form. */
     $('.cell form').live('submit', function(){
         var input = $(this).children('.input').val();
@@ -121,10 +129,8 @@ $(document).ready(function(){
     var ans = confirm('Do you want to permanently delete this cell?');
     if (ans) {
       // Be careful if the HTML structure of cell "widgets" changes.
-      var cell_id = $(this).parents('div.cell').attr('id');
-      WS_CLIENT.delete_cell(cell_id);
-      $('#' + cell_id).remove();
-      WS_CLIENT.save_worksheet();
+      var id = $(this).parents('div.cell').attr('id');
+      COUCH.delete_cell(id);
     }
     
     // Don't actually submit the form.
