@@ -84,7 +84,8 @@ var COUCH = (function() {
             $.ajax({
                 url: endpoint,
                 data: JSON.stringify({
-                    input: input,
+                    content: input,
+                    worksheet_id: worksheet_name,
                 }),
                 success: function(msg){
                     iframe = $('#' + cell_id)
