@@ -9,7 +9,7 @@ def requests():
     while line:
         yield json.loads(line)
         line = sys.stdin.readline()
-    
+
 def respond(data={}, code=200, headers={'Content-Type': 'application/json'}):
     sys.stdout.write("%s\n" % json.dumps({"code": code, "json": data, "headers": headers}))
     sys.stdout.flush()
@@ -21,15 +21,17 @@ def main():
         body = json.loads(req['body'])
         #respond(data={'output': body.get('input')})
         
-        ##command = body.get('command')
-        command = 'print "received!"'
-        if command is not None:
-            #worksheet_id = body.get('worksheet_id')
-            worksheet_id = 'hello'
+        command = body.get('content')
+        worksheet_id = body.get('worksheet_id')
+        
+        if command and worksheet_id:
             #kernel = controller.get_or_create(worksheet_id,
             #                    writers=body.get('writers', []))
-            kernel = controller.get_or_create('hello')
+            kernel = controller.get_or_create(worksheet_id)
             kernel.execute(command)
+        else:
+            respond({'error': 'Parameters "content" and "worksheet_id" are \
+required for Python requests.'}, code=400)
         
 if __name__ == "__main__":
     main()
