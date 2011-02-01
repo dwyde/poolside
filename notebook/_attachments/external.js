@@ -46,9 +46,10 @@ var COUCH = (function() {
             });
     }
     
-    function save_cell(id, msg) {
+    function save_cell(id, input, msg) {
         database.openDoc(id, {
             success: function(doc) {
+                doc.input = input;
                 doc.output = msg.content;
                 database.saveDoc(doc, {
                     success: function() {
@@ -103,7 +104,7 @@ var COUCH = (function() {
                     worksheet_id: worksheet_name,
                 }),
                 success: function(msg){
-                    save_cell(cell_id, msg);
+                    save_cell(cell_id, input, msg);
                 },
                 global: false,
                 contentType: 'application/json',
