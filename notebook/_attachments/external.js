@@ -46,6 +46,25 @@ var COUCH = (function() {
             });
     }
     
+    function save_cell(id, msg) {
+        database.openDoc(id, {
+            success: function(doc) {
+                doc.output = msg.content;
+                database.saveDoc(doc, {
+                    success: function() {
+                        iframe = $('#' + id)
+                        .find('div.output iframe')
+                        .each(function(){
+                            this.contentWindow.location.reload(true);
+                        });
+                    }
+                });
+            },
+            error: function(status, req, error){},
+            complete: function(xhr, status) {},
+        });
+    }
+    
     // Public interface
     return {
         add_cell: function() {
@@ -53,10 +72,6 @@ var COUCH = (function() {
                 type: 'cell',
                 input: '',
                 output: '',
-                /*data: {
-                 * input: '',
-                 * output: '',
-                }*/
             }, 
             {
                 success: function(doc){
@@ -88,11 +103,7 @@ var COUCH = (function() {
                     worksheet_id: worksheet_name,
                 }),
                 success: function(msg){
-                    iframe = $('#' + cell_id)
-                    .find('div.output iframe')
-                    .each(function(){
-                        this.contentWindow.location.reload(true);
-                    });
+                    save_cell(cell_id, msg);
                 },
                 global: false,
                 contentType: 'application/json',
