@@ -101,20 +101,16 @@ var COUCH = (function() {
         compute_request: function(cell_id, input) {
             $.ajax({
                 url: endpoint,
-                //data: JSON.stringify({
                 data: {
                     content: input,
                     worksheet_id: worksheet_name,
-                //}),
                 },
                 success: function(msg){
-                    save_cell(cell_id, input, JSON.parse(msg));
+                    save_cell(cell_id, input, msg);
                 },
                 global: false,
-                //contentType: 'application/json',
                 type: 'POST',
-                //processData: false,
-                //dataType: 'json',
+                dataType: 'json',
             });
         }
     }
