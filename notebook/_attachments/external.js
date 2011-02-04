@@ -12,8 +12,9 @@ var COUCH = (function() {
         var path = location.pathname.split('/');
         var db_name = path[1];
         worksheet_name = path.pop();
-        endpoint = [location.protocol + '/', location.host, db_name,
-                    '_server'].join('/');
+        /*endpoint = [location.protocol + '/', location.host, db_name,
+                    '_server'].join('/');*/
+        endpoint = 'http://localhost:8080';
         database = $.couch.db(db_name);
     });
     
@@ -49,6 +50,7 @@ var COUCH = (function() {
     function save_cell(id, input, msg) {
         database.openDoc(id, {
             success: function(doc) {
+                //alert(JSON.stringify(msg));
                 doc.input = input;
                 doc.output = msg.content;
                 database.saveDoc(doc, {
@@ -99,18 +101,20 @@ var COUCH = (function() {
         compute_request: function(cell_id, input) {
             $.ajax({
                 url: endpoint,
-                data: JSON.stringify({
+                //data: JSON.stringify({
+                data: {
                     content: input,
                     worksheet_id: worksheet_name,
-                }),
+                //}),
+                },
                 success: function(msg){
-                    save_cell(cell_id, input, msg);
+                    save_cell(cell_id, input, JSON.parse(msg));
                 },
                 global: false,
-                contentType: 'application/json',
+                //contentType: 'application/json',
                 type: 'POST',
-                processData: false,
-                dataType: 'json',
+                //processData: false,
+                //dataType: 'json',
             });
         }
     }

@@ -5,25 +5,22 @@
     <link rel="stylesheet" type="text/css" href="../../iframe.css" />
 <script type="text/javascript" src="../../protovis-r3.2.js"></script>
 <script type="text/javascript" src="../../vis_proto.js"></script>
+<script type="text/javascript" src="../../json2.min.js"></script>
 
 </head>
 <body>
 
 <script type="text/javascript+protovis">
     var data;
-    var output = "{{{output}}}";
+    var output = '{{{output}}}';
     
     try {
         data = JSON.parse(output);
     } catch (error) {
-        data = output;
-    }
-
-    if (data instanceof Object) {
+        alert(error);
+    } finally {
         indent(data);
-    } else {
-        document.write(data);
-    }
+    } 
 
 </script>    
 
