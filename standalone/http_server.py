@@ -33,6 +33,12 @@ required for Python requests.')
             message = kernel.execute(command)
             self.wfile.write(json.dumps(message))
 
+    def do_OPTIONS(self):
+        self.send_response(200)
+        self.send_header('Access-Control-Allow-Origin', 'http://localhost:5984')
+        #self.send_header('Access-Control-Allow-Origin', '*')
+        self.end_headers()
+
 class ThreadedHTTPServer(ThreadingMixIn, HTTPServer):
     """Handle requests in a separate thread."""
 
