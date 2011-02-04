@@ -45,8 +45,14 @@ def interpreter(connection):
             sys.stdout.write('%s: %s' % (error.__class__.__name__, error))    
         result = output_trap.getvalue()
         
+        # This is a bit ugly: exec(), then eval() the result for JSON purposes
+        try:
+            content = eval(result)
+        except Exception, error:
+            content = result
+        
         message = {
-            'content': result,
+            'content': content,
             'type': 'output',
         }
         connection.send(message)

@@ -34,18 +34,16 @@ class KernelResponder(threading.Thread):
             self.callback(message)
 
 class Kernel:
-    def __init__(self, callback, **kwargs):
+    def __init__(self, **kwargs):
         #self.writers = set(kwargs['writers'])
         self._parent_conn, self._child_conn = Pipe()
         
         self.process = Process(target=interpreter, args=(self._child_conn,))
         self.process.start()
-        
-        self.responder = KernelResponder(self._parent_conn, callback)
-        self.responder.start()
     
     def execute(self, command):
         self._parent_conn.send(command)
+        return self._parent_conn.recv()
     
     def terminate(self):
         self.process.terminate()
@@ -53,11 +51,13 @@ class Kernel:
         #self._child_conn.close()
 
 class KernelController:
-    def __init__(self, callback):
+    def __init__(self):
         self.kernels = {}
-        self.callback = callback
+        self.lock = threading.Lock()
     
     def get_or_create(self, worksheet_id, **kwargs):
         if worksheet_id not in self.kernels:
-            self.kernels[worksheet_id] = Kernel(self.callback, **kwargs)
+            self.lock.acquire()
+            self.kernels[worksheet_id] = Kernel(**kwargs)
+            self.lock.release()
         return self.kernels[worksheet_id]
