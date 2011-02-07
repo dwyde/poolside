@@ -110,7 +110,7 @@ var COUCH = (function() {
                                 cell_id + '").getElementsByClassName("output") \
                                 [0]; var data = ' + JSON.stringify(msg.content) +
                                 '; indent(data, output);';
-                        document.getElementById(cell_id).lastChild.appendChild(caller);
+                        document.getElementById(cell_id).getElementsByClassName('output')[0].appendChild(caller);
                         $('#' + cell_id).resizable({alsoResize: $('#' + cell_id).children('.output')});
                     } 
                     else {

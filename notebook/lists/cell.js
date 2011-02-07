@@ -1,8 +1,8 @@
 function(head, req) {
     // !json templates.display.nb_start
     // !json templates.display.nb_end
+    // !json templates.display.new_cell
     // !code _attachments/mustache.js
-    // !code _attachments/new_cell.js
     
     start({
         'headers': {
@@ -15,8 +15,13 @@ function(head, req) {
     var row;
     while (row = getRow()) {
         if (row.doc) {
+            var data = {
+                id: row.value._id,
+                input: row.doc['input'],
+                output: row.doc['output'],
+            };
             send(
-                new_cell(row.value._id, row.doc['input'], row.doc['output'])
+                Mustache.to_html(templates.display.new_cell, data)
             );
         }
     }
