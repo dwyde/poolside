@@ -102,14 +102,20 @@ var COUCH = (function() {
                     worksheet_id: worksheet_name,
                 },
                 success: function(msg){
-                    var caller = document.createElement("script");
-                    caller.setAttribute('type', 'text/javascript');
-                    caller.innerHTML = 'var output = document.getElementById("' +
-                            cell_id + '").getElementsByClassName("output") \
-                            [0]; var data = ' + JSON.stringify(msg.content) +
-                            '; indent(data, output);';
-                    document.getElementById(cell_id).lastChild.appendChild(caller);
-                    $('#' + cell_id).resizable({alsoResize: $('#' + cell_id).children('.output')});
+                    
+                    if (typeof msg.content == 'object') {
+                        var caller = document.createElement("script");
+                        caller.setAttribute('type', 'text/javascript');
+                        caller.innerHTML = 'var output = document.getElementById("' +
+                                cell_id + '").getElementsByClassName("output") \
+                                [0]; var data = ' + JSON.stringify(msg.content) +
+                                '; indent(data, output);';
+                        document.getElementById(cell_id).lastChild.appendChild(caller);
+                        $('#' + cell_id).resizable({alsoResize: $('#' + cell_id).children('.output')});
+                    } 
+                    else {
+                        $('#' + cell_id).children('.output').text(msg.content);
+                    }
                     
                     save_cell(cell_id, input, msg);
                 },
