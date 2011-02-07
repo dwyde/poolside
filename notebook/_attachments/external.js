@@ -109,7 +109,7 @@ var COUCH = (function() {
                             [0]; var data = ' + JSON.stringify(msg.content) +
                             '; indent(data, output);';
                     document.getElementById(cell_id).lastChild.appendChild(caller);
-                    $('#' + cell_id).resizable();
+                    $('#' + cell_id).resizable({alsoResize: $('#' + cell_id).children('.output')});
                     
                     save_cell(cell_id, input, msg);
                 },
