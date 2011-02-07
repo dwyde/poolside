@@ -104,9 +104,12 @@ var COUCH = (function() {
                 success: function(msg){
                     var caller = document.createElement("script");
                     caller.setAttribute('type', 'text/javascript');
-                    //new_script.setAttribute('src', '../../vis_proto.js');
-                    caller.innerHTML = 'var data = ' + JSON.stringify(msg.content) + '; indent(data);';
-                    document.getElementsByTagName('body')[0].appendChild(caller);
+                    caller.innerHTML = 'var output = document.getElementById("' +
+                            cell_id + '").getElementsByClassName("output") \
+                            [0]; var data = ' + JSON.stringify(msg.content) +
+                            '; indent(data, output);';
+                    document.getElementById(cell_id).lastChild.appendChild(caller);
+                    $('#' + cell_id).resizable();
                     
                     save_cell(cell_id, input, msg);
                 },
