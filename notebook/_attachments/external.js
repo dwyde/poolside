@@ -106,7 +106,7 @@ var COUCH = (function() {
                     caller.setAttribute('type', 'text/javascript');
                     //new_script.setAttribute('src', '../../vis_proto.js');
                     caller.innerHTML = 'var data = ' + JSON.stringify(msg.content) + '; indent(data);';
-                    document.getElementById(cell_id).getElementsByTagName('div')[0].appendChild(caller);
+                    document.getElementsByTagName('body')[0].appendChild(caller);
                     
                     save_cell(cell_id, input, msg);
                 },

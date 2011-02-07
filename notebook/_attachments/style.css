@@ -29,11 +29,11 @@ body {
 }
 
 .cell .output {
-    display:block;
-    
     margin:.2em 0;
+    border:1px solid gray;
     width:100%;
-    height:8em;
+    height:4em;
+    overflow:hidden;
 }
 
 .cell .output iframe {
