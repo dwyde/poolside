@@ -4,9 +4,7 @@
          <button class="delete">Delete</button> \
          <input type="textarea" class="input" value="' + 
          input.replace(/"/g, '&quot;') + '" /></form> \
-         <div class="output"><iframe seamless sandbox="allow-scripts \
-         allow-same-origin" src="../../_show/cell_out/' + 
-         id +  '"></iframe></div></div>';
+         <div class="output">' + output + '</div></div>';
          
        
        return cell;

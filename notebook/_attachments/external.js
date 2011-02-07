@@ -54,12 +54,8 @@ var COUCH = (function() {
                 doc.input = input;
                 doc.output = msg.content;
                 database.saveDoc(doc, {
-                    success: function() {
-                        iframe = $('#' + id)
-                        .find('div.output iframe')
-                        .each(function(){
-                            this.contentWindow.location.reload(true);
-                        });
+                    success: function(msg) {
+                        //
                     }
                 });
             },
@@ -106,6 +102,12 @@ var COUCH = (function() {
                     worksheet_id: worksheet_name,
                 },
                 success: function(msg){
+                    var caller = document.createElement("script");
+                    caller.setAttribute('type', 'text/javascript');
+                    //new_script.setAttribute('src', '../../vis_proto.js');
+                    caller.innerHTML = 'var data = ' + JSON.stringify(msg.content) + '; indent(data);';
+                    document.getElementById(cell_id).getElementsByTagName('div')[0].appendChild(caller);
+                    
                     save_cell(cell_id, input, msg);
                 },
                 global: false,
