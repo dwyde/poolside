@@ -111,12 +111,12 @@ var COUCH = (function() {
                                 [0]; var data = ' + JSON.stringify(msg.content) +
                                 '; indent(data, output);';
                         document.getElementById(cell_id).getElementsByClassName('output')[0].appendChild(caller);
-                        $('#' + cell_id).resizable({alsoResize: $('#' + cell_id).children('.output')});
                     } 
                     else {
                         $('#' + cell_id).children('.output').text(msg.content);
                     }
                     
+                    $('#' + cell_id).resizable({alsoResize: $('#' + cell_id).children('.output')});
                     save_cell(cell_id, input, msg);
                 },
                 global: false,
@@ -156,6 +156,14 @@ $(document).ready(function(){
     
     // Don't actually submit the form.
     return false;
+  });
+  
+  /** Submit a cell's input when "enter" is pressed inside the textarea. */
+  $('.input').keypress(function(event) {
+  if (event.which == '13') {
+     event.preventDefault();
+     $(this).parent().submit();
+   }
   });
   
   /** Make output iframes resizable, using JQuery UI. */
