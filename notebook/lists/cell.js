@@ -12,13 +12,15 @@ function(head, req) {
     
     send(templates.display.nb_start);
     
-    var row;
+    var row,
+        output;
     while (row = getRow()) {
         if (row.doc) {
+            output = row.doc['output'];
             var data = {
                 id: row.value._id,
                 input: row.doc['input'],
-                output: row.doc['output'],
+                output: (typeof output == 'object') ? toJSON(output) : output,
             };
             send(
                 Mustache.to_html(templates.display.new_cell, data)

@@ -63,7 +63,20 @@ var COUCH = (function() {
             complete: function(xhr, status) {},
         });
     }
-    
+    function output_to_json(cell_id, output) {
+        if (typeof output == 'object') {
+            var caller = document.createElement("script");
+            caller.setAttribute('type', 'text/javascript');
+            caller.innerHTML = 'var output = document.getElementById("' +
+                    cell_id + '").getElementsByClassName("output") \
+                    [0]; var data = ' + JSON.stringify(output) +
+                    '; indent(data, output);';
+            document.getElementById(cell_id).getElementsByClassName('output')[0].appendChild(caller);
+        } 
+        else {
+            $('#' + cell_id).children('.output').text(output);
+        }
+    }
     // Public interface
     return {
         add_cell: function() {
@@ -102,20 +115,7 @@ var COUCH = (function() {
                     worksheet_id: worksheet_name,
                 },
                 success: function(msg){
-                    
-                    if (typeof msg.content == 'object') {
-                        var caller = document.createElement("script");
-                        caller.setAttribute('type', 'text/javascript');
-                        caller.innerHTML = 'var output = document.getElementById("' +
-                                cell_id + '").getElementsByClassName("output") \
-                                [0]; var data = ' + JSON.stringify(msg.content) +
-                                '; indent(data, output);';
-                        document.getElementById(cell_id).getElementsByClassName('output')[0].appendChild(caller);
-                    } 
-                    else {
-                        $('#' + cell_id).children('.output').text(msg.content);
-                    }
-                    
+                    output_to_json(cell_id, msg.content);
                     $('#' + cell_id).resizable({alsoResize: $('#' + cell_id).children('.output')});
                     save_cell(cell_id, input, msg);
                 },
@@ -123,7 +123,8 @@ var COUCH = (function() {
                 type: 'POST',
                 dataType: 'json',
             });
-        }
+        },
+        output_to_json: output_to_json,
     }
 }());
 
@@ -168,6 +169,15 @@ $(document).ready(function(){
   
   /** Make output iframes resizable, using JQuery UI. */
   $('div.output').each(function(){
-    $(this).resizable({alsoResize: $(this).parent()});
+      var cell = $(this).parent();
+      var content = $(this).text();
+      try {
+          content = JSON.parse(content);
+      } 
+      catch (error) {} 
+      finally {
+          COUCH.output_to_json(cell.attr('id'), content);
+      }
+      cell.resizable({alsoResize: $(this)});
   });
 });
