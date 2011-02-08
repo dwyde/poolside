@@ -21,12 +21,11 @@ body {
 }
 
 .cell .input {
-    text-align:center;
     display:block;
     width:17em;
     color: #000;
     padding: .2em;
-    margin:0 auto;
+    margin:0 .5em;
     border: 1px solid gray;
     font: 1.2em monospace;
 }
