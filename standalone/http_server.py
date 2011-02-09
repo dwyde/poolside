@@ -6,9 +6,15 @@ import cgi
 import json
 import optparse
 import sys
+import os
 
 from manager import KernelController
 
+# Location of the file containing this server's address
+ADDRESS_FILE = os.path.join('..', 'notebook', '_attachments', 'server.txt')
+FALLBACK_ADDRESS = ('localhost', 8080)
+
+# Global "controller" object
 controller = KernelController()
 
 class Handler(BaseHTTPRequestHandler):
@@ -57,8 +63,6 @@ def parse_arguments():
     parser.add_option('-c', '--couch_port', dest='couch_port', default='5984', 
             metavar='COUCH_PORT', help='CouchDB server port (on localhost)', 
             type='int')
-    parser.add_option('-s', '--service_port', dest='service_port', metavar='SERVICE_PORT',
-            help='port on which this HTTP server runs', default=8080, type='int')
 
     (options, args) = parser.parse_args()
     
@@ -66,11 +70,17 @@ def parse_arguments():
     
     return options
 
+def read_address():
+    address_text = open(ADDRESS_FILE, 'r').readline()
+    address = address_text.split(':')
+    return (address[0], int(address[1]))
+        
 def main():
     options = parse_arguments()
-    server = ThreadedHTTPServer(('localhost', options.service_port), Handler)
+    address = read_address()
+    server = ThreadedHTTPServer(address, Handler)
     server.set_couch_port(options.couch_port)
-    print 'Starting server, use <Ctrl-C> to stop'
+    print 'Starting server at %s.' % (address,)
     server.serve_forever()
 
 if __name__ == '__main__':
