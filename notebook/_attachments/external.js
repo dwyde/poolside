@@ -160,7 +160,7 @@ $(document).ready(function(){
   });
   
   /** Submit a cell's input when "enter" is pressed inside the textarea. */
-  $('.input').keypress(function(event) {
+  $('.input').live('keypress', function(event) {
   if (event.which == '13') {
      event.preventDefault();
      $(this).parent().submit();
