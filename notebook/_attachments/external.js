@@ -1,3 +1,10 @@
+//
+// Copyright 2011 David Wyde and Chris Hart.
+//
+
+/** A module to enable communication between a notebook frontend,
+ *  CouchDB, and a Python HTTP server.
+ */
 var COUCH = (function() {
     // Private variables
     var worksheet_name,
@@ -30,8 +37,7 @@ var COUCH = (function() {
                     }).get();
         
         
-            database.openDoc(worksheet_name, {
-            }, 
+            database.openDoc(worksheet_name,
             {
                 
                 success: function(doc) {
