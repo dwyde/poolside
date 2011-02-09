@@ -8,31 +8,6 @@ import threading
 
 from pykernel import interpreter
 
-def _new_id():
-    pass
-
-class KernelResponder(threading.Thread):
-    """Handle messages from a kernel process."""
-    
-    def __init__(self, connection, callback):
-        threading.Thread.__init__(self)
-        self.callback = callback
-        self.connection = connection
-    
-    def run(self):
-        """
-        Receive messages read from a :class:`multiprocessing.Connection`.
-        
-        Stop when an IOError or EOFError occurs.
-        """
-        
-        while True:
-            try:
-                message = self.connection.recv()
-            except (IOError, EOFError):
-                break
-            self.callback(message)
-
 class Kernel:
     def __init__(self, **kwargs):
         #self.writers = set(kwargs['writers'])
