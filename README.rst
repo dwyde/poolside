@@ -9,7 +9,8 @@ analysis and visualization.
 This software uses CouchDB as both a storage backend and a web server.
 A standalone Python HTTP server executes code and returns results, via AJAX.
 
-.. warning ::
+Warning
+-------
   There is currently **NO** security on the Python side. 
   
   Notebooks can access any kernel, and execute any system command as
