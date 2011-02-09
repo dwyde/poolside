@@ -12,10 +12,13 @@ var COUCH = (function() {
         var path = location.pathname.split('/');
         var db_name = path[1];
         worksheet_name = path.pop();
-        /*endpoint = [location.protocol + '/', location.host, db_name,
-                    '_server'].join('/');*/
-        endpoint = 'http://localhost:8080';
         database = $.couch.db(db_name);
+        
+        // Get the standalone HTTP server's address from CouchDB.
+        $.get('../../server.txt', function(data, textStatus, jqXHR){
+            endpoint = 'http://' + data;
+        });
+        
     });
     
     /** Save an ordered list of this notebook's cells. */
