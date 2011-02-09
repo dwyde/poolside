@@ -8,8 +8,8 @@
 
 import sys
 import os
-sys.path.append(os.path.join('..', 'visualize'))
-from viz_extension import load_kernel_viz
+#sys.path.append(os.path.join('..', 'visualize'))
+#from viz_extension import load_kernel_viz
 
 from StringIO import StringIO
 
@@ -32,10 +32,10 @@ def interpreter(connection):
     
     globals_dict = {}
     locals_dict = {}
-    load_kernel_viz(globals_dict)
+    ##load_kernel_viz(globals_dict)
     
     while True:
-        command, caller = connection.recv()
+        command = connection.recv()
         #code = compile(command, '<string>', 'exec')
         output_trap = StringIO()
         sys.stdout = output_trap
@@ -45,9 +45,14 @@ def interpreter(connection):
             sys.stdout.write('%s: %s' % (error.__class__.__name__, error))    
         result = output_trap.getvalue()
         
+        # This is a bit ugly: exec(), then eval() the result for JSON purposes
+        try:
+            content = eval(result)
+        except Exception, error:
+            content = result
+        
         message = {
-            'content': result, 
-            'target': caller,
+            'content': content,
             'type': 'output',
         }
         connection.send(message)

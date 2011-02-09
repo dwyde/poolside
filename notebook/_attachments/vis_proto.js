@@ -1,4 +1,4 @@
-function indent(data) {
+function indent(data, output) {
     var root = pv.dom(data)
     .root("data")
     .sort(function(a, b) {return pv.naturalOrder(a.nodeName, b.nodeName);});
@@ -13,7 +13,8 @@ function indent(data) {
     var vis = new pv.Panel()
     .width(260)
     .height(function() {return (root.nodes().length + 1) * 12;})
-    .margin(5);
+    .margin(5)
+    .canvas(output); // Output target element.
     
     var layout = vis.add(pv.Layout.Indent)
     .nodes(function() {return root.nodes();})
