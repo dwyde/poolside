@@ -12,14 +12,6 @@ function(head, req) {
     send(templates.display.nb_start);
     
     var row,
-<<<<<<< HEAD
-        doc;
-    while (row = getRow()) {
-        doc = row.doc;
-        if (doc) {
-            send(
-                new_cell(row.value._id, doc['input'], doc['output'])
-=======
         output;
     while (row = getRow()) {
         if (row.doc) {
@@ -30,7 +22,6 @@ function(head, req) {
                     row.doc['input'],
                     (typeof output == 'object') ? toJSON(output) : output
                 )
->>>>>>> standalone
             );
         }
     }
