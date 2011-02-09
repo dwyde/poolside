@@ -7,13 +7,9 @@
 """
 
 import sys
-import os
-#sys.path.append(os.path.join('..', 'visualize'))
-#from viz_extension import load_kernel_viz
-
 from StringIO import StringIO
 
-def interpreter(connection):
+def main():
     """Set up a rudimentary Python "kernel".
     
     Messages should be sent to `connection` as a 2-length list of the form
@@ -32,27 +28,25 @@ def interpreter(connection):
     
     globals_dict = {}
     locals_dict = {}
-    ##load_kernel_viz(globals_dict)
     
     while True:
-        command = connection.recv()
-        #code = compile(command, '<string>', 'exec')
+        command = sys.stdin.readline()
+        if not command:
+            break
+            
         output_trap = StringIO()
+        pipe_out = sys.stdout
         sys.stdout = output_trap
+        
         try:
             exec command in globals_dict, locals_dict
         except Exception, error:
             sys.stdout.write('%s: %s' % (error.__class__.__name__, error))    
         result = output_trap.getvalue()
         
-        # This is a bit ugly: exec(), then eval() the result for JSON purposes
-        try:
-            content = eval(result)
-        except Exception, error:
-            content = result
+        sys.stdout = pipe_out
+        sys.stdout.write(result)
+        sys.stdout.flush()
         
-        message = {
-            'content': content,
-            'type': 'output',
-        }
-        connection.send(message)
+if __name__ == '__main__':
+    main()

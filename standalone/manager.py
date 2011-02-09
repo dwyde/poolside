@@ -3,27 +3,34 @@
 # Copyright 2011 David Wyde and Chris Hart.
 #
 
-from multiprocessing import Process, Pipe
+from subprocess import Popen, PIPE
 import threading
-
-from pykernel import interpreter
 
 class Kernel:
     def __init__(self, **kwargs):
         #self.writers = set(kwargs['writers'])
-        self._parent_conn, self._child_conn = Pipe()
-        
-        self.process = Process(target=interpreter, args=(self._child_conn,))
-        self.process.start()
+        self.python = Popen(['python', './pykernel.py'], stdout=PIPE,
+                stdin=PIPE)
     
     def execute(self, command):
-        self._parent_conn.send(command)
-        return self._parent_conn.recv()
+        self.python.stdin.write('%s\n' % command)
+        result = self.python.stdout.readline()
+        
+        # This is a bit ugly: exec(), then eval() the result for JSON purposes
+        try:
+            content = eval(result)
+        except Exception, error:
+            content = result
+        
+        return {
+            'content': content,
+            'type': 'output',
+        }
     
     def terminate(self):
-        self.process.terminate()
-        #self._parent_conn.close()
-        #self._child_conn.close()
+        self.python.stdin.close()
+        self.python.stdout.close()
+        self.python.terminate()
 
 class KernelController:
     def __init__(self):
