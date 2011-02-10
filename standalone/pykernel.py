@@ -42,10 +42,10 @@ def main():
             exec command in globals_dict, locals_dict
         except Exception, error:
             sys.stdout.write('%s: %s' % (error.__class__.__name__, error))    
-        result = output_trap.getvalue()
+        result = output_trap.getvalue().replace('\n', ' ')
         
         sys.stdout = pipe_out
-        sys.stdout.write(result)
+        sys.stdout.write(result + '\n')
         sys.stdout.flush()
         
 if __name__ == '__main__':
