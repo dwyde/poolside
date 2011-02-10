@@ -11,10 +11,14 @@ class Kernel:
         #self.writers = set(kwargs['writers'])
         self.python = Popen(['python', './pykernel.py'], stdout=PIPE,
                 stdin=PIPE)
+        self.ruby = Popen(['ruby', './rubykernel.rb'], stdout=PIPE, stdin=PIPE)
     
     def execute(self, command):
         self.python.stdin.write('%s\n' % command)
         result = self.python.stdout.readline()
+        
+        #self.ruby.stdin.write('%s\n' % command)
+        #result = self.ruby.stdout.readline()
         
         # This is a bit ugly: exec(), then eval() the result for JSON purposes
         try:
