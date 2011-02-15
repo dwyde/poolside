@@ -1,6 +1,6 @@
 [
     {
-        "from": "nb/:name",
+        "from": "poolside/:name",
         "to": "_list/cell/get_cells",
         "query": {
             "include_docs": true,
