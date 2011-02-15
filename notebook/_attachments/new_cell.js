@@ -1,21 +1,15 @@
     function new_cell(id, input, output) {
         function html_escape(str) {
             if (typeof str == 'string') {  
-                return str.replace(/&/g, '&amp;').replace(/>/g, '&gt;').replace(/</g, '&lt;');
-            } else {
-                return str;
-            }
-        }
-        
-        function unquote(str) {
-            if (typeof str == 'string') {
-                return str.replace(/"/g, '&quot;').replace(/'/, '&#039;');
+                return str.replace(/&/g, '&amp;').replace(/>/g, '&gt;')
+                        .replace(/</g, '&lt;').replace(/"/g, '&quot;')
+                        .replace(/'/, '&#039;');
             } else {
                 return str;
             }
         }
       
-        return '<div class="cell" id="'+ unquote(id) + '"> \
+        return '<div class="cell" id="'+ html_escape(id) + '"> \
               <form method="POST"> \
                 <button type="submit" class="evaluate">Evaluate</button> \
                 <button class="delete">Delete</button> \
