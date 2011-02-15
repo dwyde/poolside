@@ -44,10 +44,10 @@ Command Line Arguments
 
 Other configuration options
 
-* Set in poolside/notebook/_attachments/server.txt, so that it can be shared
-  by CouchDB and the standalone server. 
+* This server defaults to running on ``localhost:8282``.
 
-  Defaults to localhost:8282.
+  Set in poolside/notebook/_attachments/server.txt, so that it can be shared
+  by CouchDB and the standalone server.
 
 Accessing Notebooks
 -------------------
