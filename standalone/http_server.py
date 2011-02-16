@@ -35,9 +35,9 @@ class Handler(BaseHTTPRequestHandler):
             worksheet_id = form['worksheet_id'].value
         except KeyError:
             self.wfile.write('Parameters "content" and "worksheet_id" are \
-required for Python requests.')
+required for Python requests.\n')
             #respond({'error': }, code=400)
-        finally:
+        else:
             kernel = controller.get_or_create(worksheet_id)
             message = kernel.execute(command)
             self.wfile.write(json.dumps(message))
