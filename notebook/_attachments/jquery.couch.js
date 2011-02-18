@@ -13,6 +13,28 @@
 (function($) {
   $.couch = $.couch || {};
 
+  /* Taken from https://github.com/malsup/form.git */
+  var httpData = function( xhr, type, s ) { // mostly lifted from jq1.4.4
+    var ct = xhr.getResponseHeader('content-type') || '',
+      xml = type === 'xml' || !type && ct.indexOf('xml') >= 0,
+      data = xml ? xhr.responseXML : xhr.responseText;
+
+    if (xml && data.documentElement.nodeName === 'parsererror') {
+      $.error && $.error('parsererror');
+    }
+    if (s && s.dataFilter) {
+      data = s.dataFilter(data, type);
+    }
+    if (typeof data === 'string') {
+      if (type === 'json' || !type && ct.indexOf('json') >= 0) {
+        data = JSON.parse(data);
+      } else if (type === "script" || !type && ct.indexOf("javascript") >= 0) {
+        $.globalEval(data);
+      }
+    }
+    return data;
+  };
+  
   function encodeDocId(docID) {
     var parts = docID.split("/");
     if (parts[0] == "_design") {
@@ -36,7 +58,7 @@
     }
     user_doc.type = "user";
     if (!user_doc.roles) {
-      user_doc.roles = []
+      user_doc.roles = [];
     }
     return user_doc;
   };
@@ -75,7 +97,7 @@
         req.type = "PUT";
         req.data = toJSON(value);
         req.contentType = "application/json";
-        req.processData = false
+        req.processData = false;
       }
 
       ajax(req, options,
@@ -88,7 +110,7 @@
       $.ajax({
         type: "GET", url: this.urlPrefix + "/_session",
         complete: function(req) {
-          var resp = $.httpData(req, "json");
+          var resp = httpData(req, "json");
           if (req.status == 200) {
             if (options.success) options.success(resp);
           } else if (options.error) {
@@ -115,7 +137,7 @@
       user_doc = prepareUserDoc(user_doc, password);
       $.couch.userDb(function(db) {
         db.saveDoc(user_doc, options);
-      })
+      });
     },
     
     login: function(options) {
@@ -124,7 +146,7 @@
         type: "POST", url: this.urlPrefix + "/_session", dataType: "json",
         data: {name: options.name, password: options.password},
         complete: function(req) {
-          var resp = $.httpData(req, "json");
+          var resp = httpData(req, "json");
           if (req.status == 200) {
             if (options.success) options.success(resp);
           } else if (options.error) {
@@ -141,7 +163,7 @@
         type: "DELETE", url: this.urlPrefix + "/_session", dataType: "json",
         username : "_", password : "_",
         complete: function(req) {
-          var resp = $.httpData(req, "json");
+          var resp = httpData(req, "json");
           if (req.status == 200) {
             if (options.success) options.success(resp);
           } else if (options.error) {
@@ -167,7 +189,7 @@
             doc._attachments["rev-"+doc._rev.split("-")[0]] = {
               content_type :"application/json",
               data : Base64.encode(rawDocs[doc._id].raw)
-            }
+            };
             return true;
           }
         }
@@ -385,7 +407,7 @@
             dataType: "json", data: toJSON(doc),
             beforeSend : beforeSend,
             complete: function(req) {
-              var resp = $.httpData(req, "json");
+              var resp = httpData(req, "json");
               if (req.status == 200 || req.status == 201 || req.status == 202) {
                 doc._id = resp.id;
                 doc._rev = resp.rev;
@@ -450,7 +472,7 @@
         copyDoc: function(docId, options, ajaxOptions) {
           ajaxOptions = $.extend(ajaxOptions, {
             complete: function(req) {
-              var resp = $.httpData(req, "json");
+              var resp = httpData(req, "json");
               if (req.status == 201) {
                 if (options.success) options.success(resp);
               } else if (options.error) {
@@ -583,7 +605,7 @@
       if (!uuidCache.length) {
         ajax({url: this.urlPrefix + "/_uuids", data: {count: cacheNum}, async: false}, {
             success: function(resp) {
-              uuidCache = resp.uuids
+              uuidCache = resp.uuids;
             }
           },
           "Failed to retrieve UUID batch."
@@ -608,7 +630,7 @@
       },
       complete: function(req) {
         try {
-          var resp = $.httpData(req, "json");
+          var resp = httpData(req, "json");
         } catch(e) {
           if (options.error) {
             options.error(req.status, req, e);
