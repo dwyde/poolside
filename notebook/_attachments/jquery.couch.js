@@ -13,25 +13,13 @@
 (function($) {
   $.couch = $.couch || {};
 
-  /* Taken from https://github.com/malsup/form.git */
-  var httpData = function( xhr, type, s ) { // mostly lifted from jq1.4.4
-    var ct = xhr.getResponseHeader('content-type') || '',
-      xml = type === 'xml' || !type && ct.indexOf('xml') >= 0,
-      data = xml ? xhr.responseXML : xhr.responseText;
+  function httpData( xhr, type) {
+    var data = (type == 'xml') ? xhr.responseXML : xhr.responseText;
 
-    if (xml && data.documentElement.nodeName === 'parsererror') {
-      $.error && $.error('parsererror');
+    if (type === 'json') {
+      data = JSON.parse(data);
     }
-    if (s && s.dataFilter) {
-      data = s.dataFilter(data, type);
-    }
-    if (typeof data === 'string') {
-      if (type === 'json' || !type && ct.indexOf('json') >= 0) {
-        data = JSON.parse(data);
-      } else if (type === "script" || !type && ct.indexOf("javascript") >= 0) {
-        $.globalEval(data);
-      }
-    }
+    
     return data;
   };
   
