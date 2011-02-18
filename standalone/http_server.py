@@ -20,34 +20,42 @@ controller = KernelController()
 class Handler(BaseHTTPRequestHandler):
     
     def do_POST(self):
-        self.send_response(200)
-        self.send_header('Access-Control-Allow-Origin', 'http://localhost:%d' %
-                self.server.couch_port)
-        #self.send_header('Access-Control-Allow-Origin', '*')
-        self.end_headers()
+        if self.headers.get('Origin') != 'http://localhost:%d' % \
+                self.server.couch_port:
+            self.send_response(403, 'Bad "Origin" header')
+            self.end_headers()
+            return
         
         form = cgi.FieldStorage(fp=self.rfile,
             headers=self.headers, environ = {'REQUEST_METHOD':'POST'},
             keep_blank_values = 1)
-
-        try:
-            command = form['content'].value
-            worksheet_id = form['worksheet_id'].value
-        except KeyError:
-            self.wfile.write('Parameters "content" and "worksheet_id" are \
-required for Python requests.\n')
-            #respond({'error': }, code=400)
-        else:
+        command = form.getvalue('content')
+        worksheet_id = form.getvalue('worksheet_id')
+        
+        if command and worksheet_id:
+            self.send_response(200)
             kernel = controller.get_or_create(worksheet_id)
-            message = kernel.execute(command)
-            self.wfile.write(json.dumps(message))
-
+            result = kernel.execute(command)
+            message = json.dumps(result)
+            self._respond(message)
+        else:
+            self.send_response(400, 'Parameters "content" and "worksheet_id" are \
+required.')
+            self._respond()
+            
     def do_OPTIONS(self):
         self.send_response(200)
+        self._respond()
+        
+    def _respond(self, message=None):
         self.send_header('Access-Control-Allow-Origin', 'http://localhost:%d' %
                 self.server.couch_port)
-        #self.send_header('Access-Control-Allow-Origin', '*')
+        self.send_header('Access-Control-Allow-Credentials', 'true')
+        self.send_header('Access-Control-Allow-Methods', 'OPTIONS, POST')
+        self.send_header('Access-Control-Allow-Headers', 'X-Requested-With')
         self.end_headers()
+        if message is not None:
+            self.wfile.write(message)
 
 class ThreadedHTTPServer(ThreadingMixIn, HTTPServer):
     """Handle requests in a separate thread."""
