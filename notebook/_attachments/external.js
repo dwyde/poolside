@@ -8,8 +8,8 @@
 var COUCH = (function() {
     // Private variables
     var worksheet_name,
-        endpoint,
-        database;
+        database,
+        endpoint = '/_eval';
     
     // Private functions
         
@@ -20,12 +20,6 @@ var COUCH = (function() {
         var db_name = path[1];
         worksheet_name = path.pop();
         database = $.couch.db(db_name);
-        
-        // Get the standalone HTTP server's address from CouchDB.
-        $.get('../../server.txt', function(data, textStatus, jqXHR){
-            endpoint = 'http://' + data;
-        });
-        
     });
     
     /** Save an ordered list of this notebook's cells. */
