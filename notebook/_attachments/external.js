@@ -9,7 +9,8 @@ var COUCH = (function() {
     // Private variables
     var worksheet_name,
         database,
-        endpoint = '/_eval';
+        endpoint = '/eval',
+        db_name = 'database';
     
     // Private functions
         
@@ -17,7 +18,6 @@ var COUCH = (function() {
     $(function() {
         var location = window.location;
         var path = location.pathname.split('/');
-        var db_name = path[1];
         worksheet_name = path.pop();
         database = $.couch.db(db_name);
     });
