@@ -22,6 +22,20 @@ var COUCH = (function() {
         database = $.couch.db(db_name);
     });
     
+    function save_with_writers(doc, success) {
+        $.ajax({
+            url: '/session',
+            dataType: 'json',
+            success: function(response) {
+                database.saveDoc(
+                    $.extend({writers: [response.userCtx.name]}, doc), {
+                        success: (success || null),
+                    }
+                );
+            },
+        });
+    }
+    
     /** Save an ordered list of this notebook's cells. */
     function save_worksheet() {
         var cells = $('#worksheet')
@@ -40,7 +54,8 @@ var COUCH = (function() {
                 },
                 dataType: 'json',
                 error: function(status, req, e) {
-                    database.saveDoc({
+                    
+                    save_with_writers({
                         type: 'worksheet',
                         _id: worksheet_name,
                         cells: cells,
@@ -83,20 +98,20 @@ var COUCH = (function() {
     // Public interface
     return {
         add_cell: function() {
-            database.saveDoc({
-                type: 'cell',
-                input: '',
-                output: '',
-            }, 
-            {
-                success: function(doc){
+            var user = save_with_writers(
+                {
+                    type: 'cell',
+                    input: '',
+                    output: '',
+                }, 
+                function(doc) {
                     var cell_text = new_cell(doc.id, '', '');
                     var cell = $(cell_text);
                     cell.children('.output').resizable({alsoResize: cell});
                     $('#worksheet').append(cell);
                     save_worksheet();
-                },
-            });
+                }
+            );
         },
         delete_cell: function(id) {
             database.openDoc(id, {
