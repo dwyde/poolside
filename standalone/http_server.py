@@ -6,8 +6,16 @@ import cgi
 import json
 import optparse
 import sys
+import Cookie
+import httplib
 
 from manager import KernelController
+
+# Base URL of the proxy server
+PROXY_SERVER = 'localhost'
+
+# CouchDB _session handler
+SESSION_ENDPOINT = '/session'
 
 # Global "controller" object
 controller = KernelController()
@@ -15,6 +23,12 @@ controller = KernelController()
 class Handler(BaseHTTPRequestHandler):
     
     def do_POST(self):
+        user = self._authenticate()
+        if user is None:
+            self.send_response(401, 'Please log in')
+            self.end_headers()
+            return
+        
         form = cgi.FieldStorage(fp=self.rfile,
             headers=self.headers, environ = {'REQUEST_METHOD':'POST'},
             keep_blank_values = 1)
@@ -32,6 +46,33 @@ class Handler(BaseHTTPRequestHandler):
             self.send_response(400, 'Parameters "content" and "worksheet_id" \
 are required.')
             self.end_headers()
+
+    def _authenticate(self):
+        cookie_str = self.headers.get('Cookie')
+        if cookie_str is None:
+            return None
+        print cookie_str
+        
+        # Some cookie exists: check if it's the right one
+        auth_cookie = Cookie.BaseCookie(cookie_str)
+        session = auth_cookie.get('AuthSession')
+        if session is None:
+            return None
+        
+        # The request included a CouchDB session cookie: authenticate the user
+        conn = httplib.HTTPConnection(PROXY_SERVER)
+        headers = {'Cookie': cookie_str}
+        conn.request('GET', SESSION_ENDPOINT, headers=headers)
+        res = conn.getresponse().read()
+        
+        # Now, we try to read the userCtx (CouchDB authentication) object
+        userCtx = json.loads(res).get('userCtx')
+        if userCtx is None:
+            return None
+        print userCtx
+        return userCtx.get('name')
+        
+        
 
 class ThreadedHTTPServer(ThreadingMixIn, HTTPServer):
     """Handle requests in a separate thread."""
