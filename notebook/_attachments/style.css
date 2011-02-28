@@ -13,9 +13,9 @@ body {
 .cell button {
     width:1.5em;
     height:1.5em;
+    margin: .25em 0 .25em .25em;
     border: 1px solid #afafaf;
     padding: 0px;
-    margin-left: 0px;
     outline: none;
     font: 1em serif;
     text-align:center;
@@ -38,6 +38,7 @@ body {
 
 .cell button.delete {
     float:right;
+    margin-right:.25em;
     background:#fff;
     color:#a00;
 }
