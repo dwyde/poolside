@@ -11,13 +11,35 @@ body {
 }
 
 .cell button {
-    color: green;
-    background: none;
-    border: none;
+    width:1.5em;
+    height:1.5em;
+    border: 1px solid #afafaf;
     padding: 0px;
     margin-left: 0px;
     outline: none;
-    font: .8em serif;
+    font: 1em serif;
+    text-align:center;
+}
+
+.cell button.text {
+    background: #fff;
+    color: #000;
+}
+
+.cell button.python {
+    background: #3773A5;
+    color: #FFD040;
+}
+
+.cell button.ruby {
+    background: #BD1612;
+    color: #fff;
+}
+
+.cell button.delete {
+    float:right;
+    background:#fff;
+    color:#a00;
 }
 
 .cell .input {
