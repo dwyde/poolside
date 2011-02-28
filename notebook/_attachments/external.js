@@ -151,16 +151,15 @@ var COUCH = (function() {
 $(document).ready(function(){
     /** Handler for submission of an input form. */
     $('.cell form').live('submit', function(){
-        var input = $(this).children('.input').val();
-        var id = $(this).parents('div.cell').attr('id');
-        COUCH.compute_request(id, input);
-
         // Prevent the actual submission of this form.
         return false;
     });
     
-    $('.cell form button:submit').live('click', function(){
-        alert($(this).attr('class'));
+    $('.cell form button').live('click', function(){
+        var id = $(this).parents('div.cell').attr('id');
+        var input = $(this).siblings('.input').val();
+        var type = $(this).attr('class');
+        COUCH.compute_request(id, input);
     });
     
   /** Add a cell to this notebook. */
