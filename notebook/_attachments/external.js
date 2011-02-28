@@ -152,13 +152,17 @@ $(document).ready(function(){
     /** Handler for submission of an input form. */
     $('.cell form').live('submit', function(){
         var input = $(this).children('.input').val();
-        var id = $(this).parent().attr('id');
+        var id = $(this).parents('div.cell').attr('id');
         COUCH.compute_request(id, input);
 
         // Prevent the actual submission of this form.
         return false;
     });
-  
+    
+    $('.cell form button:submit').live('click', function(){
+        alert($(this).attr('class'));
+    });
+    
   /** Add a cell to this notebook. */
     $('#add_cell').click(function(){
         COUCH.add_cell();
@@ -178,12 +182,12 @@ $(document).ready(function(){
   });
   
   /** Submit a cell's input when "enter" is pressed inside the textarea. */
-  $('.input').live('keypress', function(event) {
-  if (event.which == '13') {
-     event.preventDefault();
-     $(this).parent().submit();
-   }
-  });
+/*  $('.input').live('keypress', function(event) {
+      if (event.which == '13') {
+          event.preventDefault();
+          $(this).parent().submit();
+      }
+  });*/
   
   /** Make output iframes resizable, using JQuery UI. */
   $('div.output').each(function(){

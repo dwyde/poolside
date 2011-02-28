@@ -10,11 +10,11 @@
         }
       
         return '<div class="cell" id="'+ html_escape(id) + '"> \
+              <button class="delete">X</button> \
               <form method="POST"> \
                 <button type="submit" class="text">txt</button> \
                 <button type="submit" class="python">py</button> \
                 <button type="submit" class="ruby">rb</button> \
-                <button class="delete">X</button> \
                 <textarea class="input">' + html_escape(input) + '</textarea> \
               </form> \
               <div class="output">' + html_escape(output) + '</div> \
