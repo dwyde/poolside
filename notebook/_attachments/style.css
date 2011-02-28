@@ -60,6 +60,18 @@ body {
     overflow:hidden;
 }
 
+.cell.ruby {
+    background:#F4D8D8;
+}
+
+.cell.python {
+    background:#F6F7C2;
+}
+
+.cell.text {
+    background: #E6E6E6;
+}
+
 .cell .output iframe {
     border:1px solid gray;
     padding:0em;

@@ -125,22 +125,33 @@ var COUCH = (function() {
                 }
             });
         },
-        compute_request: function(cell_id, input) {
-            $.ajax({
-                url: endpoint,
-                data: {
-                    content: input,
-                    worksheet_id: worksheet_name,
-                },
-                success: function(msg){
-                    output_to_json(cell_id, msg.content);
-                    $('#' + cell_id).resizable({alsoResize: $('#' + cell_id).children('.output')});
-                    save_cell(cell_id, input, msg);
-                },
-                global: false,
-                type: 'POST',
-                dataType: 'json',
-            });
+        compute_request: function(cell_id, input, type) {
+            $('#' + cell_id).removeClass(function() {
+                return 'text python ruby';
+            }).addClass(type);
+            
+            if (type == 'text') {
+                output_to_json(cell_id, '');
+                save_cell(cell_id, input, {content: ''});
+            }
+            else {
+                $.ajax({
+                    url: endpoint,
+                    data: {
+                        content: input,
+                        worksheet_id: worksheet_name,
+                    },
+                    success: function(msg){
+                        output_to_json(cell_id, msg.content);
+                        $('#' + cell_id).resizable({alsoResize: $('#' + 
+                                cell_id).children('.output')});
+                        save_cell(cell_id, input, msg);
+                    },
+                    global: false,
+                    type: 'POST',
+                    dataType: 'json',
+                });
+            }
         },
         output_to_json: output_to_json,
     }
@@ -159,7 +170,7 @@ $(document).ready(function(){
         var id = $(this).parents('div.cell').attr('id');
         var input = $(this).siblings('.input').val();
         var type = $(this).attr('class');
-        COUCH.compute_request(id, input);
+        COUCH.compute_request(id, input, type);
     });
     
   /** Add a cell to this notebook. */
