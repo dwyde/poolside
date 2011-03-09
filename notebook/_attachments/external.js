@@ -9,8 +9,8 @@ var COUCH = (function() {
     // Private variables
     var worksheet_name,
         database,
-        endpoint = '/eval',
-        db_name = 'database';
+        endpoint = 'http://localhost:8282',
+        db_name = 'external';
     
     // Private functions
         

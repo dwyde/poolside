@@ -20,9 +20,43 @@ SESSION_ENDPOINT = '/session'
 # Global "controller" object
 controller = KernelController()
 
-class Handler(BaseHTTPRequestHandler):
+class BasicHandler(BaseHTTPRequestHandler):
+    """Execute code received via POST, without CouchDB authentication."""
     
     def do_POST(self):
+        form = cgi.FieldStorage(fp=self.rfile,
+            headers=self.headers, environ = {'REQUEST_METHOD':'POST'},
+            keep_blank_values = 1)
+        command = form.getvalue('content')
+        worksheet_id = form.getvalue('worksheet_id')
+        
+        if command and worksheet_id:
+            self.send_response(200)
+            self.cors_okay()
+            kernel = controller.get_or_create(worksheet_id)
+            result = kernel.execute(command)
+            message = json.dumps(result)
+            self.end_headers()
+            self.wfile.write(message)
+        else:
+            self.send_response(400, 'Parameters "content" and "worksheet_id" \
+are required.')
+            self.cors_okay()
+            self.end_headers()
+    
+    def do_OPTIONS(self):
+        self.send_response(200)
+        self.cors_okay()
+        self.end_headers()
+    
+    def cors_okay(self):
+        self.send_header('Access-Control-Allow-Origin', 'http://localhost:5984')
+        self.send_header('Access-Control-Allow-Headers', 'x-requested-with')
+
+class AuthenticatedHandler(BasicHandler):
+    
+    def do_POST(self):
+        print dir(self)
         user = self._authenticate()
         if user is None:
             self.send_response(401, 'Please log in')
@@ -95,7 +129,7 @@ def parse_arguments():
 def main():
     options = parse_arguments()
     address = ('localhost', options.port)
-    server = ThreadedHTTPServer(address, Handler)
+    server = ThreadedHTTPServer(address, BasicHandler)
     print 'Starting server at %s.' % (address,)
     server.serve_forever()
 
