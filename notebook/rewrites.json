@@ -15,8 +15,8 @@
     },
     
     {
-        "from": "static/:file",
-        "to": ":file"
+        "from": "static/*",
+        "to": "*"
     },
     
     {
@@ -25,6 +25,11 @@
         "query": {
             "include_docs": false
         }
+    },
+    
+    {
+        "from": "",
+        "to": "_list/links/worksheets"
     },
     
     {
