@@ -33,7 +33,7 @@
     },
     
     {
-        "from": "database/*",
+        "from": "_database/*",
         "to": "../../*"
     }
 ]
