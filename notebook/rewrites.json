@@ -15,10 +15,20 @@
     },
     
     {
+        "from": "static/:file",
+        "to": ":file"
+    },
+    
+    {
         "from": "all",
         "to": "_list/links/worksheets",
         "query": {
             "include_docs": false
         }
+    },
+    
+    {
+        "from": "database/*",
+        "to": "../../*"
     }
 ]
