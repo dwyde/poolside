@@ -9,7 +9,7 @@ function(head, req) {
     while (row = getRow()) {
         id = row.key;
         send(
-            '<a href="nb/' + id + '">' + id + '</a> <br />\n'
+            '<a href="poolside/' + id + '">' + id + '</a> <br />\n'
         );
     }
 }
