@@ -15,7 +15,7 @@ from manager import KernelController
 PROXY_SERVER = 'localhost'
 
 # CouchDB _session handler
-SESSION_ENDPOINT = '/session'
+SESSION_ENDPOINT = 'http://localhost:5984/_session'
 
 # Global "controller" object
 controller = KernelController()
@@ -27,14 +27,15 @@ class BasicHandler(BaseHTTPRequestHandler):
         form = cgi.FieldStorage(fp=self.rfile,
             headers=self.headers, environ = {'REQUEST_METHOD':'POST'},
             keep_blank_values = 1)
-        command = form.getvalue('content')
         worksheet_id = form.getvalue('worksheet_id')
+        command = form.getvalue('content')
+        language = form.getvalue('language')
         
-        if command and worksheet_id:
+        if worksheet_id and command and language:
             self.send_response(200)
             self.cors_okay()
             kernel = controller.get_or_create(worksheet_id)
-            result = kernel.execute(command)
+            result = kernel.execute(language, command)
             message = json.dumps(result)
             self.end_headers()
             self.wfile.write(message)
@@ -52,36 +53,26 @@ are required.')
     def cors_okay(self):
         self.send_header('Access-Control-Allow-Origin', 'http://localhost:5984')
         self.send_header('Access-Control-Allow-Headers', 'x-requested-with')
+        self.send_header('Access-Control-Allow-Credentials', 'true')
 
 class AuthenticatedHandler(BasicHandler):
+    """Check that a user is logged in with CouchDB.
+    
+    This is on-hold until CouchDB 1.1.0; CORS seems to struggle with Cookies.
+    """
     
     def do_POST(self):
-        print dir(self)
         user = self._authenticate()
         if user is None:
             self.send_response(401, 'Please log in')
+            self.cors_okay()
             self.end_headers()
-            return
-        
-        form = cgi.FieldStorage(fp=self.rfile,
-            headers=self.headers, environ = {'REQUEST_METHOD':'POST'},
-            keep_blank_values = 1)
-        command = form.getvalue('content')
-        worksheet_id = form.getvalue('worksheet_id')
-        
-        if command and worksheet_id:
-            self.send_response(200)
-            kernel = controller.get_or_create(worksheet_id)
-            result = kernel.execute(command)
-            message = json.dumps(result)
-            self.end_headers()
-            self.wfile.write(message)
         else:
-            self.send_response(400, 'Parameters "content" and "worksheet_id" \
-are required.')
-            self.end_headers()
+            BasicHandler.do_POST(self)
 
     def _authenticate(self):
+        """Check a CouchDB authentication cookie."""
+        
         cookie_str = self.headers.get('Cookie')
         if cookie_str is None:
             return None
@@ -106,8 +97,6 @@ are required.')
         print userCtx
         return userCtx.get('name')
         
-        
-
 class ThreadedHTTPServer(ThreadingMixIn, HTTPServer):
     """Handle requests in a separate thread."""
 

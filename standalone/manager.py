@@ -9,13 +9,18 @@ import threading
 class Kernel:
     def __init__(self, **kwargs):
         #self.writers = set(kwargs['writers'])
+        self.languages = set(['python', 'ruby'])
         self.python = Popen(['python', './pykernel.py'], stdout=PIPE,
                 stdin=PIPE)
         self.ruby = Popen(['ruby', './rubykernel.rb'], stdout=PIPE, stdin=PIPE)
     
-    def execute(self, command):
-        self.python.stdin.write('%s\n' % command)
-        result = self.python.stdout.readline()
+    def execute(self, language, command):
+        if language in self.languages:
+            kernel = getattr(self, language)
+            kernel.stdin.write('%s\n' % command)
+            result = kernel.stdout.readline()
+        else:
+            content = '<Bad language parameter in request>'
         
         #self.ruby.stdin.write('%s\n' % command)
         #result = self.ruby.stdout.readline()

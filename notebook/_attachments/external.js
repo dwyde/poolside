@@ -140,6 +140,7 @@ var COUCH = (function() {
                     data: {
                         content: input,
                         worksheet_id: worksheet_name,
+                        language: type
                     },
                     success: function(msg){
                         output_to_json(cell_id, msg.content);
