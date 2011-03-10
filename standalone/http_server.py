@@ -40,8 +40,8 @@ class BasicHandler(BaseHTTPRequestHandler):
             self.end_headers()
             self.wfile.write(message)
         else:
-            self.send_response(400, 'Parameters "content" and "worksheet_id" \
-are required.')
+            self.send_response(400, 'Parameters "worksheet_id", "language", \
+and "content" are required.')
             self.cors_okay()
             self.end_headers()
     

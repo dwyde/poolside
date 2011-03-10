@@ -19,17 +19,14 @@ class Kernel:
             kernel = getattr(self, language)
             kernel.stdin.write('%s\n' % command)
             result = kernel.stdout.readline()
+
+            # This is a bit ugly: exec(), then eval() the result for JSON purposes
+            try:
+                content = eval(result)
+            except Exception, error:
+                content = result
         else:
             content = '<Bad language parameter in request>'
-        
-        #self.ruby.stdin.write('%s\n' % command)
-        #result = self.ruby.stdout.readline()
-        
-        # This is a bit ugly: exec(), then eval() the result for JSON purposes
-        try:
-            content = eval(result)
-        except Exception, error:
-            content = result
         
         return {
             'content': content,

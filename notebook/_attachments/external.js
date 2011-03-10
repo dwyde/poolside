@@ -24,7 +24,7 @@ var COUCH = (function() {
     
     function save_with_writers(doc, success) {
         $.ajax({
-            url: '/session',
+            url: '/_session',
             dataType: 'json',
             success: function(response) {
                 database.saveDoc(
@@ -193,12 +193,16 @@ $(document).ready(function(){
   });
   
   /** Submit a cell's input when "enter" is pressed inside the textarea. */
-/*  $('.input').live('keypress', function(event) {
+  $('.input').live('keypress', function(event) {
       if (event.which == '13') {
           event.preventDefault();
-          $(this).parent().submit();
+          var cell = $(this).parents('div.cell');
+          var id = cell.attr('id');
+          var input = $(this).val();
+          var type = cell.attr('class');
+          COUCH.compute_request(id, input, type);
       }
-  });*/
+  });
   
   /** Make output iframes resizable, using JQuery UI. */
   $('div.output').each(function(){
