@@ -85,6 +85,10 @@ var COUCH = (function() {
             complete: function(xhr, status) {},
         });
     }
+    
+    /** Enable dynamic visualization of JSON data with Protovis.
+     *  This has potential to be cool, but isn't particularly useful right now.
+     */
     function output_to_json(cell_id, output) {
         if (typeof output == 'object') {
             var caller = document.createElement("script");
