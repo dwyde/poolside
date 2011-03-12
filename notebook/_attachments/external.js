@@ -2,6 +2,11 @@
 // Copyright 2011 David Wyde and Chris Hart.
 //
 
+/** Global function to print errors in a standard way. */
+function output_error(status, request, error_msg) {
+    $('#__messages').text(error_msg);
+}
+
 /** A module to enable communication between a notebook frontend,
  *  CouchDB, and a Python HTTP server.
  */
@@ -30,6 +35,7 @@ var COUCH = (function() {
                 database.saveDoc(
                     $.extend({writers: [response.userCtx.name]}, doc), {
                         success: (success || null),
+                        error: output_error,
                     }
                 );
             },
@@ -68,16 +74,14 @@ var COUCH = (function() {
     function save_cell(id, input, msg) {
         database.openDoc(id, {
             success: function(doc) {
-                //alert(JSON.stringify(msg));
                 doc.input = input;
                 doc.output = msg.content;
                 database.saveDoc(doc, {
-                    success: function(msg) {
-                        //
-                    }
+                    success: function(msg) {},
+                    error: output_error,
                 });
             },
-            error: function(status, req, error){},
+            error: function(status, req, error) {},
             complete: function(xhr, status) {},
         });
     }
@@ -120,7 +124,8 @@ var COUCH = (function() {
                         success: function() {
                             $('#' + doc._id).remove();
                             save_worksheet();
-                        }
+                        },
+                        error: output_error,
                     });
                 }
             });
@@ -148,9 +153,13 @@ var COUCH = (function() {
                                 cell_id).children('.output')});
                         save_cell(cell_id, input, msg);
                     },
+                    error: output_error,
                     global: false,
                     type: 'POST',
                     dataType: 'json',
+                    beforeSend: function(xhr){
+                       xhr.withCredentials = true;
+                    }
                 });
             }
         },
