@@ -1,3 +1,18 @@
+#!/usr/bin/env python
+#
+# Copyright 2011 David Wyde and Chris Hart.
+#
+
+"""A threaded HTTP server for executing Python and Ruby code (in subprocesses).
+
+TO-DO:
+
+* Tweak CouchDB cookie authentication to work without nginx
+* "Controller" should not be a global variable. 
+   It can belong to ThreadedHTTPServer for now.
+* Accept CouchDB server address as a command line arg.
+"""
+
 from BaseHTTPServer import HTTPServer, BaseHTTPRequestHandler
 from SocketServer import ThreadingMixIn
 import threading
