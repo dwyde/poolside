@@ -2,7 +2,7 @@ from BaseHTTPServer import HTTPServer, BaseHTTPRequestHandler
 from SocketServer import ThreadingMixIn
 import threading
 
-import cgi
+import urlparse
 import json
 import optparse
 import sys
@@ -21,39 +21,55 @@ SESSION_ENDPOINT = 'http://localhost:5984/_session'
 controller = KernelController()
 
 class BasicHandler(BaseHTTPRequestHandler):
-    """Execute code received via POST, without CouchDB authentication."""
+    """Execute code received via GET, without CouchDB authentication."""
     
-    def do_POST(self):
-        form = cgi.FieldStorage(fp=self.rfile,
-            headers=self.headers, environ = {'REQUEST_METHOD':'POST'},
-            keep_blank_values = 1)
-        worksheet_id = form.getvalue('worksheet_id')
-        command = form.getvalue('content')
-        language = form.getvalue('language')
+    # All parameters that we're expecting to be in the query string.
+    required_fields = ['worksheet_id', 'content', 'language', 'callback']
+    
+    def do_GET(self):
+        """Execute code from a GET request, if it has the proper parameters."""
+    
+        self.query_data = self._query_dict()
         
-        if worksheet_id and command and language:
-            self.send_response(200)
-            self.cors_okay()
-            kernel = controller.get_or_create(worksheet_id)
-            result = kernel.execute(language, command)
-            message = json.dumps(result)
-            self.end_headers()
-            self.wfile.write(message)
+        # The query_data values are never integers, so 0 won't get filtered out.
+        params = filter(None, self.query_data)
+        if len(params) != len(self.required_fields):
+            self._fail_and_respond()
         else:
-            self.send_response(400, 'Parameters "worksheet_id", "language", \
-and "content" are required.')
-            self.cors_okay()
-            self.end_headers()
+            self._exec_and_respond()
     
-    def do_OPTIONS(self):
-        self.send_response(200)
-        self.cors_okay()
+    def _query_dict(self):
+        """Return a dictionary of predefined query string parameters."""
+        
+        parsed = urlparse.urlparse(self.path)
+        query = urlparse.parse_qs(parsed.query, strict_parsing=True)
+        query_data = ((key, query.get(key)) for key in self.required_fields)
+        return dict([(key, value[0]) for key, value in query_data])
+
+    def _fail_and_respond(self):
+        """Send an HTTP error message when a request parameter is missing."""
+        
+        self.send_response(400, 'Parameters "worksheet_id", "language", \
+and "content" are required. You must also provide a jsonp callback function.')
         self.end_headers()
     
-    def cors_okay(self):
-        self.send_header('Access-Control-Allow-Origin', 'http://localhost:5984')
-        self.send_header('Access-Control-Allow-Headers', 'x-requested-with')
-        self.send_header('Access-Control-Allow-Credentials', 'true')
+    def _exec_and_respond(self):
+        """Execute code when the request looks okay."""
+        
+        self.send_response(200)
+        self.send_header('Content-Type', 'application/javascript')
+        self.end_headers()
+        
+        kernel = controller.get_or_create(self.query_data['worksheet_id'])
+        result = kernel.execute(self.query_data['language'],
+                                self.query_data['content'])
+        message = json.dumps(result)
+        self._output_message(message)
+    
+    def _output_message(self, message):
+        """Respond to the client: call a JavaScript function via jsonp."""
+        
+        self.wfile.write('%s(%s)' % (self.query_data['callback'], message))
 
 class AuthenticatedHandler(BasicHandler):
     """Check that a user is logged in with CouchDB.
@@ -61,14 +77,13 @@ class AuthenticatedHandler(BasicHandler):
     This is on-hold until CouchDB 1.1.0; CORS seems to struggle with Cookies.
     """
     
-    def do_POST(self):
+    def do_GET(self):
         user = self._authenticate()
         if user is None:
             self.send_response(401, 'Please log in')
-            self.cors_okay()
             self.end_headers()
         else:
-            BasicHandler.do_POST(self)
+            BasicHandler.do_GET(self)
 
     def _authenticate(self):
         """Check a CouchDB authentication cookie."""
