@@ -158,12 +158,8 @@ var COUCH = (function() {
                         save_cell(cell_id, input, msg);
                     },
                     error: output_error,
-                    global: false,
-                    type: 'POST',
-                    dataType: 'json',
-                    beforeSend: function(xhr){
-                       xhr.withCredentials = true;
-                    }
+                    type: 'GET',
+                    dataType: 'jsonp',
                 });
             }
         },
