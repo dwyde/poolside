@@ -135,6 +135,18 @@ var COUCH = (function() {
             });
         },
         compute_request: function(cell_id, input, type) {
+            $.couch.session({
+                success: function(msg) {
+                    name = msg.userCtx.name;
+                    if (name != 'null') {
+                        // Logic to handle logged-in users
+                    } else {
+                        output_error(null, null, 'Please log in.');
+                    }
+                },
+                error: output_error
+            });
+        
             $('#' + cell_id).removeClass(function() {
                 return 'text python ruby';
             }).addClass(type);
