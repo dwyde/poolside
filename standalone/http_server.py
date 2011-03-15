@@ -86,10 +86,7 @@ and "content" are required. You must also provide a jsonp callback function.')
         self.wfile.write('%s(%s)' % (self.query_data['callback'], message))
 
 class AuthenticatedHandler(BasicHandler):
-    """Check that a user is logged in with CouchDB.
-    
-    This is on-hold until CouchDB 1.1.0; CORS seems to struggle with Cookies.
-    """
+    """Check that a user is logged in with CouchDB."""
     
     def do_GET(self):
         user = self._authenticate()
