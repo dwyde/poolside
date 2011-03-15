@@ -42,16 +42,14 @@ Example call ::
 
 Command Line Arguments
 
-* ``-p`` : Port on which the *eval server* will run.  Defaults to 8282.
+* *-p* : Port on which the *eval server* will run.  Defaults to ``8282``.
+* *-c* : CouchDB server address. Defaults to ``'localhost:5984'``.
 
 An Aside About Configuration
 
 * In an earlier implementation, I set the server port in a field on the _design
   doc. I think this is a good way to share between the CouchApp and the HTTP
   server, and I'll probably go back to it soon.
-  
-* The CouchDB port should also be a command line arg to the HTTP server. It was,
-  but for some reason it isn't right now.
 
 Accessing Notebooks
 -------------------
@@ -75,8 +73,3 @@ Pressing "enter" in the textarea is broken -- just click the buttons.
 
 The "cell types" aren't yet fully implemented. CouchDB doesn't persist the
 type of cell.
-
-CORS seems to get confused by HTTP cookies. This makes it hard
-to authenticate with CouchDB. Might look at JSON-P, or just wait for CouchDB
-1.1.0 and see if that fixes the cross-domain problem ("external process"
-improvements).
