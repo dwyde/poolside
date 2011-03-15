@@ -4,10 +4,6 @@
 #
 
 """A threaded HTTP server for executing Python and Ruby code (in subprocesses).
-
-TO-DO:
-
-* Accept CouchDB server address as a command line arg.
 """
 
 from BaseHTTPServer import HTTPServer, BaseHTTPRequestHandler
@@ -22,9 +18,6 @@ import Cookie
 import httplib
 
 from manager import KernelController
-
-# Base URL of the proxy server
-COUCH_SERVER = 'localhost:5984'
 
 # CouchDB _session handler
 SESSION_ENDPOINT = '/_session'
@@ -106,7 +99,7 @@ class AuthenticatedHandler(BasicHandler):
             return None
         
         # The request included a CouchDB session cookie: authenticate the user
-        conn = httplib.HTTPConnection(COUCH_SERVER)
+        conn = httplib.HTTPConnection(self.server.couch_server)
         headers = {'Cookie': cookie_str}
         conn.request('GET', SESSION_ENDPOINT, headers=headers)
         res = conn.getresponse().read()
@@ -128,9 +121,11 @@ def parse_arguments():
     """
     
     parser = optparse.OptionParser()
-    parser.add_option('-p', '--port', dest='port', 
-            default=8282, metavar='PORT', type='int',
-            help='The local port on which this server will run')
+    parser.add_option('-p', '--port', dest='port', default=8282, type='int',
+                      help='The local port on which this server will run')
+    parser.add_option('-c', '--couch_server', dest='couch_server',
+                      default='localhost:5984',
+                      type='string', help='The CouchDB server address')
 
     (options, args) = parser.parse_args()
     del sys.argv[1:]
@@ -141,6 +136,7 @@ def main():
     options = parse_arguments()
     address = ('127.0.0.1', options.port)
     server = ThreadedHTTPServer(address, AuthenticatedHandler)
+    server.couch_server = options.couch_server
     print 'Starting server at %s.' % (address,)
     server.serve_forever()
 
