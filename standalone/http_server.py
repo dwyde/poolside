@@ -7,7 +7,6 @@
 
 TO-DO:
 
-* Tweak CouchDB cookie authentication to work without nginx
 * "Controller" should not be a global variable. 
    It can belong to ThreadedHTTPServer for now.
 * Accept CouchDB server address as a command line arg.
@@ -106,7 +105,6 @@ class AuthenticatedHandler(BasicHandler):
         cookie_str = self.headers.get('Cookie')
         if cookie_str is None:
             return None
-        print cookie_str
         
         # Some cookie exists: check if it's the right one
         auth_cookie = Cookie.BaseCookie(cookie_str)
@@ -124,7 +122,6 @@ class AuthenticatedHandler(BasicHandler):
         userCtx = json.loads(res).get('userCtx')
         if userCtx is None:
             return None
-        print userCtx
         return userCtx.get('name')
         
 class ThreadedHTTPServer(ThreadingMixIn, HTTPServer):
@@ -140,14 +137,13 @@ def parse_arguments():
             help='The local port on which this server will run')
 
     (options, args) = parser.parse_args()
-    
     del sys.argv[1:]
     
     return options
         
 def main():
     options = parse_arguments()
-    address = ('localhost', options.port)
+    address = ('127.0.0.1', options.port)
     server = ThreadedHTTPServer(address, AuthenticatedHandler)
     print 'Starting server at %s.' % (address,)
     server.serve_forever()
