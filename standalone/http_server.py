@@ -7,8 +7,6 @@
 
 TO-DO:
 
-* "Controller" should not be a global variable. 
-   It can belong to ThreadedHTTPServer for now.
 * Accept CouchDB server address as a command line arg.
 """
 
@@ -30,9 +28,6 @@ COUCH_SERVER = 'localhost:5984'
 
 # CouchDB _session handler
 SESSION_ENDPOINT = '/_session'
-
-# Global "controller" object
-controller = KernelController()
 
 class BasicHandler(BaseHTTPRequestHandler):
     """Execute code received via GET, without CouchDB authentication."""
@@ -74,7 +69,8 @@ and "content" are required. You must also provide a jsonp callback function.')
         self.send_header('Content-Type', 'application/javascript')
         self.end_headers()
         
-        kernel = controller.get_or_create(self.query_data['worksheet_id'])
+        worksheet = self.query_data['worksheet_id']
+        kernel = self.server.controller.get_or_create(worksheet)
         result = kernel.execute(self.query_data['language'],
                                 self.query_data['content'])
         message = json.dumps(result)
@@ -123,6 +119,9 @@ class AuthenticatedHandler(BasicHandler):
         
 class ThreadedHTTPServer(ThreadingMixIn, HTTPServer):
     """Handle requests in a separate thread."""
+    
+    # Global "controller" object
+    controller = KernelController()
 
 def parse_arguments():
     """Process command line arguments using :class:`optparse.OptionParser`.
