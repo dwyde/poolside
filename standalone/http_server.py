@@ -27,10 +27,10 @@ import httplib
 from manager import KernelController
 
 # Base URL of the proxy server
-PROXY_SERVER = 'localhost'
+COUCH_SERVER = 'localhost:5984'
 
 # CouchDB _session handler
-SESSION_ENDPOINT = 'http://localhost:5984/_session'
+SESSION_ENDPOINT = '/_session'
 
 # Global "controller" object
 controller = KernelController()
@@ -115,7 +115,7 @@ class AuthenticatedHandler(BasicHandler):
             return None
         
         # The request included a CouchDB session cookie: authenticate the user
-        conn = httplib.HTTPConnection(PROXY_SERVER)
+        conn = httplib.HTTPConnection(COUCH_SERVER)
         headers = {'Cookie': cookie_str}
         conn.request('GET', SESSION_ENDPOINT, headers=headers)
         res = conn.getresponse().read()
@@ -148,7 +148,7 @@ def parse_arguments():
 def main():
     options = parse_arguments()
     address = ('localhost', options.port)
-    server = ThreadedHTTPServer(address, BasicHandler)
+    server = ThreadedHTTPServer(address, AuthenticatedHandler)
     print 'Starting server at %s.' % (address,)
     server.serve_forever()
 
