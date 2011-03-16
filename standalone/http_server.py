@@ -125,25 +125,34 @@ def parse_arguments():
     """
     
     parser = optparse.OptionParser()
-    parser.add_option('-c', '--couch_server', dest='couch_server',
-                      default='localhost:5984',
-                      type='string', help='The CouchDB server address')
+    parser.add_option('-d', '--design_doc', dest='design_doc',
+                      help='Full URL of Poolside\'s CouchDB _design document.')
 
     (options, args) = parser.parse_args()
-    del sys.argv[1:]
     
+    if not options.design_doc:
+        parser.error('Command line option "design_doc" is required.')
+    
+    del sys.argv[1:]
     return options
 
-def read_address():
-    address_string = open(ADDRESS_FILE, 'r').read()
-    address_dict = json.loads(address_string)
-    return address_dict['server'], address_dict['port']
+def read_address(design_doc):
+    url_obj = urlparse.urlparse(design_doc)
+    couch_server = url_obj.netloc
+    
+    conn = httplib.HTTPConnection(couch_server)
+    conn.request('GET', url_obj.path)
+    res = conn.getresponse().read()
+    address_field = json.loads(res)['eval_server']
+    address = (address_field['server'], address_field['port'])
+    
+    return couch_server, address
 
 def main():
     options = parse_arguments()
-    address = read_address()
+    couch_server, address = read_address(options.design_doc)
     server = ThreadedHTTPServer(address, AuthenticatedHandler)
-    server.couch_server = options.couch_server
+    server.couch_server = couch_server
     print 'Starting server at %s.' % (address,)
     server.serve_forever()
 
