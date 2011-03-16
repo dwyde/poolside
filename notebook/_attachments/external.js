@@ -1,28 +1,35 @@
 //
 // Copyright 2011 David Wyde and Chris Hart.
 //
+/**
+ * JavaScript for Poolside's notebook user interface.
+ * 
+ * Some of the URL paths might not work if we ever move to CouchDB vhosts,
+ * e.g., /_session and COUCH.db_name.
+ * 
+ */
 
 /** Global function to print errors in a standard way. */
 function output_error(status, request, error_msg) {
     $('#__messages').text(error_msg);
 }
 
-/** A module to enable communication between a notebook frontend,
+/** 
+ * A module to enable communication between a notebook frontend,
  *  CouchDB, and a Python HTTP server.
  */
 var COUCH = (function() {
     // Private variables
     var worksheet_name,
         database,
-        endpoint = 'http://localhost:8282',
-        db_name = 'external';
+        endpoint = 'http://localhost:8282';
     
     // Private functions
-        
     /** Initialize data structures based on the current URL. */
     $(function() {
         var location = window.location;
         var path = location.pathname.split('/');
+        var db_name = path[1];
         worksheet_name = path.pop();
         database = $.couch.db(db_name);
     });
