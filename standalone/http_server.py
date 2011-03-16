@@ -22,9 +22,6 @@ from manager import KernelController
 # CouchDB _session handler
 SESSION_ENDPOINT = '/_session'
 
-# The address at which this server will run.
-ADDRESS_FILE = '../notebook/eval_server.json'
-
 class BasicHandler(BaseHTTPRequestHandler):
     """Execute code received via GET, without CouchDB authentication."""
     
