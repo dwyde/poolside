@@ -33,23 +33,27 @@ Use CouchApp to initialize and update the files stored in CouchDB ::
   cd notebook
   couchapp push http://localhost:5984/database
 
+Server Configuration
+--------------------
+Both the JavaScript notebook frontend (in CouchDB) and the evaluation server
+(Python) need to know the eval server's port. The current approach is to store
+a JSON file ::
+
+  poolside/notebook/eval_server.json
+
+that defines the port to which the notebook will send its evaluation requests.
+When the eval server starts up, it will ask CouchDB for this address.
+
 Running the Standalone Server
 -----------------------------
 Example call ::
 
   cd standalone
-  python http_server.py
+  python http_server.py -d http://localhost:5984/database/_design/notebook
 
 Command Line Arguments
 
-* *-p* : Port on which the *eval server* will run.  Defaults to ``8282``.
-* *-c* : CouchDB server address. Defaults to ``'localhost:5984'``.
-
-An Aside About Configuration
-
-* In an earlier implementation, I set the server port in a field on the _design
-  doc. I think this is a good way to share between the CouchApp and the HTTP
-  server, and I'll probably go back to it soon.
+* *-d* : Full URL of the CouchApp's design document. Required.
 
 Accessing Notebooks
 -------------------
