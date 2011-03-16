@@ -30,7 +30,8 @@ var COUCH = (function() {
     $.getJSON(
         '../../',
         function(data, textStatus, jqXHR) {
-            endpoint = 'http://' + data.eval_server;
+            address = data.eval_server;
+            endpoint = 'http://' + address.server + ':' + address.port;
         }
     );
     

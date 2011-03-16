@@ -22,6 +22,9 @@ from manager import KernelController
 # CouchDB _session handler
 SESSION_ENDPOINT = '/_session'
 
+# The address at which this server will run.
+ADDRESS_FILE = '../notebook/eval_server.json'
+
 class BasicHandler(BaseHTTPRequestHandler):
     """Execute code received via GET, without CouchDB authentication."""
     
@@ -82,6 +85,7 @@ class AuthenticatedHandler(BasicHandler):
         if user is None:
             self.send_response(401, 'Please log in')
             self.end_headers()
+            #self.wfile.write(json.dumps({'content': 'oops', 'type': 'output'}))
         else:
             BasicHandler.do_GET(self)
 
@@ -121,8 +125,6 @@ def parse_arguments():
     """
     
     parser = optparse.OptionParser()
-    parser.add_option('-p', '--port', dest='port', default=8282, type='int',
-                      help='The local port on which this server will run')
     parser.add_option('-c', '--couch_server', dest='couch_server',
                       default='localhost:5984',
                       type='string', help='The CouchDB server address')
@@ -131,10 +133,15 @@ def parse_arguments():
     del sys.argv[1:]
     
     return options
-        
+
+def read_address():
+    address_string = open(ADDRESS_FILE, 'r').read()
+    address_dict = json.loads(address_string)
+    return address_dict['server'], address_dict['port']
+
 def main():
     options = parse_arguments()
-    address = ('127.0.0.1', options.port)
+    address = read_address()
     server = ThreadedHTTPServer(address, AuthenticatedHandler)
     server.couch_server = options.couch_server
     print 'Starting server at %s.' % (address,)
