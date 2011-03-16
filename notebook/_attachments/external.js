@@ -22,10 +22,19 @@ var COUCH = (function() {
     // Private variables
     var worksheet_name,
         database,
-        endpoint = 'http://localhost:8282';
+        endpoint;
     
-    // Private functions
-    /** Initialize data structures based on the current URL. */
+    // Initialize data structures based on the current URL.
+    
+    // Get the eval server's address from the _design doc.
+    $.getJSON(
+        '../../',
+        function(data, textStatus, jqXHR) {
+            endpoint = 'http://' + data.eval_server;
+        }
+    );
+    
+    // Parse the URL for the database name.
     $(function() {
         var location = window.location;
         var path = location.pathname.split('/');
@@ -34,6 +43,7 @@ var COUCH = (function() {
         database = $.couch.db(db_name);
     });
     
+    // Private functions
     function save_with_writers(doc, success) {
         $.ajax({
             url: '/_session',
