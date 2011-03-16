@@ -28,10 +28,9 @@ var COUCH = (function() {
     
     // Get the eval server's address from the _design doc.
     $.getJSON(
-        '../../',
+        '../../eval_server.json',
         function(data, textStatus, jqXHR) {
-            address = data.eval_server;
-            endpoint = 'http://' + address.server + ':' + address.port;
+            endpoint = 'http://' + data.server + ':' + data.port;
         }
     );
     

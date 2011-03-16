@@ -22,6 +22,9 @@ from manager import KernelController
 # CouchDB _session handler
 SESSION_ENDPOINT = '/_session'
 
+# Name of an attachment on the design doc that contains this server's address
+SERVER_INFO_FILE = '/eval_server.json'
+
 class BasicHandler(BaseHTTPRequestHandler):
     """Execute code received via GET, without CouchDB authentication."""
     
@@ -138,9 +141,9 @@ def read_address(design_doc):
     couch_server = url_obj.netloc
     
     conn = httplib.HTTPConnection(couch_server)
-    conn.request('GET', url_obj.path)
+    conn.request('GET', url_obj.path + SERVER_INFO_FILE)
     res = conn.getresponse().read()
-    address_field = json.loads(res)['eval_server']
+    address_field = json.loads(res)
     address = (address_field['server'], address_field['port'])
     
     return couch_server, address
