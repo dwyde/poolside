@@ -12,3 +12,10 @@ test('Notebook object constructor without url', function() {
   ok(notebook.worksheet_name, 'Worksheet name should be found');
   ok(notebook.database, 'Database object should exist');
 });
+
+/**
+ * 
+ * Some functions are more UI-based: use Selenium?
+ * 
+ * Notebook::add_cell
+ */
