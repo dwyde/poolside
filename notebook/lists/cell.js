@@ -1,7 +1,7 @@
 function(head, req) {
     // !json templates.display.nb_start
     // !json templates.display.nb_end
-    // !code _attachments/new_cell.js
+    // !code _attachments/js/app/new_cell.js
     
     start({
         'headers': {
