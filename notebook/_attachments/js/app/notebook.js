@@ -128,6 +128,12 @@ Notebook.prototype.delete_cell = function(id) {
 $(document).ready(function(){
   var notebook = new Notebook();
   
+  /** Prevent the actual submission of cell forms. */
+  $('.cell form').live('submit', function(){
+      return false;
+  });
+  
+  /** Attach a handler to the "Add cell" button. */
   $('#add_cell').click(function(){
     notebook.add_cell();
   });
