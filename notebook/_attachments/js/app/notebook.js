@@ -32,6 +32,8 @@ function Notebook(url) {
 
 /**
  * Asks CouchDB for the current user's name, then executes a callback function.
+ * 
+ * @param {function} callback A function execute after obtaining the username.
  */
 Notebook.prototype._get_username = function(callback) {
   $.couch.session({
@@ -46,16 +48,32 @@ Notebook.prototype._get_username = function(callback) {
   });
 };
 
-/**
- * Adds a new, blank cell into the DOM.
+/** 
+ * Save this worksheet, and its list of cells, to CouchDB.
  * 
- * @param {string} id The CouchDB _id of a new cell.
+ * @param {string} user A user to set as the "writers" array field in CouchDB.
  */
-Notebook.prototype._blank_cell = function(id) {
-  return function(doc) {
-    var cell_text = new_cell(id, '', '');
-    $('#worksheet').append(cell_text);
-  }
+Notebook.prototype._save_worksheet = function(user) {
+  var cells = $('#worksheet > .cell')
+                .map(function() {
+                    return this.id;
+                }).get();
+  
+  var self = this;
+  this.database.openDoc(this.worksheet_name, {
+    success: function(worksheet) {
+      worksheet.cells = cells;
+      self.database.saveDoc(worksheet);
+    },
+    error: function(status, request, error) {
+      self.database.saveDoc({
+        _id: self.worksheet_name,
+        cells: cells,
+        type: 'worksheet',
+        writers: [user]
+      });
+    }
+  });
 };
 
 /**
@@ -74,25 +92,9 @@ Notebook.prototype.add_cell = function(){
       }, 
       {
         success: function(cell) { // The cell was saved.
-          var id = cell.id;
-          self.database.openDoc(self.worksheet_name, {
-            error: function(status, req, error){ // The worksheet doesn't exist.
-              self.database.saveDoc({
-                _id: self.worksheet_name,
-                type: 'worksheet',
-                cells: [id],
-                writers: [user],
-              }, {
-                success: self._blank_cell(id),
-              });
-            },
-            success: function(worksheet) { // The worksheet already exists.
-              worksheet.cells.push(id);
-              self.database.saveDoc(worksheet, {
-                success: self._blank_cell(id),
-              }); 
-            },
-          })
+          var cell_html = new_cell(cell.id, '', '');
+          $('#worksheet').append(cell_html);
+          self._save_worksheet(user);
         },
         error: error_msg,
       }
