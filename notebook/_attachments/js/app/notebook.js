@@ -14,6 +14,10 @@ function error_msg(status, req, error) {
   set_status(error);
 }
 
+/*
+ * Notebook class.
+ */
+
 /**
  * Creates an instance of Notebook.
  * 
@@ -122,11 +126,42 @@ Notebook.prototype.delete_cell = function(id) {
   });  
 };
 
-/** 
+/*
+ * Request class
+ */
+
+function Request(cell_id, type, input) {
+  
+}
+
+/** Initialize class variables for Request:
+ * 
+ *   1) get eval server's address from _design doc
+ *   2) store a list of evaluation request types
+ *   3) save the current worksheet's name as a class variable
+ * 
+ * @param {string} worksheet_name The name of the current worksheet.
+ */
+Request._init_once = function(worksheet_name) {
+  $.getJSON(
+    '../../eval_server.json',
+    function(data, textStatus, jqXHR) {
+      Request.prototype.endpoint = 'http://' + data.server + ':' + data.port;
+    }
+  );
+  Request.prototype.worksheet = worksheet_name;
+  Request.prototype.choices = 'text python ruby';
+};
+
+/*
  * Main JQuery code: attach functions to DOM elements as JQuery handlers.
  */
 $(document).ready(function(){
+  // Create a Notebook instance.
   var notebook = new Notebook();
+  
+  // Initialize future Requests.
+  Request._init_once(notebook.worksheet_name);
   
   /** Prevent the actual submission of cell forms. */
   $('.cell form').live('submit', function(){
@@ -149,5 +184,13 @@ $(document).ready(function(){
 
     // Don't actually submit the form.
     return false;
+  });
+  
+  /** React to one of the cell submission buttons being clicked. */
+  $('.cell form button').live('click', function(){
+      var id = $(this).parents('div.cell').attr('id');
+      var input = $(this).siblings('.input').val();
+      var type = $(this).attr('class');
+      req = new Request(id, type, input);
   });
 });
