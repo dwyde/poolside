@@ -102,12 +102,46 @@ Notebook.prototype.add_cell = function(){
   });
 };
 
+/**
+ * Deletes an existing cell from this notebook. 
+ * 
+ * @param {string} id The "id" of a cell to remove.
+ */
+Notebook.prototype.delete_cell = function(id) {
+  var self =  this;
+  this.database.openDoc(id, {
+    success: function(doc) {
+      self.database.removeDoc(doc, {
+        success: function() {
+          $('#' + doc._id).remove();
+          self._save_worksheet();
+        },
+        error: error_msg,
+      });
+    }
+  });  
+};
+
 /** 
  * Main JQuery code: attach functions to DOM elements as JQuery handlers.
  */
 $(document).ready(function(){
   var notebook = new Notebook();
+  
   $('#add_cell').click(function(){
     notebook.add_cell();
+  });
+  
+  /** Delete a cell from this notebook. */
+  $('button.delete').live('click', function(){
+    var ans = confirm('Do you want to permanently delete this cell?');
+    if (ans) {
+      // Be careful if the HTML structure of cell "widgets" changes.
+      var id = $(this).parents('div.cell').attr('id');
+      notebook.delete_cell(id);
+    }
+
+    // Don't actually submit the form.
+    return false;
   });
 });
