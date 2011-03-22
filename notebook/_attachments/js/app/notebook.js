@@ -130,8 +130,17 @@ Notebook.prototype.delete_cell = function(id) {
  * Request class
  */
 
-function Request(cell_id, type, input) {
-  
+/**
+ * Initialize a Request object.
+ * 
+ * @param {string} cell_id
+ */
+function Request(type, cell_id, input) {
+  if (type == 'text') {
+    this._eval_text(cell_id, input);
+  } else {
+    this._eval_code(cell_id, input);
+  }
 }
 
 /** Initialize class variables for Request:
@@ -151,6 +160,20 @@ Request._init_once = function(worksheet_name) {
   );
   Request.prototype.worksheet = worksheet_name;
   Request.prototype.choices = 'text python ruby';
+};
+
+Request.prototype._eval_text = function(cell_id, input) {
+  set_status('text');
+};
+
+Request.prototype._eval_code = function(cell_id, input) {
+  set_status('code');
+};
+
+Request.prototype._eval_class = function(cell_id, type) {
+  $('#' + cell_id).removeClass(function() {
+    return this.choices;
+  }).addClass(type);
 };
 
 /*
@@ -188,9 +211,9 @@ $(document).ready(function(){
   
   /** React to one of the cell submission buttons being clicked. */
   $('.cell form button').live('click', function(){
-      var id = $(this).parents('div.cell').attr('id');
+      var cell_id = $(this).parents('div.cell').attr('id');
       var input = $(this).siblings('.input').val();
       var type = $(this).attr('class');
-      req = new Request(id, type, input);
+      req = new Request(type, cell_id, input);
   });
 });
