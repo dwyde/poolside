@@ -15,6 +15,26 @@ function error_msg(status, req, error) {
 }
 
 /*
+ * Cell class.
+ */
+
+/**
+ * Populate a JavaScript object with a few fields specific to Poolside Cells.
+ * 
+ * @param {object} params A JavaScript object.
+ */
+function Cell(params) {
+  $.extend(this, {
+    _id: params.cell_id || undefined,
+    type: 'cell',
+    eval_type: params.type || 'text',
+    input: params.input || '',
+    output: params.output || '',
+    writers: params.writers || [],
+  });
+}
+
+/*
  * Notebook class.
  */
 
@@ -87,13 +107,9 @@ Notebook.prototype.add_cell = function(){
   var self = this;
   this._get_username(function(user) {
     self.database.saveDoc( // Create a new cell.
-      {
-        type: 'cell',
-        input: '',
-        output: '',
-        eval_type: 'text',
-        writers: [user],
-      }, 
+      new Cell({
+        writers: [user]
+      }), 
       {
         success: function(cell) { // The cell was saved.
           var cell_html = new_cell(cell.id, '', '');
@@ -126,6 +142,30 @@ Notebook.prototype.delete_cell = function(id) {
   });  
 };
 
+/**
+ * Save an existing cell to CouchDB.
+ * 
+ * @param {object} cell_obj An instance of the Cell class: a JavaScript object.
+ */
+Notebook.prototype.save_cell = function(cell_obj) {
+  var self = this;
+  this._get_username(function(user) {
+    self.database.openDoc(cell_obj._id, {
+      success: function(doc) {
+        self.database.saveDoc(
+          $.extend(doc, cell_obj, {
+            writers: [user]
+          }), 
+          {
+            success: set_status,
+            error: error_msg,
+          }
+        );
+      }
+    });
+  });
+};
+
 /*
  * Request class
  */
@@ -133,13 +173,18 @@ Notebook.prototype.delete_cell = function(id) {
 /**
  * Initialize a Request object.
  * 
- * @param {string} cell_id
+ * @param {string} type The mode in which this request will be executed.
+ * @param {string} cell_id A cell's ID in CouchDB.
+ * @return {function} A callback function: function callback(cell_id, input). 
  */
-function Request(type, cell_id, input) {
+function Request(type, cell_id) {
+  this._set_eval_type(cell_id, type);
+  this.cell_id = cell_id;
   if (type == 'text') {
-    this._eval_text(cell_id, input);
+    this.execute = this._eval_text;
   } else {
-    this._eval_code(cell_id, input);
+    this.execute = this._eval_code;
+    this.type = type;
   }
 }
 
@@ -162,17 +207,37 @@ Request._init_once = function(worksheet_name) {
   Request.prototype.choices = 'text python ruby';
 };
 
-Request.prototype._eval_text = function(cell_id, input) {
-  set_status('text');
+/**
+ * Evaluates a cell as text: there will be no output.
+ * 
+ * @param {string} input Text of the cell that is being evaluated.
+ * @param {function} callback A function to call at the end of this function.
+ */
+Request.prototype._eval_text = function(input, callback) {
+  $('#' + this.cell_id).children('.output').text('');
+  callback('');
 };
 
-Request.prototype._eval_code = function(cell_id, input) {
+/**
+ * Evaluates a cell as code: currently Python or Ruby.
+ * 
+ * @param {string} input Text of the cell that is being evaluated.
+ * @param {function} callback A function to call at the end of this function.
+ */
+Request.prototype._eval_code = function(input, callback) {
   set_status('code');
 };
 
-Request.prototype._eval_class = function(cell_id, type) {
+/**
+ * Sets the class of a cell, based on the button with which it was submitted.
+ * 
+ * @param {string} cell_id The ID of a cell that we are modifying.
+ * @param {string} type The new evaluation type.
+ */
+Request.prototype._set_eval_type = function(cell_id, type) {
+  var self = this;
   $('#' + cell_id).removeClass(function() {
-    return this.choices;
+    return self.choices;
   }).addClass(type);
 };
 
@@ -211,9 +276,19 @@ $(document).ready(function(){
   
   /** React to one of the cell submission buttons being clicked. */
   $('.cell form button').live('click', function(){
-      var cell_id = $(this).parents('div.cell').attr('id');
-      var input = $(this).siblings('.input').val();
-      var type = $(this).attr('class');
-      req = new Request(type, cell_id, input);
+    var cell_id = $(this).parents('div.cell').attr('id');
+    var input = $(this).siblings('.input').val();
+    var type = $(this).attr('class');
+    var req = new Request(type, cell_id);
+    
+    // Execute the request, with a callback to save the cell.
+    req.execute(input, function(output){
+      notebook.save_cell(new Cell({
+        cell_id: cell_id,
+        input: input,
+        output: output,
+        type: type,
+      }))
+    });
   });
 });
