@@ -57,7 +57,24 @@ Request.prototype._eval_text = function(input, callback) {
  * @param {function} callback A function to call at the end of this function.
  */
 Request.prototype._eval_code = function(input, callback) {
-  set_status('code');
+  var self = this;
+  $.ajax({
+    url: self.endpoint,
+    data: {
+        worksheet_id: self.worksheet,
+        content: input,
+        language: self.type
+    },
+    success: function(msg){
+        var output = msg.content;
+        var result = (typeof output == 'object') ? 
+                      JSON.stringify(output) : output;
+        $('#' + self.cell_id).children('.output').text(result);
+        callback(output);
+    },
+    error: error_msg,
+    dataType: 'jsonp',
+  });
 };
 
 /**
