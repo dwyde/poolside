@@ -1,4 +1,4 @@
-    function new_cell(id, input, output) {
+    function new_cell(id, input, output, type) {
         function html_escape(str) {
             if (typeof str == 'string') {  
                 return str.replace(/&/g, '&amp;').replace(/>/g, '&gt;')
@@ -9,7 +9,7 @@
             }
         }
       
-        return '<div class="cell" id="'+ html_escape(id) + '"> \
+        return '<div class="cell ' + type + '" id="'+ html_escape(id) + '"> \
               <button class="delete">X</button> \
               <form method="POST"> \
                 <button type="submit" class="text">txt</button> \

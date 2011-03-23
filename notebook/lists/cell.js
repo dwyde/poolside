@@ -20,7 +20,8 @@ function(head, req) {
                 new_cell(
                     row.value._id,
                     row.doc['input'],
-                    (typeof output == 'object') ? toJSON(output) : output
+                    (typeof output == 'object') ? toJSON(output) : output,
+                    row.doc.eval_type || 'text'
                 )
             );
         }
