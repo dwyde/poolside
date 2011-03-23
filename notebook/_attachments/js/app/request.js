@@ -67,12 +67,18 @@ Request.prototype._eval_code = function(input, callback) {
     },
     success: function(msg){
         var output = msg.content;
-        var result = (typeof output == 'object') ? 
-                      JSON.stringify(output) : output;
-        $('#' + self.cell_id).children('.output').text(result);
-        callback(output);
+        if (msg.type == 'error') {
+          set_status(output);
+        } 
+        else {
+          var result = (typeof output == 'object') ? 
+                        JSON.stringify(output) : output;
+          $('#' + self.cell_id).children('.output').text(result);
+          set_status('Request completed successfully.');
+          callback(output);
+        }
     },
-    error: error_msg,
+    //error: error_msg,
     dataType: 'jsonp',
   });
 };

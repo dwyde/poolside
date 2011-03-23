@@ -10,7 +10,7 @@ function set_status(msg) {
 /**
  * Output a JQuery error message.
  */
-function error_msg(status, req, error) {
+function error_msg(req, status, error) {
   set_status(error);
 }
 

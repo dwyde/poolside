@@ -9,8 +9,8 @@
             }
         }
       
-        return '<div class="cell ' + type + '" id="'+ html_escape(id) + '"> \
-              <button class="delete">X</button> \
+        return '<div class="cell ' + (type || 'text') + '" id="' + 
+              html_escape(id) + '"> \ <button class="delete">X</button> \
               <form method="POST"> \
                 <button type="submit" class="text">txt</button> \
                 <button type="submit" class="python">py</button> \

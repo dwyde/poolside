@@ -34,22 +34,29 @@ class BasicHandler(BaseHTTPRequestHandler):
     def do_GET(self):
         """Execute code from a GET request, if it has the proper parameters."""
     
-        self.query_data = self._query_dict()
-        
-        # The query_data values are never integers, so 0 won't get filtered out.
-        params = filter(None, self.query_data)
-        if len(params) != len(self.required_fields):
-            self._fail_and_respond()
-        else:
+        self._process_input()
+        params_okay = self._check_params()
+        if params_okay:
             self._exec_and_respond()
+        else:
+            self._fail_and_respond()
     
-    def _query_dict(self):
+    def _process_input(self):
         """Return a dictionary of predefined query string parameters."""
         
         parsed = urlparse.urlparse(self.path)
         query = urlparse.parse_qs(parsed.query, strict_parsing=True)
         query_data = ((key, query.get(key)) for key in self.required_fields)
-        return dict([(key, value[0]) for key, value in query_data])
+        self.query_data = dict([(key, value[0]) for key, value in query_data])
+
+    def _check_params(self):
+        # The query_data values are never integers, so 0 won't get filtered out.
+        params = filter(None, self.query_data)
+        if len(params) != len(self.required_fields):
+            return False
+        else:
+            self.callback = self.query_data['callback']
+            return True
 
     def _fail_and_respond(self):
         """Send an HTTP error message when a request parameter is missing."""
@@ -61,10 +68,7 @@ and "content" are required. You must also provide a jsonp callback function.')
     def _exec_and_respond(self):
         """Execute code when the request looks okay."""
         
-        self.send_response(200)
-        self.send_header('Content-Type', 'application/javascript')
-        self.end_headers()
-        
+        self._jsonp_okay()
         worksheet = self.query_data['worksheet_id']
         kernel = self.server.controller.get_or_create(worksheet)
         result = kernel.execute(self.query_data['language'],
@@ -72,10 +76,15 @@ and "content" are required. You must also provide a jsonp callback function.')
         message = json.dumps(result)
         self._output_message(message)
     
+    def _jsonp_okay(self):
+        self.send_response(200)
+        self.send_header('Content-Type', 'application/javascript')
+        self.end_headers()
+    
     def _output_message(self, message):
         """Respond to the client: call a JavaScript function via jsonp."""
         
-        self.wfile.write('%s(%s)' % (self.query_data['callback'], message))
+        self.wfile.write('%s(%s)' % (self.callback, message))
 
 class AuthenticatedHandler(BasicHandler):
     """Check that a user is logged in with CouchDB."""
@@ -83,9 +92,13 @@ class AuthenticatedHandler(BasicHandler):
     def do_GET(self):
         user = self._authenticate()
         if user is None:
-            self.send_response(401, 'Please log in')
-            self.end_headers()
-            #self.wfile.write(json.dumps({'content': 'oops', 'type': 'output'}))
+            self._jsonp_okay()
+            self._process_input()
+            params_okay = self._check_params()
+            if params_okay:
+                self._output_message({'content': 'Please log in', 'type': 'error'})
+            else:
+                self._fail_and_respond()
         else:
             BasicHandler.do_GET(self)
 
