@@ -17,7 +17,8 @@ class Kernel:
     def execute(self, language, command):
         if language in self.languages:
             kernel = getattr(self, language)
-            kernel.stdin.write('%s\n' % command)
+            sanitized = command.replace('\n', ' ')
+            kernel.stdin.write('%s\n' % sanitized)
             result = kernel.stdout.readline()
 
             # This is a bit ugly: exec(), then eval() the result for JSON purposes
