@@ -6,33 +6,23 @@
 """Run a Python "kernel", customized with additional visualization features.
 """
 
+_ENCODING = 'utf-8'
+_DUMMY_CHAR = u'\uffff'
+
 import sys
 from StringIO import StringIO
 
 def main():
-    """Set up a rudimentary Python "kernel".
-    
-    Messages should be sent to `connection` as a 2-length list of the form
-    ``[input_string, cell_uuid]``.
-    
-    Each kernel's `locals` namespace contains an instance of the 
-    class :class:`visualize.dec.Viz`.  This variable `Viz` is callable::
-    
-    >>> a = range(5)
-    >>> print Viz(a)
-    ...
-    
-    :param connection: A :class:`multiprocessing.Connection` that enables \
-    communication between this process and the main :class:`ws_tornado` server.
-    """
+    """Set up a rudimentary Python "kernel"."""
     
     globals_dict = {}
     locals_dict = {}
     
     while True:
-        command = sys.stdin.readline()
-        if not command:
+        raw_command = sys.stdin.readline()
+        if not raw_command:
             break
+        command = raw_command.decode(_ENCODING).replace(_DUMMY_CHAR, '\n')
             
         output_trap = StringIO()
         pipe_out = sys.stdout
@@ -42,10 +32,10 @@ def main():
             exec command in globals_dict, locals_dict
         except Exception, error:
             sys.stdout.write('%s: %s' % (error.__class__.__name__, error))    
-        result = output_trap.getvalue().replace('\n', ' ')
+        result = output_trap.getvalue().replace('\n', _DUMMY_CHAR)
         
         sys.stdout = pipe_out
-        sys.stdout.write(result + '\n')
+        sys.stdout.write(result.encode(_ENCODING) + '\n')
         sys.stdout.flush()
         
 if __name__ == '__main__':

@@ -6,6 +6,9 @@
 from subprocess import Popen, PIPE
 import threading
 
+_ENCODING = 'utf-8'
+_DUMMY_CHAR = u'\uffff'
+
 class Kernel:
     def __init__(self, **kwargs):
         #self.writers = set(kwargs['writers'])
@@ -17,11 +20,15 @@ class Kernel:
     def execute(self, language, command):
         if language in self.languages:
             kernel = getattr(self, language)
-            sanitized = command.replace('\n', ' ')
+            sanitized = command.replace('\n', _DUMMY_CHAR).encode(_ENCODING)
             kernel.stdin.write('%s\n' % sanitized)
-            result = kernel.stdout.readline()
+            raw_result = kernel.stdout.readline()
+            result = raw_result.decode(_ENCODING).replace(_DUMMY_CHAR, '\n')
 
-            # This is a bit ugly: exec(), then eval() the result for JSON purposes
+            # This is a bit ugly: exec(), then eval() the result.
+            # Do this to properly parse strings into JSON objects, but it
+            # also results in things like "print 5 + 5\n" turning into "10".
+            # Not sure how to handle this issue.
             try:
                 content = eval(result)
             except Exception, error:
