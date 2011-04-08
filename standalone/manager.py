@@ -17,8 +17,14 @@ def respond(content, msg_type='output'):
     }
 
 def _setlimits():
-    # Set maximum CPU time to 1 second in child process, after fork() but before exec()
-    resource.setrlimit(resource.RLIMIT_CPU, (1, 1))
+    """
+    Set somewhat arbitrary limits on kernels' CPU time (seconds), child
+    processes (number), and virtual memory (bytes).
+    """
+    
+    resource.setrlimit(resource.RLIMIT_CPU, (3600, 3600))
+    resource.setrlimit(resource.RLIMIT_NPROC, (1024, 1024))
+    resource.setrlimit(resource.RLIMIT_AS, (16777216, 16777216))
 
 class Kernel:
 
