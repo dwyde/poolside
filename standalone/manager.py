@@ -5,17 +5,34 @@
 
 from subprocess import Popen, PIPE
 import threading
+import resource
 
 _ENCODING = 'utf-8'
 _DUMMY_CHAR = u'\uffff'
 
+def respond(content, msg_type='output'):
+    return {
+        'content': content,
+        'type': msg_type,
+    }
+
+def _setlimits():
+    # Set maximum CPU time to 1 second in child process, after fork() but before exec()
+    resource.setrlimit(resource.RLIMIT_CPU, (1, 1))
+
 class Kernel:
+
+    _kernel_map = {
+        'python': './pykernel.py',
+        'ruby': './rubykernel.rb',
+    }
+
     def __init__(self, **kwargs):
         #self.writers = set(kwargs['writers'])
-        self.languages = set(['python', 'ruby'])
-        self.python = Popen(['python', './pykernel.py'], stdout=PIPE,
-                stdin=PIPE)
-        self.ruby = Popen(['ruby', './rubykernel.rb'], stdout=PIPE, stdin=PIPE)
+        self.languages = set(self._kernel_map.keys())
+        for language in self.languages:
+            kernel = self._make_kernel(language)
+            setattr(self, language, kernel)
     
     def execute(self, language, command):
         if language in self.languages:
@@ -33,18 +50,26 @@ class Kernel:
                 content = eval(result)
             except Exception, error:
                 content = result
+            
+            if kernel.poll() is not None:
+                # Kernel process has terminated.
+                new_kernel = self._make_kernel(language)
+                setattr(self, language, new_kernel)
+                content = '<Kernel died>'
         else:
             content = '<Bad language parameter in request>'
         
-        return {
-            'content': content,
-            'type': 'output',
-        }
+        return respond(content)
     
     def terminate(self):
         self.python.stdin.close()
         self.python.stdout.close()
         self.python.terminate()
+        
+    def _make_kernel(self, language):
+        filename = self._kernel_map[language]
+        arg_list = [language, filename]
+        return Popen(arg_list, stdout=PIPE, stdin=PIPE, preexec_fn=_setlimits)
 
 class KernelController:
     def __init__(self):

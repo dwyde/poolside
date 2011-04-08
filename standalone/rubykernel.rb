@@ -11,7 +11,7 @@ _namespace = binding()
 while true do
     # Read input
     _input = gets
-    _input.gsub(_DUMMY_CHAR, "\n")
+    _input.gsub!(_DUMMY_CHAR, "\n")
     
     # Trap output
     _stdout = StringIO.new
