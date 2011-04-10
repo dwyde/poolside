@@ -12,18 +12,16 @@ import threading
 
 import urlparse
 import json
-import optparse
+import optparse # replace with argparse
 import sys
 import Cookie
-import httplib
+import urllib2
+import httplib # replace with urllib2
 
 from manager import KernelController
 
 # CouchDB _session handler
 SESSION_ENDPOINT = '/_session'
-
-# Name of an attachment on the design doc that contains this server's address
-SERVER_INFO_FILE = '/eval_server.json'
 
 class BasicHandler(BaseHTTPRequestHandler):
     """Execute code received via GET, without CouchDB authentication."""
@@ -132,40 +130,47 @@ class ThreadedHTTPServer(ThreadingMixIn, HTTPServer):
     
     # Global "controller" object
     controller = KernelController()
-
-def parse_arguments():
+        
+        
+def _parse_arguments():
     """Process command line arguments using :class:`optparse.OptionParser`.
     """
     
+    help_msg = 'URL of a config file attached to Poolside\'s design document.'
     parser = optparse.OptionParser()
-    parser.add_option('-d', '--design_doc', dest='design_doc',
-                      help='Full URL of Poolside\'s CouchDB _design document.')
+    parser.add_option('-c', '--config_url', dest='config_url', help=help_msg)
 
     (options, args) = parser.parse_args()
     
-    if not options.design_doc:
-        parser.error('Command line option "design_doc" is required.')
+    if not options.config_url:
+        parser.error('Please specify the %s' % help_msg)
     
-    del sys.argv[1:]
     return options
 
-def read_address(design_doc):
-    url_obj = urlparse.urlparse(design_doc)
-    couch_server = url_obj.netloc
+class ConfigProcessor:
+    def __init__(self, config_url):
+        self._url = config_url
+        self._url_obj = urlparse.urlparse(config_url)
+        
+    def get_address(self):
+        conn = urllib2.urlopen(self._url)
+        response = conn.read()
+        conn.close()
+        info = json.loads(response)
+        return (info['server'], info['port'])
     
-    conn = httplib.HTTPConnection(couch_server)
-    conn.request('GET', url_obj.path + SERVER_INFO_FILE)
-    res = conn.getresponse().read()
-    address_field = json.loads(res)
-    address = (address_field['server'], address_field['port'])
-    
-    return couch_server, address
+    def get_server(self):
+        return self._url_obj.netloc
 
 def main():
-    options = parse_arguments()
-    couch_server, address = read_address(options.design_doc)
+    # Process command line arguments
+    options = _parse_arguments()
+    config = ConfigProcessor(options.config_url)
+    address = config.get_address()
+    
+    # Create and run an HTTP Server
     server = ThreadedHTTPServer(address, AuthenticatedHandler)
-    server.couch_server = couch_server
+    server.couch_server = config.get_server()
     print 'Starting server at %s.' % (address,)
     server.serve_forever()
 
