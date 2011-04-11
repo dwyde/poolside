@@ -6,6 +6,7 @@
 from subprocess import Popen, PIPE
 import threading
 import resource
+import ast
 
 _ENCODING = 'utf-8'
 _DUMMY_CHAR = u'\uffff'
@@ -16,15 +17,16 @@ def respond(content, msg_type='output'):
         'type': msg_type,
     }
 
-def _setlimits():
+def _setlimits(): # Should take in kwargs?
     """
     Set somewhat arbitrary limits on kernels' CPU time (seconds), child
     processes (number), and virtual memory (bytes).
     """
     
-    resource.setrlimit(resource.RLIMIT_CPU, (3600, 3600))
+    resource.setrlimit(resource.RLIMIT_CPU, (5, 5))
     resource.setrlimit(resource.RLIMIT_NPROC, (1024, 1024))
     resource.setrlimit(resource.RLIMIT_AS, (16777216, 16777216))
+    resource.setrlimit(resource.RLIMIT_NOFILE, (20, 20))
 
 class Kernel:
 
@@ -45,16 +47,16 @@ class Kernel:
             kernel = getattr(self, language)
             sanitized = command.replace('\n', _DUMMY_CHAR).encode(_ENCODING)
             kernel.stdin.write('%s\n' % sanitized)
-            raw_result = kernel.stdout.readline()
+            
+            # Get result, minus the added newline
+            raw_result = kernel.stdout.readline()[:-1]
             result = raw_result.decode(_ENCODING).replace(_DUMMY_CHAR, '\n')
 
-            # This is a bit ugly: exec(), then eval() the result.
-            # Do this to properly parse strings into JSON objects, but it
-            # also results in things like "print 5 + 5\n" turning into "10".
-            # Not sure how to handle this issue.
+            # If possible, convert the output string (sent from a subprocess
+            # kernel) into a Python object. Safer than "eval()".
             try:
-                content = eval(result)
-            except Exception, error:
+                content = ast.literal_eval(result)
+            except (SyntaxError, ValueError):
                 content = result
             
             if kernel.poll() is not None:
