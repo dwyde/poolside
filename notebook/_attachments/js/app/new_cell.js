@@ -18,5 +18,6 @@
                 <textarea class="input">' + html_escape(input) + '</textarea> \
               </form> \
               <div class="output">' + html_escape(output) + '</div> \
+              <button class="visualize">V</button> \
             </div>';
     }

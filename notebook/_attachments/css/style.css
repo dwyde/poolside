@@ -43,6 +43,12 @@ body {
     color:#a00;
 }
 
+.cell .visualize {
+    float:right;
+    margin-right:.25em;
+    background:#fff;
+}
+
 .cell .input {
     display:block;
     width:17em;
