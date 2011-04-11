@@ -46,6 +46,33 @@ $(document).ready(function(){
         output: output,
         type: type,
       }))
-    });
+    }); 
+  });
+  
+  $('.cell button.visualize').live('click', function(){
+    /** Enable dynamic visualization of JSON data with Protovis.
+     *  This has potential to be cool, but isn't particularly useful right now.
+     */
+    var cell = $(this).parents('div.cell');
+    var output = cell.children('.output').text();
+    try {
+      output = JSON.parse(output);
+    }
+    catch (e) {
+      set_status('Unable to plot this cell\'s data');
+      return;
+    }
+    
+    if (typeof output == 'object') {
+        var cell_id = cell.attr('id');
+        var caller = document.createElement("script");
+        caller.setAttribute('type', 'text/javascript');
+        caller.innerHTML = 'var output = document.getElementById("' +
+            cell_id + '").getElementsByClassName("output") \
+            [0]; var data = ' + JSON.stringify(output) +
+            '; indent(data, output);';
+        document.getElementById(cell_id).getElementsByClassName('output')[0]
+            .appendChild(caller);
+    }
   });
 });
