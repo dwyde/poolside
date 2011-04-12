@@ -118,6 +118,7 @@ class AuthenticatedHandler(BasicHandler):
         headers = {'Cookie': cookie_str}
         conn.request('GET', SESSION_ENDPOINT, headers=headers)
         res = conn.getresponse().read()
+        conn.close()
         
         # Now, we try to read the userCtx (CouchDB authentication) object
         userCtx = json.loads(res).get('userCtx')
