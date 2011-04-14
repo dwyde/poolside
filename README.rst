@@ -9,14 +9,14 @@ analysis and visualization.
 This software uses CouchDB as both a storage backend and a web server.
 A standalone Python HTTP server executes code and returns results, via AJAX.
 
-Warning
--------
-  There is currently **NO** security on the Python HTTP server.
+Security Warning
+----------------
+The only current security feature on the Python server is resource limits.
   
-  Notebooks can access any kernel, and execute any system command as
-  the user that runs the `http_server.py` process.
+Notebooks can access any kernel, and execute any system command as
+the user that runs the `http_server.py` process.
 
-  I'll get to chroot jails and something like *setrlimit* in the near future.
+Chroot jails are coming soon.
 
 Dependencies
 ------------
@@ -25,12 +25,13 @@ To run this software, you will need the following packages:
   - `Python <http://python.org>`_ 2.6 or 2.7
   - `CouchDB <http://couchdb.apache.org>`_ >= 1.0.1
   - `CouchApp <http://couchapp.org>`_
+  - `Ruby <http://www.ruby-lang.org/en/>`_ >= 1.9.1 (to make Ruby kernels work)
 
 Installation into CouchDB
 -------------------------
 Use CouchApp to initialize and update the files stored in CouchDB ::
 
-  cd notebook
+  cd poolside/notebook
   couchapp push http://localhost:5984/database
 
 Server Configuration
@@ -48,12 +49,13 @@ Running the Standalone Server
 -----------------------------
 Example call ::
 
-  cd standalone
-  python http_server.py -d http://localhost:5984/database/_design/notebook
+  cd poolside/standalone
+  python http_server.py -c http://localhost:5984/database/_design/notebook/eval_server.json
 
 Command Line Arguments
 
-* *-d* : Full URL of the CouchApp's design document. Required.
+-c config_file        Full URL of a server configuration file attached to the 
+                      CouchApp's design document. Required.
 
 Accessing Notebooks
 -------------------
@@ -73,7 +75,4 @@ way for now is to look at the bottom right corner of ::
 
   localhost:5984/_utils.
 
-Pressing "enter" in the textarea is broken -- just click the buttons.
-
-The "cell types" aren't yet fully implemented. CouchDB doesn't persist the
-type of cell.
+There's currently only one type of JavaScript visualization.
