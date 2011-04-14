@@ -10,7 +10,8 @@
         }
       
         return '<div class="cell ' + (type || 'text') + '" id="' + 
-              html_escape(id) + '"> \ <button class="delete">X</button> \
+              html_escape(id) + '"> \ <button class="visualize"> \
+              <button class="delete">X</button> \
               <form method="POST"> \
                 <button type="submit" class="text">txt</button> \
                 <button type="submit" class="python">py</button> \
@@ -18,6 +19,5 @@
                 <textarea class="input">' + html_escape(input) + '</textarea> \
               </form> \
               <div class="output">' + html_escape(output) + '</div> \
-              <button class="visualize">V</button> \
             </div>';
     }

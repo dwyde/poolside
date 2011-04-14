@@ -43,10 +43,10 @@ body {
     color:#a00;
 }
 
-.cell .visualize {
-    float:right;
+.cell button.visualize {
+    float:left;
     margin-right:.25em;
-    background:#fff;
+    background:#fff url('../image/vis.svg') no-repeat bottom left;
 }
 
 .cell .input {
@@ -90,14 +90,21 @@ body {
     margin-top: 10px;
 }
 
-button#new {
-    margin-bottom:10px;
-}
-
-#controls {
+button#add_cell {
+    float:left;
     margin-bottom: 10px;
 }
 
-#__messages {
+#messages {
+    float:left;
+    margin-left: 10px;
     color: #5D5D5D;
+}
+
+#controls {
+    
+}
+
+#worksheet {
+    clear:both;
 }

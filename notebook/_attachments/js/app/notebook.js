@@ -4,7 +4,7 @@
  * @param {string} msg A status message to output.
  */
 function set_status(msg) {
-    $('#__messages').text(msg);
+    $('#messages').text(msg).show().fadeOut(2500);
 }
 
 /**
