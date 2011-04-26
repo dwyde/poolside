@@ -7,6 +7,7 @@ from subprocess import Popen, PIPE
 import threading
 import resource
 import ast
+import os.path
 
 _ENCODING = 'utf-8'
 _DUMMY_CHAR = u'\uffff'
@@ -31,8 +32,8 @@ def _setlimits(): # Should take in kwargs?
 class Kernel:
 
     _kernel_map = {
-        'python': './pykernel.py',
-        'ruby': './rubykernel.rb',
+        'python': os.path.sep + os.path.join('code', 'kernels', 'pykernel.py'),
+        'ruby': os.path.sep + os.path.join('code', 'kernels', 'rubykernel.rb'),
     }
 
     def __init__(self, **kwargs):
