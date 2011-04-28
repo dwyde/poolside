@@ -18,6 +18,29 @@ $(document).ready(function(){
     notebook.add_cell();
   });
   
+  /** */
+  $('#login').submit(function(){
+    var username = $('#username').val();
+    var password = $('#pass').val();
+    
+    $.ajax({
+      url: '/_session',
+      type: 'POST',
+      data: {
+        name: username,
+        password: password,
+      },
+      dataType: 'json',
+      success: function(response, textStatus){
+        set_status('logged in');
+      },
+      error: function(response, textStatus, error){
+        set_status('Bad username or password.');
+      },
+    });
+    return false;
+  });
+  
   /** Delete a cell from this notebook. */
   $('button.delete').live('click', function(){
     var ans = confirm('Do you want to permanently delete this cell?');

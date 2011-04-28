@@ -92,19 +92,24 @@ body {
 
 button#add_cell {
     float:left;
-    margin-bottom: 10px;
+    margin-bottom: 1em;
 }
 
 #messages {
     float:left;
-    margin-left: 10px;
+    margin-left: 1em;
     color: #5D5D5D;
 }
 
 #controls {
-    
+    clear:both;
 }
 
 #worksheet {
     clear:both;
+}
+
+#login {
+    float:left;
+    margin-bottom: 1em;
 }

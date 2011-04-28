@@ -17,6 +17,11 @@
 jquery-ui-1.8.9.custom.css" />
 </head>
 <body>
+    <form id="login" method="POST" action="/_session">
+        <input type="text" id="username" />
+        <input type="password" id="pass" />
+        <input type="submit" value="Submit" />
+    </form>
     <div id="controls">
         <button id="add_cell">Add cell</button>
         <div id="messages"><p></p></div>
