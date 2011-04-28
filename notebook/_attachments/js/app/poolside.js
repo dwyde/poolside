@@ -51,6 +51,18 @@ $(document).ready(function(){
     return false;
   });
   
+  $('#account a').click(function() {
+    $.ajax({
+      url: '/_session',
+      type: 'DELETE',
+      dataType: 'json',
+      success: function(response, textStatus) {
+        $('#account').hide();
+        $('#login').show();
+      },
+    });
+  });
+  
   /** Delete a cell from this notebook. */
   $('button.delete').live('click', function(){
     var ans = confirm('Do you want to permanently delete this cell?');
