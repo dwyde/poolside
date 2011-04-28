@@ -111,5 +111,11 @@ button#add_cell {
 
 #login {
     float:left;
-    margin-bottom: 1em;
+    margin-bottom:1em;
+}
+
+#account {
+    float:left;
+    margin-bottom:1em;
+    display:none;
 }

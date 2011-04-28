@@ -33,6 +33,16 @@ $(document).ready(function(){
       dataType: 'json',
       success: function(response, textStatus){
         set_status('logged in');
+        $.ajax({
+          url: '/_session',
+          type: 'GET',
+          dataType: 'json',
+          success: function(response, textStatus) {
+            $('#login').hide();
+            $('#account').show();
+            $('#name').text(response.userCtx.name);
+          },
+        });
       },
       error: function(response, textStatus, error){
         set_status('Bad username or password.');
