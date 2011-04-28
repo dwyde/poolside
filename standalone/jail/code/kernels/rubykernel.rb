@@ -6,7 +6,7 @@
 
 require 'stringio'
 
-_DUMMY_CHAR = "\uffff"
+_DUMMY_CHAR = [0xffff].pack('U')
 _namespace = binding()
 while true do
     # Read input
@@ -19,7 +19,7 @@ while true do
     
     # Evaluate input
     begin
-        print _namespace.eval(_input)
+        _namespace.eval(_input)
     rescue Exception => _myError
         print _myError
     end
