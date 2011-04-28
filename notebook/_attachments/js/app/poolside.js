@@ -1,3 +1,9 @@
+function login_success(name){
+  $('#login').hide();
+  $('#account').show();
+  $('#name').text(name);
+}
+
 /*
  * Main JQuery code: attach functions to DOM elements as JQuery handlers.
  */
@@ -7,6 +13,19 @@ $(document).ready(function(){
   
   // Initialize future Requests.
   Request._init_once(notebook.worksheet_name);
+  
+  // Check if the user is logged in.
+  $.ajax({
+    url: '/_session',
+    type: 'GET',
+    dataType: 'json',
+    success: function(response, textStatus){
+      var name = response.userCtx.name;
+      if (name !== null) {
+        login_success(name);
+      }
+    },
+  });
   
   /** Prevent the actual submission of cell forms. */
   $('.cell form').live('submit', function(){
@@ -37,10 +56,8 @@ $(document).ready(function(){
           url: '/_session',
           type: 'GET',
           dataType: 'json',
-          success: function(response, textStatus) {
-            $('#login').hide();
-            $('#account').show();
-            $('#name').text(response.userCtx.name);
+          success: function(response, textStatus){
+            login_success(response.userCtx.name);
           },
         });
       },
