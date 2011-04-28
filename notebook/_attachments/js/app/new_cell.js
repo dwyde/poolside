@@ -10,7 +10,7 @@
         }
       
         return '<div class="cell ' + (type || 'text') + '" id="' + 
-              html_escape(id) + '"> \ <button class="visualize"> \
+              html_escape(id) + '"> \ <button class="visualize"></button> \
               <button class="delete">X</button> \
               <form method="POST"> \
                 <button type="submit" class="text">txt</button> \

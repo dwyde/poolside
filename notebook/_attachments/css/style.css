@@ -46,7 +46,7 @@ body {
 .cell button.visualize {
     float:left;
     margin-right:.25em;
-    background:#fff url('../image/vis.svg') no-repeat bottom left;
+    background:#fff url('../image/vis.png') no-repeat bottom left;
 }
 
 .cell .input {
