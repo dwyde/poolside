@@ -63,6 +63,7 @@ $(document).ready(function(){
       },
       error: function(response, textStatus, error){
         set_status('Bad username or password.');
+        $('#pass').val('');
       },
     });
     return false;
