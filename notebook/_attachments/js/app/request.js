@@ -32,7 +32,7 @@ Request._init_once = function(worksheet_name) {
   $.getJSON(
     '../../eval_server.json',
     function(data, textStatus, jqXHR) {
-      Request.prototype.endpoint = 'http://' + data.server + ':' + data.port;
+      Request.prototype.endpoint = '/_eval';
     }
   );
   Request.prototype.worksheet = worksheet_name;

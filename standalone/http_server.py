@@ -16,9 +16,9 @@ import optparse # replace with argparse
 import sys
 import Cookie
 import urllib2
-import httplib # replace with urllib2
 
 from manager import KernelController
+from setup_jail import setup_jail
 
 # CouchDB _session handler
 SESSION_ENDPOINT = '/_session'
@@ -113,12 +113,9 @@ class AuthenticatedHandler(BasicHandler):
         if session is None:
             return None
         
-        # The request included a CouchDB session cookie: authenticate the user
-        conn = httplib.HTTPConnection(self.server.couch_server)
-        headers = {'Cookie': cookie_str}
-        conn.request('GET', SESSION_ENDPOINT, headers=headers)
-        res = conn.getresponse().read()
-        conn.close()
+        req = urllib2.Request(self.server.couch_server + SESSION_ENDPOINT)
+        req.add_header('Cookie', cookie_str)
+        res = urllib2.urlopen(req).read()
         
         # Now, we try to read the userCtx (CouchDB authentication) object
         userCtx = json.loads(res).get('userCtx')
@@ -161,13 +158,16 @@ class ConfigProcessor:
         return (info['server'], info['port'])
     
     def get_server(self):
-        return self._url_obj.netloc
+        return '%s://%s' % (self._url_obj.scheme, self._url_obj.netloc)
 
 def main():
     # Process command line arguments
     options = _parse_arguments()
     config = ConfigProcessor(options.config_url)
     address = config.get_address()
+    
+    # Set up chroot jail
+    setup_jail()
     
     # Create and run an HTTP Server
     server = ThreadedHTTPServer(address, AuthenticatedHandler)

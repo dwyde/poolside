@@ -2,7 +2,7 @@ import os
 import pwd
 import grp
 
-import http_server
+#import http_server
 
 NEW_USER = 'nobody'
 NEW_GROUP = 'nobody'
