@@ -104,18 +104,17 @@ class AuthenticatedHandler(BasicHandler):
         """Check a CouchDB authentication cookie."""
         
         cookie_str = self.headers.get('Cookie')
-        if cookie_str is None:
-            return None
-        
-        # Some cookie exists: check if it's the right one
         auth_cookie = Cookie.BaseCookie(cookie_str)
         session = auth_cookie.get('AuthSession')
         if session is None:
             return None
         
+        # Check that a purported CouchDB authentication cookie is valid
         req = urllib2.Request(self.server.couch_server + SESSION_ENDPOINT)
         req.add_header('Cookie', cookie_str)
-        res = urllib2.urlopen(req).read()
+        conn = urllib2.urlopen(req)
+        res = conn.read()
+        conn.close()
         
         # Now, we try to read the userCtx (CouchDB authentication) object
         userCtx = json.loads(res).get('userCtx')
