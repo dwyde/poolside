@@ -2,8 +2,6 @@ import os
 import pwd
 import grp
 
-#import http_server
-
 NEW_USER = 'nobody'
 NEW_GROUP = 'nobody'
 NEW_ROOT = 'jail'
@@ -23,12 +21,3 @@ def setup_jail():
     os.chroot(root_dir)
     os.setgid(new_gid)
     os.setuid(new_uid)
-
-if __name__ == '__main__':
-    setup_jail()
-    print 'Working directory: %s\nUser id: %d\nGroup id: %d' % \
-              (os.getcwd(), os.getuid(), os.getgid())
-
-    # Run the server
-    http_server.main()
-    
