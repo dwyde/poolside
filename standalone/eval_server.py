@@ -1,14 +1,28 @@
 from BaseHTTPServer import HTTPServer, BaseHTTPRequestHandler
 from SocketServer import ThreadingMixIn # switch to ForkingMixIn?
 import argparse
+import cgi
 
 import urllib2
 import urllib
 
+REQUIRED_FIELDS = set(['worksheet', 'content', 'language'])
+
+def parse_query(fh, length):
+    query = cgi.FieldStorage(
+                    fp=fh,
+                    environ= {
+                             'REQUEST_METHOD':'POST', 
+                             'CONTENT_LENGTH': length,
+                             'CONTENT_TYPE': 'application/x-www-form-urlencoded'
+                    }
+    )
+    return dict((x, query.getvalue(x)) for x in REQUIRED_FIELDS)
+
 class EvalHandler(BaseHTTPRequestHandler):
     
     def do_POST(self):
-        print 'okay'
+        print parse_query(self.rfile, self.headers['Content-Length'])
     
 class EvalServer(ThreadingMixIn, HTTPServer):
     """Handle requests in a separate thread."""
