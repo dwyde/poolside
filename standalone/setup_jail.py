@@ -2,6 +2,8 @@ import os
 import pwd
 import grp
 
+from eval_server import main
+
 NEW_USER = 'nobody'
 NEW_GROUP = 'nobody'
 NEW_ROOT = 'jail'
@@ -21,3 +23,7 @@ def setup_jail():
     os.chroot(root_dir)
     os.setgid(new_gid)
     os.setuid(new_uid)
+
+if __name__ == '__main__':
+    setup_jail()
+    main()

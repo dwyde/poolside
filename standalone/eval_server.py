@@ -3,13 +3,12 @@ from SocketServer import ThreadingMixIn # switch to ForkingMixIn?
 import argparse
 import cgi
 import json
-
-import urllib2
 import urllib
-
+import urllib2
 
 from manager import KernelController
 
+# Parameters required in client POST requests
 REQUIRED_FIELDS = set(['worksheet', 'content', 'language'])
 
 def parse_query(fh, length):
@@ -52,7 +51,8 @@ class EvalHandler(BaseHTTPRequestHandler):
 class EvalServer(ThreadingMixIn, HTTPServer):
     """Handle requests in a separate thread."""
     
-    controller = KernelController('jail/')
+    # XXX Don't hardcode path!
+    controller = KernelController()
 
 def read_arguments():
     '''Process command line arguments.'''
@@ -69,8 +69,8 @@ def main():
     args = read_arguments()
     address = ('127.0.0.1', args.port)
     server = EvalServer(address, EvalHandler)
+    print 'Ready to serve at ', server.server_address
     server.serve_forever()
 
 if __name__ == '__main__':
     main()
-    
