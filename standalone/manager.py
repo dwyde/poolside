@@ -7,6 +7,7 @@ from subprocess import Popen, PIPE
 import threading
 import resource
 import ast
+import os
 
 _ENCODING = 'utf-8'
 _DUMMY_CHAR = u'\uffff'
@@ -31,12 +32,13 @@ def _setlimits(): # Should take in kwargs?
 class Kernel:
 
     _kernel_map = {
-        'python': '/code/kernels/pykernel.py',
-        'ruby': '/code/kernels/rubykernel.rb',
+        'python': 'code/kernels/pykernel.py',
+        'ruby': 'code/kernels/rubykernel.rb',
     }
 
-    def __init__(self, **kwargs):
+    def __init__(self, path_prefix='', **kwargs):
         #self.writers = set(kwargs['writers'])
+        self.path_prefix = path_prefix
         self.languages = set(self._kernel_map.keys())
         for language in self.languages:
             kernel = self._make_kernel(language)
@@ -76,17 +78,19 @@ class Kernel:
         
     def _make_kernel(self, language):
         filename = self._kernel_map[language]
-        arg_list = [language, filename]
+        path = os.path.join(self.path_prefix, filename)
+        arg_list = [language, path]
         return Popen(arg_list, stdout=PIPE, stdin=PIPE, preexec_fn=_setlimits)
 
 class KernelController:
-    def __init__(self):
+    def __init__(self, kernel_path_prefix=''):
         self.kernels = {}
         self.lock = threading.Lock()
+        self.path_prefix = kernel_path_prefix
     
     def get_or_create(self, worksheet_id, **kwargs):
         if worksheet_id not in self.kernels:
             self.lock.acquire()
-            self.kernels[worksheet_id] = Kernel(**kwargs)
+            self.kernels[worksheet_id] = Kernel(self.path_prefix, **kwargs)
             self.lock.release()
         return self.kernels[worksheet_id]

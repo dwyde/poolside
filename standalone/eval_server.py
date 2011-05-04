@@ -19,6 +19,12 @@ def parse_query(fh, length):
     )
     return dict((x, query.getvalue(x)) for x in REQUIRED_FIELDS)
 
+def exec_code(request, kernel):
+    """Execute code when the request looks okay."""
+    
+    result = kernel.execute(request['language'], request['content'])
+    return result
+
 class EvalHandler(BaseHTTPRequestHandler):
     
     def do_POST(self):
@@ -28,10 +34,16 @@ class EvalHandler(BaseHTTPRequestHandler):
         if all(request.values()):
             self.send_response(200)
             self.end_headers()
+            
+            kernel = self.server.controller.get_or_create(request['worksheet'])
+            result = exec_code(request, kernel)
+            message = json.dumps(result)
+            self.wfile.write(message)
         else:
             self.send_response(400, 'Please provide %s.' %
                                 "".join(REQUIRED_FIELDS))
             self.end_headers()
+    
     
 class EvalServer(ThreadingMixIn, HTTPServer):
     """Handle requests in a separate thread."""
