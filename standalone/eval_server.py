@@ -11,7 +11,7 @@ REQUIRED_FIELDS = set(['worksheet', 'content', 'language'])
 def parse_query(fh, length):
     query = cgi.FieldStorage(
                     fp=fh,
-                    environ= {
+                    environ={
                              'REQUEST_METHOD':'POST', 
                              'CONTENT_LENGTH': length,
                              'CONTENT_TYPE': 'application/x-www-form-urlencoded'
@@ -22,11 +22,19 @@ def parse_query(fh, length):
 class EvalHandler(BaseHTTPRequestHandler):
     
     def do_POST(self):
-        print parse_query(self.rfile, self.headers['Content-Length'])
+        request = parse_query(self.rfile, self.headers['Content-Length'])
+        
+        # Check that all required parameters have a value
+        if all(request.values()):
+            self.send_response(200)
+            self.end_headers()
+        else:
+            self.send_response(400, 'Please provide %s.' %
+                                "".join(REQUIRED_FIELDS))
+            self.end_headers()
     
 class EvalServer(ThreadingMixIn, HTTPServer):
     """Handle requests in a separate thread."""
-
 
 def read_arguments():
     '''Process command line arguments.'''

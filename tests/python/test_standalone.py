@@ -20,7 +20,11 @@ class TestParseQuery(unittest.TestCase):
         self.assertEqual(request.get('worksheet'), response.get('worksheet'))
         self.assertNotEqual(request.get('hello'), response.get('hello'))
         
-#class TestConfigProcessor(unittest.TestCase):    
+    def test_command_line_args(self):
+        port = 8284
+        sys.argv = ['test', '-p', str(port)]
+        args = eval_server.read_arguments()
+        self.assertEqual(args.port, port)
 
 if __name__ == '__main__':
     unittest.main()  
