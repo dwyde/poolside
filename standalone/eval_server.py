@@ -2,9 +2,13 @@ from BaseHTTPServer import HTTPServer, BaseHTTPRequestHandler
 from SocketServer import ThreadingMixIn # switch to ForkingMixIn?
 import argparse
 import cgi
+import json
 
 import urllib2
 import urllib
+
+
+from manager import KernelController
 
 REQUIRED_FIELDS = set(['worksheet', 'content', 'language'])
 
@@ -47,6 +51,8 @@ class EvalHandler(BaseHTTPRequestHandler):
     
 class EvalServer(ThreadingMixIn, HTTPServer):
     """Handle requests in a separate thread."""
+    
+    controller = KernelController('jail/')
 
 def read_arguments():
     '''Process command line arguments.'''
