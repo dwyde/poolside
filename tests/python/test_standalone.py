@@ -3,21 +3,24 @@ import os
 
 import sys
 sys.path.append(os.path.join('..', '..', 'standalone'))
+import eval_server
 
-import urllib2
+import StringIO
+
 import urllib
 
-class TestConfigProcessor(unittest.TestCase):
+class TestParseQuery(unittest.TestCase):
     
-    def setUp(self):
-        # Port at which the test server will run, on localhost
-        port = 8284
-        self.url = 'http://localhost:%d' % (port,)
-    
-    def test_works(self):
-        data = urllib.urlencode({'worksheet': 'abc123', 'extra': 'hello!'})
-        conn = urllib2.urlopen(self.url, data)
-        print conn.read()
-    
+    def test_parse_query(self):
+        request = {'hello': 'world', 'worksheet': 'test1'}
+        query = urllib.urlencode(request)
+        fh = StringIO.StringIO(query)
+        response = eval_server.parse_query(fh, len(query))
+        fh.close()
+        self.assertEqual(request.get('worksheet'), response.get('worksheet'))
+        self.assertNotEqual(request.get('hello'), response.get('hello'))
+        
+#class TestConfigProcessor(unittest.TestCase):    
+
 if __name__ == '__main__':
     unittest.main()  

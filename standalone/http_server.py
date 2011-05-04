@@ -27,7 +27,7 @@ class BasicHandler(BaseHTTPRequestHandler):
     """Execute code received via GET, without CouchDB authentication."""
     
     # All parameters that we're expecting to be in the query string.
-    required_fields = ['worksheet_id', 'content', 'language', 'callback']
+    required_fields = ['worksheet', 'content', 'language']
     
     def do_GET(self):
         """Execute code from a GET request, if it has the proper parameters."""
@@ -44,8 +44,9 @@ class BasicHandler(BaseHTTPRequestHandler):
         
         parsed = urlparse.urlparse(self.path)
         query = urlparse.parse_qs(parsed.query, strict_parsing=True)
-        query_data = ((key, query.get(key)) for key in self.required_fields)
-        self.query_data = dict([(key, value[0]) for key, value in query_data])
+        query_pairs = (x for x in query.iteritems() 
+                      if x[0] in self.required_fields)
+        self.query_data = dict([(key, value[0]) for key, value in query_pairs])
 
     def _check_params(self):
         # The query_data values are never integers, so 0 won't get filtered out.
@@ -67,7 +68,7 @@ and "content" are required. You must also provide a jsonp callback function.')
         """Execute code when the request looks okay."""
         
         self._jsonp_okay()
-        worksheet = self.query_data['worksheet_id']
+        worksheet = self.query_data['worksheet']
         kernel = self.server.controller.get_or_create(worksheet)
         result = kernel.execute(self.query_data['language'],
                                 self.query_data['content'])
