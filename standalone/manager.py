@@ -25,9 +25,15 @@ def _setlimits(): # Should take in kwargs?
     """
     
     resource.setrlimit(resource.RLIMIT_CPU, (5, 5))
-    resource.setrlimit(resource.RLIMIT_NPROC, (1024, 1024))
-    resource.setrlimit(resource.RLIMIT_AS, (26777216, 26777216))
-    resource.setrlimit(resource.RLIMIT_NOFILE, (20, 20))
+    resource.setrlimit(resource.RLIMIT_NPROC, (2024, 2024))
+    resource.setrlimit(resource.RLIMIT_AS, (500777216, 500777216))
+    resource.setrlimit(resource.RLIMIT_NOFILE, (50, 50))
+
+def exec_code(request, kernel):
+    """Execute code when the request looks okay."""
+    
+    result = kernel.execute(request['language'], request['content'])
+    return result
 
 class Kernel:
 

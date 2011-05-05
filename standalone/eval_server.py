@@ -4,9 +4,10 @@ import argparse
 import cgi
 import json
 import urllib
+import Cookie
 import urllib2
 
-from manager import KernelController
+from manager import KernelController, exec_code
 
 # Parameters required in client POST requests
 REQUIRED_FIELDS = set(['worksheet', 'content', 'language'])
@@ -21,12 +22,6 @@ def parse_query(fh, length):
                     }
     )
     return dict((x, query.getvalue(x)) for x in REQUIRED_FIELDS)
-
-def exec_code(request, kernel):
-    """Execute code when the request looks okay."""
-    
-    result = kernel.execute(request['language'], request['content'])
-    return result
 
 class EvalHandler(BaseHTTPRequestHandler):
     
@@ -47,11 +42,45 @@ class EvalHandler(BaseHTTPRequestHandler):
                                 "".join(REQUIRED_FIELDS))
             self.end_headers()
     
+class CouchAuthHandler(EvalHandler):
+    
+    session_endpoint = '/_session'
+    
+    def do_POST(self):
+        logged_in = self._authenticate()
+        if logged_in:
+            EvalHandler.do_POST(self)
+        else:
+            self.send_response(401, 'Please log in to CouchDB')
+            self.end_headers()
+        
+    def _authenticate(self):
+        """Check a CouchDB authentication cookie."""
+        
+        cookie_str = self.headers.get('Cookie')
+        auth_cookie = Cookie.BaseCookie(cookie_str)
+        session = auth_cookie.get('AuthSession')
+        if session is None:
+            return None
+        
+        # Check that a purported CouchDB authentication cookie is valid
+        request = urllib2.Request(self.server.couch_server + self.session_endpoint)
+        request.add_header('Cookie', cookie_str)
+        conn = urllib2.urlopen(request)
+        response = conn.read()
+        conn.close()
+        
+        # Now, we try to read the userCtx (CouchDB authentication) object
+        userCtx = json.loads(response).get('userCtx')
+        if userCtx is None:
+            return None
+        else:
+            return userCtx.get('name')
+    
     
 class EvalServer(ThreadingMixIn, HTTPServer):
     """Handle requests in a separate thread."""
     
-    # XXX Don't hardcode path!
     controller = KernelController()
 
 def read_arguments():
@@ -60,15 +89,16 @@ def read_arguments():
     parser = argparse.ArgumentParser(description='An HTTP server to run code')
     parser.add_argument('-p', '--port', type=int, required=True,
                        help='port on which the server will run', dest='port')
-
+    parser.add_argument('-c', '--couch', required=True,
+                       help='address at which couchdb is running', dest='couch')
     args = parser.parse_args()
     return args
-
 
 def main():
     args = read_arguments()
     address = ('127.0.0.1', args.port)
-    server = EvalServer(address, EvalHandler)
+    server = EvalServer(address, CouchAuthHandler)
+    server.couch_server = args.couch
     print 'Ready to serve at ', server.server_address
     server.serve_forever()
 
