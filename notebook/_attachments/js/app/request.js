@@ -61,7 +61,7 @@ Request.prototype._eval_code = function(input, callback) {
   $.ajax({
     url: self.endpoint,
     data: {
-        worksheet_id: self.worksheet,
+        worksheet: self.worksheet,
         content: input,
         language: self.type
     },
@@ -79,7 +79,8 @@ Request.prototype._eval_code = function(input, callback) {
         }
     },
     //error: error_msg,
-    dataType: 'jsonp',
+    dataType: 'json',
+    type: 'POST',
   });
 };
 
