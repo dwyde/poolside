@@ -6,7 +6,7 @@
 function set_status(msg) {
     var pane = $('#messages');
     pane.text(msg);
-    pane.show().fadeOut(2500);
+    pane.show().fadeOut(3000);
 }
 
 /**
