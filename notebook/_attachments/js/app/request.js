@@ -80,6 +80,9 @@ Request.prototype._eval_code = function(input, callback) {
           callback(output);
         }
     },
+    error: function(req, status, error) {
+        set_status(error);
+    },
     dataType: 'json',
     type: 'POST',
   });
