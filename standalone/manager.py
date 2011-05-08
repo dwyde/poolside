@@ -32,8 +32,8 @@ def exec_code(request, kernel):
 class Kernel:
 
     _kernel_map = {
-        'python': 'code/kernels/pykernel.py',
-        'ruby': 'code/kernels/rubykernel.rb',
+        'python': os.path.join('code', 'kernels', 'pykernel.py'),
+        'ruby': os.path.join('code', 'kernels', 'rubykernel.rb')
     }
 
     def __init__(self, path_prefix='', **kwargs):
