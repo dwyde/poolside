@@ -12,12 +12,6 @@ import os
 _ENCODING = 'utf-8'
 _DUMMY_CHAR = u'\uffff'
 
-def respond(content, msg_type='output'):
-    return {
-        'content': content,
-        'type': msg_type,
-    }
-
 def _setlimits(): # Should take in kwargs?
     """
     Set somewhat arbitrary limits on kernels' CPU time (seconds), child
@@ -51,10 +45,20 @@ class Kernel:
             setattr(self, language, kernel)
     
     def execute(self, language, command):
-        if language in self.languages:
+        # Default message type
+	msg_type = 'output'
+
+	if language in self.languages:
             kernel = getattr(self, language)
             sanitized = command.replace('\n', _DUMMY_CHAR).encode(_ENCODING)
-            kernel.stdin.write('%s\n' % sanitized)
+            # Restart a kernel if it appears to be dead.
+	    try:
+                kernel.stdin.write('%s\n' % sanitized)
+            except IOError:
+                kernel = self._make_kernel(language)
+                setattr(self, language, kernel)
+		msg_type = 'restarted'
+                kernel.stdin.write('%s\n' % sanitized)
             
             # Get result, minus the added newline
             raw_result = kernel.stdout.readline()[:-1]
@@ -66,16 +70,13 @@ class Kernel:
                 content = ast.literal_eval(result)
             except (SyntaxError, ValueError):
                 content = result
-            
-            if kernel.poll() is not None:
-                # Kernel process has terminated.
-                new_kernel = self._make_kernel(language)
-                setattr(self, language, new_kernel)
-                content = '<Kernel died>'
         else:
             content = '<Bad language parameter in request>'
         
-        return respond(content)
+        return {
+	    'content': content,
+	    'type': msg_type
+	}
     
     def terminate(self):
         self.python.stdin.close()
