@@ -18,7 +18,7 @@ def _setlimits(): # Should take in kwargs?
     processes (number), and virtual memory (bytes).
     """
     
-    resource.setrlimit(resource.RLIMIT_CPU, (5, 5))
+    resource.setrlimit(resource.RLIMIT_CPU, (3, 3))
     resource.setrlimit(resource.RLIMIT_NPROC, (2024, 2024))
     resource.setrlimit(resource.RLIMIT_AS, (500777216, 500777216))
     resource.setrlimit(resource.RLIMIT_NOFILE, (50, 50))
