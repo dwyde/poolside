@@ -69,16 +69,17 @@ Request.prototype._eval_code = function(input, callback) {
         var output = msg.content;
         if (msg.type == 'error') {
           set_status(output);
-        } 
+        }
         else {
           var result = (typeof output == 'object') ? 
                         JSON.stringify(output) : output;
           $('#' + self.cell_id).children('.output').text(result);
-          set_status('Request completed successfully.');
+          var msg = (msg.type == 'restarted') ? 'Kernel restarted.' : 
+                  'Code evaluated.';
+          set_status(msg);
           callback(output);
         }
     },
-    //error: error_msg,
     dataType: 'json',
     type: 'POST',
   });
