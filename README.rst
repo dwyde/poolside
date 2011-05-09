@@ -58,12 +58,16 @@ Running the Standalone Server
 Example call ::
 
   cd poolside/standalone
-  python http_server.py -p 8283 -c http://localhost:5984
+  sudo python setup_jail.py -p 8283 -c http://localhost:5984
+
+We need to be root in order to create the chroot jail, but the main server
+process drops privileges immediately after doing so.
 
 Command Line Arguments
+~~~~~~~~~~~~~~~~~~~~~~
 
--c couch_server        URL of the CouchDB server.
--p port	               Port on which the evaluation server will listen.
+-c couch_server              URL of the CouchDB server.
+-p port	                     Port on which the evaluation server will listen.
 
 Accessing Notebooks
 -------------------
