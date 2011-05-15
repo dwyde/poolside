@@ -4,21 +4,16 @@ import os
 import sys
 sys.path.append(os.path.join('..', '..', 'standalone'))
 
-from kernels import Kernel, PythonKernel, RubyKernel
+from kernels import Kernel, make_path
 
 
 class TestKernel(unittest.TestCase):
+
     def setUp(self):
         path = ['..', '..', 'standalone', 'jail', 'kernels']
-        kernel_dir = os.path.join(*path)
-        self.python = PythonKernel(kernel_dir)
-        self.ruby = RubyKernel(kernel_dir)
+        self.python = Kernel('python', make_path(path, 'pykernel.py'))
+        self.ruby = Kernel('ruby', make_path(path, 'rubykernel.rb'))
         self.kernels = [self.python, self.ruby]
-    
-    def test_base_class(self):
-        kernel = Kernel()
-        self.assertRaises(NotImplementedError, kernel.send, '')
-        self.assertRaises(NotImplementedError, kernel.recv)
     
     def test_encode_message(self):
         message = 'a\nb c'
