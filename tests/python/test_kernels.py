@@ -15,6 +15,10 @@ class TestKernel(unittest.TestCase):
         self.ruby = Kernel('ruby', make_path(path, 'rubykernel.rb'))
         self.kernels = [self.python, self.ruby]
     
+    def tearDown(self):
+        for kernel in self.kernels:
+            kernel.terminate()
+    
     def test_encode_message(self):
         message = 'a\nb c'
         for kernel in self.kernels:
@@ -37,6 +41,11 @@ class TestKernel(unittest.TestCase):
         self.ruby.send('puts 2 + 3')
         result = self.ruby.recv()
         self.assertEqual(result, '5\n')
+    
+    def test_eval_code(self):
+        for kernel in self.kernels:
+            result = kernel.eval_code('print 5+3')
+            self.assertEqual(result, 8)
 
 if __name__ == '__main__':
     unittest.main()  
