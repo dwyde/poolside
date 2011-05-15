@@ -6,8 +6,10 @@ def make_path(path_prefix, script):
 
 class Kernel(Popen):
     
-    def __init__(self, command, filename, preexec_fn=None):
-        arg_list = [command, filename]
+    _DUMMY_CHAR = u'\uffff'
+    
+    def __init__(self, language, filename, preexec_fn=None):
+        arg_list = [language, filename]
         Popen.__init__(self, arg_list, stdout=PIPE, stdin=PIPE,
                 preexec_fn=preexec_fn)
     
@@ -16,3 +18,9 @@ class Kernel(Popen):
     
     def recv(self):
         return self.stdout.readline()[:-1]
+
+    def _encode(self, message):
+        return message.replace('\n', self._DUMMY_CHAR)#.encode(_ENCODING)
+    
+    def _decode(self, message):
+        return message.replace(self._DUMMY_CHAR, '\n')
