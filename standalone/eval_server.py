@@ -10,7 +10,7 @@ import urllib2
 from manager import KernelController, exec_code
 
 # Parameters required in client POST requests
-REQUIRED_FIELDS = set(['worksheet', 'content', 'language'])
+_REQUIRED_FIELDS = set(['worksheet', 'content', 'language'])
 
 def parse_query(fh, length):
     query = cgi.FieldStorage(
@@ -21,7 +21,7 @@ def parse_query(fh, length):
                              'CONTENT_TYPE': 'application/x-www-form-urlencoded'
                     }
     )
-    return dict((x, query.getvalue(x)) for x in REQUIRED_FIELDS)
+    return dict((x, query.getvalue(x)) for x in _REQUIRED_FIELDS)
 
 class EvalHandler(BaseHTTPRequestHandler):
     
@@ -39,7 +39,7 @@ class EvalHandler(BaseHTTPRequestHandler):
             self.wfile.write(message)
         else:
             self.send_response(400, 'Please provide %s.' %
-                                ", ".join(REQUIRED_FIELDS))
+                                ", ".join(_REQUIRED_FIELDS))
             self.end_headers()
     
 class CouchAuthHandler(EvalHandler):
