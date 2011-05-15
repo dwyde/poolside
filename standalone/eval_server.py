@@ -1,5 +1,5 @@
 from BaseHTTPServer import HTTPServer, BaseHTTPRequestHandler
-from SocketServer import ThreadingMixIn # switch to ForkingMixIn?
+from SocketServer import ThreadingMixIn
 import argparse
 import cgi
 import json
@@ -39,7 +39,7 @@ class EvalHandler(BaseHTTPRequestHandler):
             self.wfile.write(message)
         else:
             self.send_response(400, 'Please provide %s.' %
-                                "".join(REQUIRED_FIELDS))
+                                ", ".join(REQUIRED_FIELDS))
             self.end_headers()
     
 class CouchAuthHandler(EvalHandler):
@@ -90,7 +90,7 @@ def read_arguments():
     parser.add_argument('-p', '--port', type=int, required=True,
                        help='port on which the server will run', dest='port')
     parser.add_argument('-c', '--couch', required=True,
-                       help='address at which couchdb is running', dest='couch')
+                       help='address at which CouchDB is running', dest='couch')
     args = parser.parse_args()
     return args
 
