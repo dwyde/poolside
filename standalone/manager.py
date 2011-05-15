@@ -46,18 +46,18 @@ class Kernel:
     
     def execute(self, language, command):
         # Default message type
-	msg_type = 'output'
+        msg_type = 'output'
 
-	if language in self.languages:
+        if language in self.languages:
             kernel = getattr(self, language)
             sanitized = command.replace('\n', _DUMMY_CHAR).encode(_ENCODING)
             # Restart a kernel if it appears to be dead.
-	    try:
+            try:
                 kernel.stdin.write('%s\n' % sanitized)
             except IOError:
                 kernel = self._make_kernel(language)
                 setattr(self, language, kernel)
-		msg_type = 'restarted'
+                msg_type = 'restarted'
                 kernel.stdin.write('%s\n' % sanitized)
             
             # Get result, minus the added newline
@@ -74,9 +74,9 @@ class Kernel:
             content = '<Bad language parameter in request>'
         
         return {
-	    'content': content,
-	    'type': msg_type
-	}
+            'content': content,
+            'type': msg_type
+        }
     
     def terminate(self):
         self.python.stdin.close()
