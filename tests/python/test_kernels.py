@@ -22,7 +22,7 @@ class TestKernel(unittest.TestCase):
             self.assertEqual(encoded, u'a\uffffb c')
             
     def test_decode_message(self):
-        message = u'while 1:\uffff  pass'
+        message = u'while 1:\uffff  pass'.encode('utf-8')
         for kernel in self.kernels:
             decoded = kernel._decode(message)
             self.assertEqual(decoded, 'while 1:\n  pass')
@@ -30,12 +30,12 @@ class TestKernel(unittest.TestCase):
     def test_eval_python(self):
         self.python.send('print range(5)')
         result = self.python.recv()
-        self.assertEqual(result, '[0, 1, 2, 3, 4]')
+        self.assertEqual(result, '[0, 1, 2, 3, 4]\n')
 
     def test_eval_ruby(self):
         self.ruby.send('puts 2 + 3')
         result = self.ruby.recv()
-        self.assertEqual(result, '5')
+        self.assertEqual(result, '5\n')
 
 if __name__ == '__main__':
     unittest.main()  

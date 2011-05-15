@@ -6,6 +6,8 @@ def make_path(path_prefix, script):
 
 class Kernel(Popen):
     
+    _ENCODING = 'utf-8'
+    _TO_REPLACE = '\n'
     _DUMMY_CHAR = u'\uffff'
     
     def __init__(self, language, filename, preexec_fn=None):
@@ -14,13 +16,17 @@ class Kernel(Popen):
                 preexec_fn=preexec_fn)
     
     def send(self, message):
-        self.stdin.write('%s\n' % message)
+        command = self._encode(message)
+        self.stdin.write('%s\n' % command)
     
     def recv(self):
-        return self.stdout.readline()[:-1]
+        message = self.stdout.readline()[:-1]
+        return self._decode(message)
 
     def _encode(self, message):
-        return message.replace('\n', self._DUMMY_CHAR)#.encode(_ENCODING)
+        command = message.encode(self._ENCODING)
+        return command.replace('\n', self._DUMMY_CHAR)
     
     def _decode(self, message):
-        return message.replace(self._DUMMY_CHAR, '\n')
+        command = message.decode(self._ENCODING)
+        return command.replace(self._DUMMY_CHAR, '\n')
