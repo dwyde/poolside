@@ -18,14 +18,15 @@ class TestKernel(unittest.TestCase):
     def test_encode_message(self):
         message = 'a\nb c'
         for kernel in self.kernels:
-            encoded = kernel._encode(message)
+            encoded = kernel._encode(message).decode(kernel._ENCODING)
             self.assertEqual(encoded, u'a\uffffb c')
             
     def test_decode_message(self):
-        message = u'while 1:\uffff  pass'.encode('utf-8')
+        message = u'while 1:\n  pass'
         for kernel in self.kernels:
-            decoded = kernel._decode(message)
-            self.assertEqual(decoded, 'while 1:\n  pass')
+            encoded = message.encode(kernel._ENCODING)
+            decoded = kernel._decode(encoded)
+            self.assertEqual(decoded, message)
     
     def test_eval_python(self):
         self.python.send('print range(5)')

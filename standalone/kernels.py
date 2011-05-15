@@ -24,8 +24,8 @@ class Kernel(Popen):
         return self._decode(message)
 
     def _encode(self, message):
-        command = message.encode(self._ENCODING)
-        return command.replace('\n', self._DUMMY_CHAR)
+        command = message.replace('\n', self._DUMMY_CHAR)
+        return command.encode(self._ENCODING)
     
     def _decode(self, message):
         command = message.decode(self._ENCODING)
