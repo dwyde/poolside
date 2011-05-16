@@ -4,7 +4,7 @@ import os
 import sys
 sys.path.append(os.path.join('..', '..', 'standalone'))
 
-from kernels import Kernel, KernelController, Message
+from kernels import Kernel, KernelController, Message, respond
 
 PATH = os.path.join('..', '..', 'standalone', 'jail', 'kernels')
 
@@ -104,7 +104,7 @@ class TestKernelController(unittest.TestCase):
             code, expected = commands[language]
             message = Message(language=language, content=code)
             result = controller.evaluate(message)
-            self.assertEquals(result, expected)
+            self.assertEquals(result, respond(expected))
 
 if __name__ == '__main__':
     unittest.main()  

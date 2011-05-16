@@ -11,7 +11,14 @@ _LANGUAGES = {
 }
 
 class Message(dict):
+    """Pass messages between the evaluation server and controllers."""
     pass
+
+def respond(content, msg_type='output'):
+    return {
+        'content': content,
+        'type': msg_type
+    }
 
 class KernelController(dict):
     """A class to wrap `Kernel`s for external use."""
@@ -61,11 +68,13 @@ class KernelController(dict):
         del self[language]
     
     def evaluate(self, message):
+        """Evaluate code with a kernel."""
+        
         language = message.get('language')
         code = message.get('content')
         kernel = self._get_kernel(language)
         result = kernel.eval_code(code)
-        return result
+        return respond(result)
 
 class Kernel(Popen):
     """A process to execute code.
