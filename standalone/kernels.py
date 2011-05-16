@@ -15,6 +15,8 @@ class Message(dict):
     pass
 
 def respond(content, msg_type='output'):
+    """Send a response message back to the server."""
+    
     return {
         'content': content,
         'type': msg_type
@@ -23,7 +25,7 @@ def respond(content, msg_type='output'):
 class KernelController(dict):
     """A class to wrap `Kernel`s for external use."""
     
-    def __init__(self, path_prefix=''):
+    def __init__(self, path_prefix='kernels'):
         """Class constructor: initialize kernels."""
         
         dict.__init__(self)

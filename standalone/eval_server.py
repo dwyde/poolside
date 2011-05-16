@@ -6,8 +6,9 @@ import json
 import urllib
 import Cookie
 import urllib2
+import threading
 
-from manager import KernelController, exec_code
+from kernels import KernelController
 
 # Parameters required in client POST requests
 _REQUIRED_FIELDS = set(['worksheet', 'content', 'language'])
@@ -34,7 +35,7 @@ class EvalHandler(BaseHTTPRequestHandler):
             self.end_headers()
             
             kernel = self.server.controller.get_or_create(request['worksheet'])
-            result = exec_code(request, kernel)
+            result = kernel.evaluate(request)
             message = json.dumps(result)
             self.wfile.write(message)
         else:
@@ -76,12 +77,31 @@ class CouchAuthHandler(EvalHandler):
             return None
         else:
             return userCtx.get('name')
+
+class KernelMapper:
+    """
+    Map worksheet ID's to kernels.
     
+    There can be many readers, but there is a thread lock to write.
+    """
     
+    def __init__(self):
+        """Class constructor."""
+        
+        self.kernels = {}
+        self.lock = threading.Lock()
+    
+    def get_or_create(self, worksheet_id, **kwargs):
+        if worksheet_id not in self.kernels:
+            self.lock.acquire()
+            self.kernels[worksheet_id] = KernelController(**kwargs)
+            self.lock.release()
+        return self.kernels[worksheet_id]
+
 class EvalServer(ThreadingMixIn, HTTPServer):
     """Handle requests in a separate thread."""
     
-    controller = KernelController()
+    controller = KernelMapper()
 
 def read_arguments():
     '''Process command line arguments.'''
