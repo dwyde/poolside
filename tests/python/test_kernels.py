@@ -63,5 +63,17 @@ class TestKernelController(unittest.TestCase):
         empty = '' in self.controller
         self.assertEqual(empty, False)
 
+    def test_delete_kernel(self):
+        language = 'python'
+        controller = KernelController(PATH)
+        kernel = controller._get_kernel(language)
+        pid = kernel.pid
+        self.assertEqual(os.path.exists('/proc/%d' % pid), True)
+        controller.delete(language)
+        kernel.wait()
+        self.assertEqual(os.path.exists('/proc/%d' % pid), False)
+        self.assertEqual(language in controller, False)
+        
+
 if __name__ == '__main__':
     unittest.main()  

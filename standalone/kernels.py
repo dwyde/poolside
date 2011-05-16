@@ -11,7 +11,8 @@ _LANGUAGES = {
 }
 
 class KernelController:
-   
+    """A class to wrap `Kernel`s for external use."""
+    
     def __init__(self, path_prefix=''):
         """Class constructor: initialize kernels."""
         
@@ -20,16 +21,33 @@ class KernelController:
             path = os.path.join(path_prefix, script)
             self._new_kernel(language, command, path)
     
+    def _get_kernel(self, language):
+        """Getter method for kernels."""
+        
+        return self._kernels.get(language)
+    
+    def _set_kernel(self, language, kernel):
+        """Setter method for kernels."""
+        
+        self._kernels[language] = kernel
+    
     def _new_kernel(self, language, command, path):
         """Create and assign a new kernel."""
         
         new_kernel = Kernel(command, path)
-        self._kernels[language] = new_kernel
-        
+        self._set_kernel(language, new_kernel)
+    
     def __contains__(self, item):
         """Check if a kernel exists."""
         
         return item in self._kernels
+    
+    def delete(self, language):
+        """Delete a kernel, and kill its underlying process."""
+        
+        kernel = self._get_kernel(language)
+        kernel.terminate()
+        del self._kernels[language]
 
 class Kernel(Popen):
     """A process to execute code.
