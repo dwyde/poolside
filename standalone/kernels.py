@@ -6,9 +6,27 @@ def make_path(path_prefix, script):
     return os.path.join(*(path_prefix + [script]))
 
 class Kernel(Popen):
+    """A process to execute code.
     
+    The individual languages' kernel scripts are defined in external
+    files.
+    
+    We need to reconcile our line buffering of the standard input and
+    standard output streams with the significance of whitespace
+    in Python. The current solution is to temporarily replace newline
+    characters with a Unicode character reserved for internal use,
+    send the data through the kernel process's standard input,
+    then have the kernels do the opposite substitution (i.e., "put it
+    back").
+    """
+    
+    # String encoding to use for kernel messages.
     _ENCODING = 'utf-8'
+    
+    # Replace newlines.
     _TO_REPLACE = '\n'
+    
+    # Use a placeholder to reconcile line buffering with Python code.
     _DUMMY_CHAR = u'\uffff'
     
     def __init__(self, command, filename, preexec_fn=None):
