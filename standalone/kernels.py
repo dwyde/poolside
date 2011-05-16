@@ -30,6 +30,13 @@ class Kernel(Popen):
     _DUMMY_CHAR = u'\uffff'
     
     def __init__(self, command, filename, preexec_fn=None):
+        """Class constructor.
+        
+        :param command: A command to run, e.g., "python".
+        :param filename: A script file to pass to the `command`.
+        :param preexec_fn: A function to call in the child process.
+        """
+        
         arg_list = [command, filename]
         Popen.__init__(self, arg_list, stdout=PIPE, stdin=PIPE,
                 preexec_fn=preexec_fn)
