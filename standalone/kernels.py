@@ -26,6 +26,7 @@ different programming languages.
 import os
 from subprocess import Popen, PIPE
 import ast
+import resource
 
 # Mapping of the form {language: (command, script)}.
 # If a system has two side-by-side Python installations, then specify
@@ -111,6 +112,18 @@ def eval_as_python(data_string):
     except (SyntaxError, ValueError):
         return data_string
 
+def _setlimits(): # Should take in kwargs?
+
+    """
+    Set somewhat arbitrary limits on kernels' CPU time (seconds), child
+    processes (number), and virtual memory (bytes).
+    """
+
+    resource.setrlimit(resource.RLIMIT_CPU, (3, 3))
+    resource.setrlimit(resource.RLIMIT_NPROC, (2024, 2024))
+    resource.setrlimit(resource.RLIMIT_AS, (500777216, 500777216))
+    resource.setrlimit(resource.RLIMIT_NOFILE, (50, 50))
+
 class Kernel(Popen):
     """A process to execute code.
     
@@ -135,7 +148,7 @@ class Kernel(Popen):
     # Use a placeholder to reconcile line buffering with Python code.
     _DUMMY_CHAR = u'\uffff'
     
-    def __init__(self, command, filename, preexec_fn=None):
+    def __init__(self, command, filename, preexec_fn=_setlimits):
         """Class constructor.
         
         :param command: A command to run, e.g., "python".
