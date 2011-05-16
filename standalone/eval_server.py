@@ -1,9 +1,10 @@
+"""Run an HTTP server to evaluate users' code."""
+
 from BaseHTTPServer import HTTPServer, BaseHTTPRequestHandler
 from SocketServer import ThreadingMixIn
 import argparse
 import cgi
 import json
-import urllib
 import Cookie
 import urllib2
 import threading
@@ -13,18 +14,21 @@ from kernels import KernelController
 # Parameters required in client POST requests
 _REQUIRED_FIELDS = set(['worksheet', 'content', 'language'])
 
-def parse_query(fh, length):
+def parse_query(file_handle, length):
+    """Parse POST data into a dictionary."""
+    
     query = cgi.FieldStorage(
-                    fp=fh,
-                    environ={
-                             'REQUEST_METHOD':'POST', 
-                             'CONTENT_LENGTH': length,
-                             'CONTENT_TYPE': 'application/x-www-form-urlencoded'
-                    }
+            fp=file_handle,
+            environ={
+                 'REQUEST_METHOD':'POST', 
+                 'CONTENT_LENGTH': length,
+                 'CONTENT_TYPE': 'application/x-www-form-urlencoded'
+            }
     )
     return dict((x, query.getvalue(x)) for x in _REQUIRED_FIELDS)
 
 class EvalHandler(BaseHTTPRequestHandler):
+    """Evaluate user code, via HTTP requests."""
     
     def do_POST(self):
         request = parse_query(self.rfile, self.headers['Content-Length'])
@@ -34,7 +38,7 @@ class EvalHandler(BaseHTTPRequestHandler):
             self.send_response(200)
             self.end_headers()
             
-            kernel = self.server.controller.get_or_create(request['worksheet'])
+            kernel = self.server.mapper.get_or_create(request['worksheet'])
             result = kernel.evaluate(request)
             message = json.dumps(result)
             self.wfile.write(message)
@@ -44,6 +48,7 @@ class EvalHandler(BaseHTTPRequestHandler):
             self.end_headers()
     
 class CouchAuthHandler(EvalHandler):
+    """Authenticate users against CouchDB before evaluating code."""
     
     session_endpoint = '/_session'
     
@@ -65,7 +70,8 @@ class CouchAuthHandler(EvalHandler):
             return None
         
         # Check that a purported CouchDB authentication cookie is valid
-        request = urllib2.Request(self.server.couch_server + self.session_endpoint)
+        request = urllib2.Request(self.server.couch_server +
+                self.session_endpoint)
         request.add_header('Cookie', cookie_str)
         conn = urllib2.urlopen(request)
         response = conn.read()
@@ -92,6 +98,8 @@ class KernelMapper:
         self.lock = threading.Lock()
     
     def get_or_create(self, worksheet_id, **kwargs):
+        """Return existing kernels and create nonexistent ones."""
+        
         if worksheet_id not in self.kernels:
             self.lock.acquire()
             self.kernels[worksheet_id] = KernelController(**kwargs)
@@ -101,10 +109,19 @@ class KernelMapper:
 class EvalServer(ThreadingMixIn, HTTPServer):
     """Handle requests in a separate thread."""
     
-    controller = KernelMapper()
+    # An object to manage kernels.
+    mapper = KernelMapper()
+    
+    # A CouchDB server's URL
+    couch_server = None
+    
+    def set_couch_server(self, address):
+        """Store a CouchDB URL, for later queries (authentication)."""
+        
+        self.couch_server = address
 
 def read_arguments():
-    '''Process command line arguments.'''
+    """Process command line arguments."""
     
     parser = argparse.ArgumentParser(description='An HTTP server to run code')
     parser.add_argument('-p', '--port', type=int, required=True,
@@ -115,10 +132,11 @@ def read_arguments():
     return args
 
 def main():
+    """Main function: create and run an `EvalServer`."""
     args = read_arguments()
     address = ('127.0.0.1', args.port)
     server = EvalServer(address, CouchAuthHandler)
-    server.couch_server = args.couch
+    server.set_couch_server(args.couch)
     print 'Ready to serve at ', server.server_address
     server.serve_forever()
 
