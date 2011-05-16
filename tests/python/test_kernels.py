@@ -96,8 +96,8 @@ class TestKernelController(unittest.TestCase):
         
     def test_evaluate(self):
         commands = {
-            'python': ('print range(4)', '[0, 1, 2, 3]\n'),
-            'ruby': ('puts 5+2', '7\n'),
+            'python': ('print range(4)', [0, 1, 2, 3]),
+            'ruby': ('puts 5+2', 7),
         }
         controller = KernelController(PATH)
         for language in controller.languages():

@@ -10,6 +10,9 @@ _LANGUAGES = {
     'ruby': ('ruby', 'rubykernel.rb'),
 }
 
+class Message(dict):
+    pass
+
 class KernelController(dict):
     """A class to wrap `Kernel`s for external use."""
     
@@ -57,8 +60,12 @@ class KernelController(dict):
         kernel.terminate()
         del self[language]
     
-    def evaluate(self, language, code):
-        pass
+    def evaluate(self, message):
+        language = message.get('language')
+        code = message.get('content')
+        kernel = self._get_kernel(language)
+        result = kernel.eval_code(code)
+        return result
 
 class Kernel(Popen):
     """A process to execute code.
