@@ -10,13 +10,14 @@ _LANGUAGES = {
     'ruby': ('ruby', 'rubykernel.rb'),
 }
 
-class KernelController:
+class KernelController(dict):
     """A class to wrap `Kernel`s for external use."""
     
     def __init__(self, path_prefix=''):
         """Class constructor: initialize kernels."""
         
-        self._kernels = {}
+        dict.__init__(self)
+        
         for language, (command, script) in _LANGUAGES.iteritems():
             path = os.path.join(path_prefix, script)
             self._new_kernel(language, command, path)
@@ -24,12 +25,12 @@ class KernelController:
     def _get_kernel(self, language):
         """Getter method for kernels."""
         
-        return self._kernels.get(language)
+        return self.get(language)
     
     def _set_kernel(self, language, kernel):
         """Setter method for kernels."""
         
-        self._kernels[language] = kernel
+        self[language] = kernel
     
     def _new_kernel(self, language, command, path):
         """Create and assign a new kernel."""
@@ -37,28 +38,27 @@ class KernelController:
         new_kernel = Kernel(command, path)
         self._set_kernel(language, new_kernel)
     
-    def __contains__(self, item):
-        """Check if a kernel exists."""
-        
-        return item in self._kernels
-    
     def __del__(self):
         """Clean up on deletion of this controller."""
         
-        for language, kernel in self._kernels.iteritems():
+        for language, kernel in self.iteritems():
             kernel.terminate()
+        #dict.__del__(self)
     
     def languages(self):
         """Return a list of kernel languages."""
         
-        return self._kernels.keys()
+        return self.keys()
     
     def delete_kernel(self, language):
         """Delete a kernel, and kill its underlying process."""
         
         kernel = self._get_kernel(language)
         kernel.terminate()
-        del self._kernels[language]
+        del self[language]
+    
+    def evaluate(self, language, code):
+        pass
 
 class Kernel(Popen):
     """A process to execute code.
