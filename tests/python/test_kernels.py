@@ -4,15 +4,15 @@ import os
 import sys
 sys.path.append(os.path.join('..', '..', 'standalone'))
 
-from kernels import Kernel, make_path, KernelController
+from kernels import Kernel, KernelController
 
+PATH = os.path.join('..', '..', 'standalone', 'jail', 'kernels')
 
 class TestKernel(unittest.TestCase):
 
     def setUp(self):
-        path = ['..', '..', 'standalone', 'jail', 'kernels']
-        self.python = Kernel('python', make_path(path, 'pykernel.py'))
-        self.ruby = Kernel('ruby', make_path(path, 'rubykernel.rb'))
+        self.python = Kernel('python', os.path.join(PATH, 'pykernel.py'))
+        self.ruby = Kernel('ruby', os.path.join(PATH, 'rubykernel.rb'))
         self.kernels = [self.python, self.ruby]
     
     def tearDown(self):
@@ -49,7 +49,7 @@ class TestKernel(unittest.TestCase):
 
 class TestKernelController(unittest.TestCase):
     def setUp(self):
-        self.controller = KernelController()
+        self.controller = KernelController(PATH)
     
     def test_has_python(self):
         python = 'python' in self.controller
