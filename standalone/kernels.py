@@ -11,8 +11,8 @@ class Kernel(Popen):
     _TO_REPLACE = '\n'
     _DUMMY_CHAR = u'\uffff'
     
-    def __init__(self, language, filename, preexec_fn=None):
-        arg_list = [language, filename]
+    def __init__(self, command, filename, preexec_fn=None):
+        arg_list = [command, filename]
         Popen.__init__(self, arg_list, stdout=PIPE, stdin=PIPE,
                 preexec_fn=preexec_fn)
     
