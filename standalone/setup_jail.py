@@ -1,3 +1,5 @@
+"""Set up a chroot jail, through Python."""
+
 import os
 import pwd
 import grp
@@ -5,14 +7,18 @@ import grp
 from eval_server import main
 
 NEW_USER = 'nobody'
-NEW_GROUP = 'nobody'
+NEW_GROUP = 'nogroup' # 'nobody'
 NEW_ROOT = 'jail'
 
 def jail_dir(new_root):
+    """Determine the directory in which to create a chroot jail."""
+    
     current_dir = os.path.abspath(os.getcwd())
     return os.path.join(current_dir, new_root)
 
 def setup_jail():
+    """Create and enter the chroot jail."""
+    
     # Choose a new user, group, and root directory.
     new_uid = pwd.getpwnam(NEW_USER)[2]
     new_gid = grp.getgrnam(NEW_GROUP)[2]
