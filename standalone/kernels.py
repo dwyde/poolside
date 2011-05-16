@@ -7,10 +7,13 @@ def make_path(path_prefix, script):
 
 class KernelController:
     
-    _languages = set(['python', 'ruby'])
+    _kernels = {
+        'python': None,
+        'ruby': None,
+    }
     
     def __contains__(self, item):
-        return item in self._languages
+        return item in self._kernels
 
 class Kernel(Popen):
     """A process to execute code.
