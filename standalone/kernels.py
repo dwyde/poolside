@@ -2,17 +2,33 @@ import os
 from subprocess import Popen, PIPE
 import ast
 
-def make_path(path_prefix, script):
-    return os.path.join(*(path_prefix + [script]))
+# Mapping of the form {language: (command, script)}.
+# If a system has two side-by-side Python installations, then specify
+# the command to use in the first element on the value tuple.
+_LANGUAGES = {
+    'python': ('python', 'pykernel.py'),
+    'ruby': ('ruby', 'rubykernel.rb'),
+}
 
 class KernelController:
+   
+    def __init__(self, path_prefix=''):
+        """Class constructor: initialize kernels."""
+        
+        self._kernels = {}
+        for language, (command, script) in _LANGUAGES.iteritems():
+            path = os.path.join(path_prefix, script)
+            self._new_kernel(language, command, path)
     
-    _kernels = {
-        'python': None,
-        'ruby': None,
-    }
-    
+    def _new_kernel(self, language, command, path):
+        """Create and assign a new kernel."""
+        
+        new_kernel = Kernel(command, path)
+        self._kernels[language] = new_kernel
+        
     def __contains__(self, item):
+        """Check if a kernel exists."""
+        
         return item in self._kernels
 
 class Kernel(Popen):
