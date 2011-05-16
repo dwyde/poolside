@@ -5,6 +5,13 @@ import ast
 def make_path(path_prefix, script):
     return os.path.join(*(path_prefix + [script]))
 
+class KernelController:
+    
+    _languages = set(['python', 'ruby'])
+    
+    def __contains__(self, item):
+        return item in self._languages
+
 class Kernel(Popen):
     """A process to execute code.
     

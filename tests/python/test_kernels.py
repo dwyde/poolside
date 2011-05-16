@@ -4,7 +4,7 @@ import os
 import sys
 sys.path.append(os.path.join('..', '..', 'standalone'))
 
-from kernels import Kernel, make_path
+from kernels import Kernel, make_path, KernelController
 
 
 class TestKernel(unittest.TestCase):
@@ -46,6 +46,22 @@ class TestKernel(unittest.TestCase):
         for kernel in self.kernels:
             result = kernel.eval_code('print 5+3')
             self.assertEqual(result, 8)
+
+class TestKernelController(unittest.TestCase):
+    def setUp(self):
+        self.controller = KernelController()
+    
+    def test_has_python(self):
+        python = 'python' in self.controller
+        self.assertEqual(python, True)
+    
+    def test_has_ruby(self):
+        ruby = 'ruby' in self.controller
+        self.assertEqual(ruby, True)
+    
+    def test_empty_language(self):
+        empty = '' in self.controller
+        self.assertEqual(empty, False)
 
 if __name__ == '__main__':
     unittest.main()  
