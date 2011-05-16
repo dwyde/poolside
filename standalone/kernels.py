@@ -42,7 +42,18 @@ class KernelController:
         
         return item in self._kernels
     
-    def delete(self, language):
+    def __del__(self):
+        """Clean up on deletion of this controller."""
+        
+        for language, kernel in self._kernels.iteritems():
+            kernel.terminate()
+    
+    def languages(self):
+        """Return a list of kernel languages."""
+        
+        return self._kernels.keys()
+    
+    def delete_kernel(self, language):
         """Delete a kernel, and kill its underlying process."""
         
         kernel = self._get_kernel(language)

@@ -8,6 +8,9 @@ from kernels import Kernel, KernelController
 
 PATH = os.path.join('..', '..', 'standalone', 'jail', 'kernels')
 
+def check_pid(pid):
+    return os.path.exists('/proc/%d' % pid)
+
 class TestKernel(unittest.TestCase):
 
     def setUp(self):
@@ -51,6 +54,9 @@ class TestKernelController(unittest.TestCase):
     def setUp(self):
         self.controller = KernelController(PATH)
     
+    def tearDown(self):
+        del self.controller
+    
     def test_has_python(self):
         python = 'python' in self.controller
         self.assertEqual(python, True)
@@ -68,11 +74,25 @@ class TestKernelController(unittest.TestCase):
         controller = KernelController(PATH)
         kernel = controller._get_kernel(language)
         pid = kernel.pid
-        self.assertEqual(os.path.exists('/proc/%d' % pid), True)
-        controller.delete(language)
+        self.assertEqual(check_pid(pid), True)
+        controller.delete_kernel(language)
         kernel.wait()
-        self.assertEqual(os.path.exists('/proc/%d' % pid), False)
+        self.assertEqual(check_pid(pid), False)
         self.assertEqual(language in controller, False)
+    
+    def test_delete_controller(self):
+        """
+        Check that deleting a controller will kill child subprocesses.
+        """
+        
+        controller = KernelController(PATH)
+        kernels = [controller._get_kernel(lang) \
+                for lang in controller.languages()]
+        pids = [kernel.pid for kernel in kernels]
+        del controller
+        for pid, kernel in zip(pids, kernels):
+            kernel.wait()
+            self.assertEquals(check_pid(pid), False)
         
 
 if __name__ == '__main__':
