@@ -101,7 +101,14 @@ class KernelController(dict):
         language = message.get('language')
         code = message.get('content')
         kernel = self._get_kernel(language)
-        result = kernel.eval_code(code)
+        
+        # Restart a kernel if unable to write to it.
+        try:
+            result = kernel.eval_code(code)
+        except IOError:
+            self._new_kernel(language, *kernel.arg_list)
+            new_kernel = self._get_kernel(language)
+            result = new_kernel.eval_code(code)
         return respond(result)
 
 def eval_as_python(data_string):
@@ -156,8 +163,8 @@ class Kernel(Popen):
         :param preexec_fn: A function to call in the child process.
         """
         
-        arg_list = [command, filename]
-        Popen.__init__(self, arg_list, stdout=PIPE, stdin=PIPE,
+        self.arg_list = [command, filename]
+        Popen.__init__(self, self.arg_list, stdout=PIPE, stdin=PIPE,
                 preexec_fn=preexec_fn)
     
     def send(self, message):
