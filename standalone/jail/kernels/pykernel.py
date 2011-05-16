@@ -18,7 +18,8 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 
 # 02110-1301, USA.
 
-"""Run a Python "kernel", customized with additional visualization features.
+"""
+Run a Python "kernel", customized with additional visualization features.
 """
 
 _ENCODING = 'utf-8'
