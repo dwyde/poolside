@@ -94,6 +94,17 @@ class TestKernelController(unittest.TestCase):
             kernel.wait()
             self.assertEquals(check_pid(pid), False)
         
+    def test_evaluate(self):
+        commands = {
+            'python': ('print range(4)', '[0, 1, 2, 3]\n'),
+            'ruby': ('puts 5+2', '7\n'),
+        }
+        controller = KernelController(PATH)
+        for language in controller.languages():
+            code, expected = commands[language]
+            message = Message(language, code)
+            result = controller.evaluate(message)
+            self.assertEquals(result, expected)
 
 if __name__ == '__main__':
     unittest.main()  
