@@ -30,12 +30,12 @@ class Kernel(Popen):
         return self._decode(message)
 
     def _encode(self, message):
-        command = message.replace('\n', self._DUMMY_CHAR)
+        command = message.replace(self._TO_REPLACE, self._DUMMY_CHAR)
         return command.encode(self._ENCODING)
     
     def _decode(self, message):
         command = message.decode(self._ENCODING)
-        return command.replace(self._DUMMY_CHAR, '\n')
+        return command.replace(self._DUMMY_CHAR, self._TO_REPLACE)
 
     def _eval_as_python(self, s):
         try:
