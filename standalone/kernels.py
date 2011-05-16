@@ -1,3 +1,8 @@
+"""
+A module to manage `Kernel`s: subprocesses that execute code in
+different programming languages.
+"""
+
 import os
 from subprocess import Popen, PIPE
 import ast
@@ -53,7 +58,7 @@ class KernelController(dict):
     def __del__(self):
         """Clean up on deletion of this controller."""
         
-        for language, kernel in self.iteritems():
+        for kernel in self.values():
             kernel.terminate()
         #dict.__del__(self)
     
@@ -77,6 +82,14 @@ class KernelController(dict):
         kernel = self._get_kernel(language)
         result = kernel.eval_code(code)
         return respond(result)
+
+def eval_as_python(data_string):
+    """Safely try to evaluate strings as builtin data types."""
+    
+    try:
+        return ast.literal_eval(data_string)
+    except (SyntaxError, ValueError):
+        return data_string
 
 class Kernel(Popen):
     """A process to execute code.
@@ -141,17 +154,9 @@ class Kernel(Popen):
         command = message.decode(self._ENCODING)
         return command.replace(self._DUMMY_CHAR, self._TO_REPLACE)
 
-    def _eval_as_python(self, data_string):
-        """Safely try to evaluate strings as builtin data types."""
-        
-        try:
-            return ast.literal_eval(data_string)
-        except (SyntaxError, ValueError):
-            return data_string
-
     def eval_code(self, code):
         """Public method to evaluate code with this kernel."""
         
         self.send(code)
         result = self.recv()
-        return self._eval_as_python(result)
+        return eval_as_python(result)
