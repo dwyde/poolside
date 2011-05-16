@@ -1,3 +1,5 @@
+"""Unit tests for the `kernels` module."""
+
 import unittest
 import os
 
