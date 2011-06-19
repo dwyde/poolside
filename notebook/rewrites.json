@@ -3,7 +3,7 @@
         "from": "poolside/:name",
         "to": "_list/cell/get_cells",
         "query": {
-            "include_docs": true,
+            "include_docs": "true",
             "startkey": [
                 ":name"
             ],
