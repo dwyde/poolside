@@ -51,7 +51,7 @@ Server Configuration
 The JavaScript notebook frontend (in CouchDB) needs to know the eval server's
 address. This is stored in an attachment to the design document ::
 
-  poolside/notebook/eval_server.json
+  poolside/notebook/_attachments/eval_server.json
 
 Running the Standalone Server
 -----------------------------
