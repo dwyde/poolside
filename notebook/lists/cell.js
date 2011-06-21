@@ -5,7 +5,8 @@ function(head, req) {
     
     start({
         'headers': {
-            'Content-Type': 'text/html'
+            'Content-Type': 'text/html',
+            'Cache-Control': 'no-store'
         }
     });
     
