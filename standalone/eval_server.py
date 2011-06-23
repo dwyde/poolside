@@ -33,41 +33,42 @@ import threading
 
 from kernels import KernelController
 
-# Parameters required in client POST requests
-_REQUIRED_FIELDS = set(['worksheet', 'content', 'language'])
-
-def parse_query(file_handle, length):
-    """Parse POST data into a dictionary."""
-    
-    query = cgi.FieldStorage(
-            fp=file_handle,
-            environ={
-                 'REQUEST_METHOD':'POST', 
-                 'CONTENT_LENGTH': length,
-                 'CONTENT_TYPE': 'application/x-www-form-urlencoded'
-            }
-    )
-    return dict((x, query.getvalue(x)) for x in _REQUIRED_FIELDS)
-
 class EvalHandler(BaseHTTPRequestHandler):
     """Evaluate user code, via HTTP requests."""
     
+    # Parameters required in client POST requests
+    REQUIRED_FIELDS = set(['worksheet', 'content', 'language'])
+    
     def do_POST(self):
-        request = parse_query(self.rfile, self.headers['Content-Length'])
+        data = self._parse_query(self.rfile,
+                                self.headers['Content-Length'])
         
         # Check that all required parameters have a value
-        if all(request.values()):
+        if all(data.values()):
             self.send_response(200)
             self.end_headers()
             
-            kernel = self.server.mapper.get_or_create(request['worksheet'])
-            result = kernel.evaluate(request)
+            kernel = self.server.mapper.get_or_create(data['worksheet'])
+            result = kernel.evaluate(data)
             message = json.dumps(result)
             self.wfile.write(message)
         else:
             self.send_response(400, 'Please provide %s.' %
-                                ", ".join(_REQUIRED_FIELDS))
+                                ", ".join(self.REQUIRED_FIELDS))
             self.end_headers()
+    
+    def _parse_query(self, file_handle, length):
+        """Parse POST data into a dictionary."""
+        
+        data = cgi.FieldStorage(
+                fp=file_handle,
+                environ={
+                     'REQUEST_METHOD':'POST', 
+                     'CONTENT_LENGTH': length,
+                     'CONTENT_TYPE': 'application/x-www-form-urlencoded'
+                }
+        )
+        return dict((x, data.getvalue(x)) for x in self.REQUIRED_FIELDS)
     
 class CouchAuthHandler(EvalHandler):
     """Authenticate users against CouchDB before evaluating code."""
@@ -157,7 +158,7 @@ def main():
     """Main function: create and run an `EvalServer`."""
     args = read_arguments()
     address = ('127.0.0.1', args.port)
-    server = EvalServer(address, CouchAuthHandler)
+    server = EvalServer(address, EvalHandler)
     server.set_couch_server(args.couch)
     print 'Ready to serve at ', server.server_address
     server.serve_forever()
