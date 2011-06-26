@@ -19,7 +19,7 @@
 # 02110-1301, USA.
 
 """
-Set up a chroot jail, through Python.
+Run a Python and Ruby code evaluation server, possibly in a chroot jail.
 """
 
 import argparse

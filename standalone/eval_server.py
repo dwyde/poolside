@@ -39,6 +39,12 @@ class EvalHandler(BaseHTTPRequestHandler):
     REQUIRED_FIELDS = set(['worksheet', 'content', 'language'])
     
     def do_POST(self):
+        """
+        Handle HTTP POST requests.
+        
+        Execute code as Ruby or Python -- no authentication required.
+        """
+        
         data = self._parse_query(self.rfile,
                                 self.headers['Content-Length'])
         
@@ -75,6 +81,8 @@ class CouchAuthHandler(EvalHandler):
     session_endpoint = '/_session'
     
     def do_POST(self):
+        """Authenticate HTTP POST requests against a CouchDB."""
+        
         logged_in = self._authenticate()
         if logged_in:
             EvalHandler.do_POST(self)
