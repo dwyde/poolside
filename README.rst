@@ -12,7 +12,7 @@ A standalone Python HTTP server executes code and returns results, via AJAX.
 Security Notes
 --------------
 The current security features on the evaluation server are chroot jails and 
-resource limits.
+resource limits. If you don't use the chroot jail, all security bets are off.
  
 Warning: notebooks can access any kernel, but the client-side permissions
 should work properly.
