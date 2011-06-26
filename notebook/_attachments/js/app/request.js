@@ -50,12 +50,7 @@ function Request(type, cell_id) {
  * @param {string} worksheet_name The name of the current worksheet.
  */
 Request._init_once = function(worksheet_name) {
-  $.getJSON(
-    '../../eval_server.json',
-    function(data, textStatus, jqXHR) {
-      Request.prototype.endpoint = '/_eval';
-    }
-  );
+  Request.prototype.endpoint = '/_eval';
   Request.prototype.worksheet = worksheet_name;
   Request.prototype.choices = 'text python ruby';
 };
