@@ -17,7 +17,7 @@ resource limits.
 Warning: notebooks can access any kernel, but the client-side permissions
 should work properly.
 
-Nginx should be used to allow SSL connections to CouchDB. Otherwise,
+You should configure CouchDB 1.1.0 to use SSL. Otherwise,
 plain text passwords and authentication cookies will be transmitted over
 the network.
 
@@ -29,11 +29,10 @@ Dependencies
 ------------
 To run this software, you will need the following packages:
     
-  - `Python <http://python.org>`_ 2.6 or 2.7
-  - `CouchDB <http://couchdb.apache.org>`_ >= 1.0.1
+  - `Python <http://python.org>`_ 2.7
+  - `CouchDB <http://couchdb.apache.org>`_ 1.1.0
   - `CouchApp <http://couchapp.org>`_
   - `Ruby <http://www.ruby-lang.org/en/>`_ >= 1.9.1 (to make Ruby kernels work)
-  - `nginx <http://nginx.org/>`_ Tested with 1.0.1 (for SSL).
 
 Installation into CouchDB
 -------------------------
@@ -49,25 +48,36 @@ or ::
 Server Configuration
 --------------------
 The JavaScript notebook frontend (in CouchDB) needs to know the eval server's
-address. This is stored in an attachment to the design document ::
+address. This should be configured in CouchDB's ``local.ini`` file ::
 
-  poolside/notebook/_attachments/eval_server.json
+  [httpd_global_handlers]
+  _eval = {couch_httpd_proxy, handle_proxy_req, <<"http://localhost:8283">>}
+
+where ``http://localhost:8283`` can be replaced by the address at which
+your evaluation server is running.
 
 Running the Standalone Server
 -----------------------------
 Example call ::
 
   cd poolside/standalone
-  sudo python setup_jail.py -p 8283 -c http://localhost:5984
+  sudo python run_server -p 8283 -c http://localhost:5984 -j
 
-We need to be root in order to create the chroot jail, but the main server
+or, to skip CouchDB authentication and the chroot jail ::
+  
+  python run_server.py
+
+You need to be root in order to create the chroot jail, but the server
 process drops privileges immediately after doing so.
 
 Command Line Arguments
 ~~~~~~~~~~~~~~~~~~~~~~
 
--c couch_server              URL of the CouchDB server.
+-c couch_server              URL of a CouchDB server to use for
+                             authentication. If absent, all well-formed
+                             requests will be accepted.
 -p port	                     Port on which the evaluation server will listen.
+-j jail                      Use a chroot jail (requires root privileges).
 
 Accessing Notebooks
 -------------------
@@ -84,6 +94,3 @@ This project has had a number of different architectures, so its documentation
 may lag behind the actual code.
 
 There's currently only one type of JavaScript visualization.
-
-A sample `nginx` configuration, tested with version 1.0.1, is at
-``poolside/conf/nginx.conf``.
