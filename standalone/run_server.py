@@ -22,29 +22,35 @@
 Set up a chroot jail, through Python.
 """
 
+import argparse
 import os
 import pwd
 import grp
 
-from eval_server import main
+from eval_server import EvalServer, EvalHandler, CouchAuthHandler
+from config import (DEFAULT_PORT, JAIL_ROOT, JAIL_USER, JAIL_GROUP,
+                   KERNEL_DIR)
 
-NEW_USER = 'nobody'
-NEW_GROUP = 'nogroup' # 'nobody'
-NEW_ROOT = 'jail'
-
-def jail_dir(new_root):
-    """Determine the directory in which to create a chroot jail."""
+def read_arguments():
+    """Process command line arguments."""
     
-    current_dir = os.path.abspath(os.getcwd())
-    return os.path.join(current_dir, new_root)
+    parser = argparse.ArgumentParser(description='An HTTP server to run code')
+    parser.add_argument('-p', '--port', type=int, default=DEFAULT_PORT,
+                       help='port on which the server will run')
+    parser.add_argument('-c', '--couch', dest='couch', default=None,
+                       help='address at which CouchDB is running')
+    parser.add_argument('-j', '--jail', action='store_true',
+                        help='use a chroot jail (requires root privileges)')
+    args = parser.parse_args()
+    return args
 
 def setup_jail():
     """Create and enter the chroot jail."""
     
     # Choose a new user, group, and root directory.
-    new_uid = pwd.getpwnam(NEW_USER)[2]
-    new_gid = grp.getgrnam(NEW_GROUP)[2]
-    root_dir = jail_dir(NEW_ROOT)
+    new_uid = pwd.getpwnam(JAIL_USER)[2]
+    new_gid = grp.getgrnam(JAIL_GROUP)[2]
+    root_dir = os.path.join(os.path.abspath(os.getcwd()), JAIL_ROOT)
 
     # Set up the jail.
     os.chdir(root_dir)
@@ -52,6 +58,33 @@ def setup_jail():
     os.setgid(new_gid)
     os.setuid(new_uid)
 
+def main():
+    """
+    Main function: create and run an `EvalServer`.
+    
+    Authenticate against a CouchDB server, if one is supplied.
+    Use a chroot jail if the appropriate flag is specified.
+    """
+    
+    args = read_arguments()
+    
+    # Set up server
+    address = ('127.0.0.1', args.port)
+    if args.couch:
+        server = EvalServer(address, CouchAuthHandler)
+        server.set_couch_server(args.couch)
+    else:
+        server = EvalServer(address, EvalHandler)
+    
+    # Possibly set up chroot jail (as specified in the "config.py" file)
+    if args.jail:
+        setup_jail()
+        server.set_kernel_dir(KERNEL_DIR)
+    else:
+        server.set_kernel_dir(os.path.join(JAIL_ROOT, KERNEL_DIR))
+    
+    print 'Ready to serve at ', server.server_address
+    server.serve_forever()
+
 if __name__ == '__main__':
-    setup_jail()
     main()
