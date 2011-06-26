@@ -51,7 +51,7 @@ def respond(content, msg_type='output'):
 class KernelController(dict):
     """A class to wrap `Kernel`s for external use."""
     
-    def __init__(self, path_prefix='kernels'):
+    def __init__(self, path_prefix='jail/kernels'):
         """Class constructor: initialize kernels."""
         
         dict.__init__(self)

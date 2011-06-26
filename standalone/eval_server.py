@@ -24,7 +24,6 @@ Run an HTTP server to evaluate users' code.
 
 from BaseHTTPServer import HTTPServer, BaseHTTPRequestHandler
 from SocketServer import ThreadingMixIn
-import argparse
 import cgi
 import json
 import Cookie
@@ -48,7 +47,7 @@ class EvalHandler(BaseHTTPRequestHandler):
             self.send_response(200)
             self.end_headers()
             
-            kernel = self.server.mapper.get_or_create(data['worksheet'])
+            kernel = self.server.get_or_create(data['worksheet'])
             result = kernel.evaluate(data)
             message = json.dumps(result)
             self.wfile.write(message)
@@ -107,61 +106,36 @@ class CouchAuthHandler(EvalHandler):
         else:
             return userCtx.get('name')
 
-class KernelMapper:
-    """
-    Map worksheet ID's to kernels.
-    
-    There can be many readers, but there is a thread lock to write.
-    """
-    
-    def __init__(self):
-        """Class constructor."""
-        
-        self.kernels = {}
-        self.lock = threading.Lock()
-    
-    def get_or_create(self, worksheet_id, **kwargs):
-        """Return existing kernels and create nonexistent ones."""
-        
-        if worksheet_id not in self.kernels:
-            self.lock.acquire()
-            self.kernels[worksheet_id] = KernelController(**kwargs)
-            self.lock.release()
-        return self.kernels[worksheet_id]
-
 class EvalServer(ThreadingMixIn, HTTPServer):
     """Handle requests in a separate thread."""
     
-    # An object to manage kernels.
-    mapper = KernelMapper()
+    # A mapping to manage kernels.
+    kernels = {}
+    
+    # A lock to prevent multiple threads from writing simultaneously
+    lock = threading.Lock()
+    
+    # Path prefix for the directory of kernels
+    kernel_dir = ''
     
     # A CouchDB server's URL
     couch_server = None
+    
+    def get_or_create(self, worksheet):
+        """Return existing kernels and create nonexistent ones."""
+        
+        if worksheet not in self.kernels:
+            self.lock.acquire()
+            self.kernels[worksheet] = KernelController(self.kernel_dir)
+            self.lock.release()
+        return self.kernels[worksheet]
     
     def set_couch_server(self, address):
         """Store a CouchDB URL, for later queries (authentication)."""
         
         self.couch_server = address
-
-def read_arguments():
-    """Process command line arguments."""
     
-    parser = argparse.ArgumentParser(description='An HTTP server to run code')
-    parser.add_argument('-p', '--port', type=int, required=True,
-                       help='port on which the server will run', dest='port')
-    parser.add_argument('-c', '--couch', required=True,
-                       help='address at which CouchDB is running', dest='couch')
-    args = parser.parse_args()
-    return args
-
-def main():
-    """Main function: create and run an `EvalServer`."""
-    args = read_arguments()
-    address = ('127.0.0.1', args.port)
-    server = EvalServer(address, EvalHandler)
-    server.set_couch_server(args.couch)
-    print 'Ready to serve at ', server.server_address
-    server.serve_forever()
-
-if __name__ == '__main__':
-    main()
+    def set_kernel_dir(self, prefix):
+        """Adjust the path to kernels, based on use of a chroot jail."""
+        
+        self.kernel_dir = prefix
